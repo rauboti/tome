@@ -1,0 +1,33 @@
+# Editors / IDEs
+.specify/
+.claude/
+.idea/
+.vscode/
+*.iml
+
+# Environment / secrets (never commit real values)
+.env
+.env.*
+!.env.example
+
+# Backend — Kotlin / Maven
+api/target/
+*.class
+
+# Frontend — Vite / React / Yarn (Berry)
+web/node_modules/
+web/dist/
+web/.yarn/*
+!web/.yarn/patches
+!web/.yarn/plugins
+!web/.yarn/releases
+!web/.yarn/versions
+web/.pnp.*
+# Carries the GitHub Packages token for @rauboti/* — never commit.
+# Copy web/.yarnrc.yml.example to web/.yarnrc.yml and add your token (CI generates it).
+web/.yarnrc.yml
+
+# OS / misc
+.DS_Store
+Thumbs.db
+*.log
