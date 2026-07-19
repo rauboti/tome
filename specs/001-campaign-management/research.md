@@ -19,7 +19,10 @@ calls. Access requires a Tome role — **Admin** or **User** — read from the a
 claim in the JWT (FR-024). The browser never sees Hive tokens.
 
 **Rationale**: Identical to avec/pulse/taskmaster, so it inherits a proven config and the platform's
-security posture (Principle V). Roles-in-JWT means Tome does not query Hive per request.
+security posture (Principle V). Roles-in-JWT means Tome does not query Hive per request. The BFF/JWKS
+setup (security filter chain, session cookie, client + resource-server config) is **lifted from
+taskmaster/pulse** and adapted for tome's client-id/URLs — new code is the Tome role gate only
+(a principal without an `Admin`/`User` role is denied, FR-024).
 
 **Alternatives considered**: A Tome-local user/role store — rejected (Constitution Principle V:
 identity is Hive's). Public-client SPA holding tokens — rejected (tokens would reach the browser).

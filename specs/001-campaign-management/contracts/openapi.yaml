@@ -337,6 +337,29 @@ paths:
     post:
       summary: End the encounter (DM only)
       responses: { "200": { description: Ended, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } } }
+  /campaigns/{campaignId}/encounters/{encounterId}/combatants/{combatantId}:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/EncounterId" }
+      - name: combatantId
+        in: path
+        required: true
+        schema: { type: string }
+    patch:
+      summary: Update a combatant mid-combat (DM only) — reveal/hide or adjust initiative
+      description: Changing isRevealed drives the SSE fan-out (players see/lose the combatant live, FR-021)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isRevealed: { type: boolean }
+                initiative: { type: integer }
+      responses:
+        "200": { description: Updated encounter, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
 
   /rolls:
     post:

@@ -245,8 +245,8 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
 
 - **FR-015**: DMs MUST be able to create and maintain NPCs under the campaign's rule set, controlled
   solely by the DM.
-- **FR-016**: DMs MUST be able to keep private notes attached to a campaign that are never visible to
-  players.
+- **FR-016**: DMs MUST be able to keep private content (notes) attached to a campaign that is never
+  visible to players.
 - **FR-017**: DMs MUST be able to optionally run a player character of their own within a campaign
   they run, in addition to controlling the campaign's NPCs, without granting players DM visibility.
 - **FR-018**: DMs MUST be able to record sessions so that campaign state can be prepared before a
@@ -289,8 +289,8 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
   character, subject to the rule-set match.
 - **Session**: A record of a unit of play within a campaign, used to prepare beforehand and continue
   campaign state afterward.
-- **Note / shared content**: DM-authored information marked as either private (DM-only) or shared
-  (visible to all players in the campaign).
+- **Content**: DM-authored information (notes and shared items) marked as either private (DM-only) or
+  shared (visible to all players in the campaign). Named the `content` entity throughout the design.
 - **Encounter**: An active combat within a session — an ordered set of combatants (characters and
   NPCs) with initiative, current turn, and round, run by the DM, with state revealed to the table
   selectively.
@@ -317,7 +317,7 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
 - **SC-006**: During normal play, sheet updates made by an authorized editor become available to other
   authorized viewers of that content within the same session without data loss from concurrent edits.
 - **SC-007**: When the DM reveals a change during a live session, authorized players see the update
-  without manually refreshing, within a few seconds of the change.
+  without manually refreshing, within 3 seconds of the change.
 - **SC-008**: A DM can run a full combat round for a party of up to 6 characters plus NPCs using the
   in-app initiative tracker and dice roller, applying at least one roll result to a sheet, without
   leaving Tome.
