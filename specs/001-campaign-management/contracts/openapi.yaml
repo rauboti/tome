@@ -1,0 +1,570 @@
+openapi: 3.1.0
+info:
+  title: Tome API — Campaign & Character Management
+  version: 0.1.0
+  description: >
+    BFF API for Tome v1 (feature 001-campaign-management). All endpoints require an authenticated
+    session (Hive OAuth via the BFF; session cookie). Authorization is enforced server-side on every
+    read/write and mirrored on the SSE stream. Sheet `data` is shaped by the rule set's definition
+    (GET /rule-sets/{id}); its inner fields are dynamic and not fully enumerated here. Mutable
+    aggregates use optimistic concurrency: send the `version` you read; a stale write returns 409.
+servers:
+  - url: /api
+security:
+  - sessionCookie: []
+
+paths:
+  /auth/me:
+    get:
+      summary: Current user and Tome roles
+      responses:
+        "200":
+          description: Authenticated principal
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [userId, roles]
+                properties:
+                  userId: { type: string, description: Hive subject }
+                  displayName: { type: string }
+                  roles:
+                    type: array
+                    items: { type: string, enum: [Admin, User] }
+                  locale: { type: string, enum: [nb, en] }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /auth/logout:
+    post:
+      summary: End the session
+      responses:
+        "204": { description: Logged out }
+
+  /rule-sets:
+    get:
+      summary: List available rule sets (v1 returns dnd35 only)
+      responses:
+        "200":
+          description: Rule sets
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RuleSetSummary" }
+  /rule-sets/{ruleSetId}:
+    get:
+      summary: Full sheet definition for a rule set (drives the generic renderer)
+      parameters: [ { $ref: "#/components/parameters/RuleSetId" } ]
+      responses:
+        "200":
+          description: Sheet definition
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SheetDefinition" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /characters:
+    get:
+      summary: List the caller's characters
+      responses:
+        "200":
+          description: Characters owned by the caller
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CharacterSummary" }
+    post:
+      summary: Create a character for a rule set
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ruleSetId, name]
+              properties:
+                ruleSetId: { type: string }
+                name: { type: string }
+                data: { type: object, description: Initial sheet values (partial allowed) }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Character" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /characters/{characterId}:
+    parameters: [ { $ref: "#/components/parameters/CharacterId" } ]
+    get:
+      summary: Get a character (owner, or DM of a campaign it belongs to)
+      responses:
+        "200":
+          description: Character with computed derived values and any soft warnings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Character" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      summary: Update a character sheet (optimistic concurrency)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, data]
+              properties:
+                name: { type: string }
+                data: { type: object }
+                version: { type: integer }
+      responses:
+        "200":
+          description: Updated; body includes recomputed derived values and soft warnings (never blocks)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Character" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      summary: Delete a character (owner only; must not be in a campaign)
+      responses:
+        "204": { description: Deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /campaigns:
+    get:
+      summary: Campaigns where the caller is DM or a player
+      responses:
+        "200":
+          description: Campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CampaignSummary" }
+    post:
+      summary: Create a campaign bound to a rule set (caller becomes DM)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, ruleSetId]
+              properties:
+                name: { type: string }
+                ruleSetId: { type: string }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Campaign" }
+  /campaigns/{campaignId}:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get:
+      summary: Campaign detail (DM sees full; player sees limited view)
+      responses:
+        "200":
+          description: Role-aware campaign view
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampaignView" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    patch:
+      summary: Update campaign (e.g. archive) — DM only, optimistic concurrency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version]
+              properties:
+                name: { type: string }
+                status: { type: string, enum: [active, archived] }
+                version: { type: integer }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Campaign" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /campaigns/{campaignId}/members:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get:
+      summary: Roster (DM full; player sees self + shared)
+      responses:
+        "200":
+          description: Members
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Member" }
+    post:
+      summary: DM adds an existing character to the campaign (rule set must match)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [characterId]
+              properties:
+                characterId: { type: string, description: Owner-shared character id }
+      responses:
+        "201":
+          description: Character added to roster
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Member" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: Rule-set mismatch, or character already in a campaign
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+  /campaigns/{campaignId}/members/{membershipId}:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - name: membershipId
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      summary: Remove a member (DM only); the character is not deleted
+      responses:
+        "204": { description: Removed }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /campaigns/{campaignId}/npcs:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get: { summary: List NPCs (DM only), responses: { "200": { description: NPCs, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Npc" } } } } }, "403": { $ref: "#/components/responses/Forbidden" } } }
+    post:
+      summary: Create an NPC under the campaign's rule set (DM only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                data: { type: object }
+                isPrivate: { type: boolean, default: true }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Npc" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /campaigns/{campaignId}/npcs/{npcId}:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - name: npcId
+        in: path
+        required: true
+        schema: { type: string }
+    put:
+      summary: Update an NPC sheet (DM only, optimistic concurrency)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [version, data], properties: { name: { type: string }, data: { type: object }, isPrivate: { type: boolean }, version: { type: integer } } } } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Npc" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      summary: Delete an NPC (DM only)
+      responses: { "204": { description: Deleted }, "403": { $ref: "#/components/responses/Forbidden" } }
+
+  /campaigns/{campaignId}/content:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get:
+      summary: Notes/shared content (DM sees all; player sees only shared)
+      responses:
+        "200": { description: Content, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Content" } } } } }
+    post:
+      summary: Create content (DM only)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [title, visibility], properties: { title: { type: string }, body: { type: string }, visibility: { type: string, enum: [private, shared] } } } } } }
+      responses: { "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Content" } } } }, "403": { $ref: "#/components/responses/Forbidden" } }
+
+  /campaigns/{campaignId}/sessions:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get: { summary: List sessions (DM only), responses: { "200": { description: Sessions, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Session" } } } } } } }
+    post:
+      summary: Create/record a session (DM only)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [title], properties: { title: { type: string }, scheduledFor: { type: string, format: date-time }, notes: { type: string } } } } } }
+      responses: { "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Session" } } } } }
+
+  /campaigns/{campaignId}/encounters:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    post:
+      summary: Start an encounter with initiative-ordered combatants (DM only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [combatants]
+              properties:
+                sessionId: { type: string }
+                combatants:
+                  type: array
+                  items:
+                    type: object
+                    required: [initiative]
+                    properties:
+                      characterId: { type: string }
+                      npcId: { type: string }
+                      initiative: { type: integer }
+                      isRevealed: { type: boolean, default: true }
+      responses:
+        "201": { description: Encounter started (status active), content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /campaigns/{campaignId}/encounters/{encounterId}/next-turn:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/EncounterId" }
+    post:
+      summary: Advance the turn/round (DM only); broadcast to revealed viewers via SSE
+      responses:
+        "200": { description: Updated encounter, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /campaigns/{campaignId}/encounters/{encounterId}/end:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/EncounterId" }
+    post:
+      summary: End the encounter (DM only)
+      responses: { "200": { description: Ended, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } } }
+
+  /rolls:
+    post:
+      summary: Make a server-authoritative dice roll; optionally apply the result to a sheet value
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expression]
+              properties:
+                expression: { type: string, examples: ["2d6+3", "4d6kh3", "1d20+5"] }
+                campaignId: { type: string }
+                encounterId: { type: string }
+                applyTo:
+                  type: object
+                  description: Optional target; applied through the normal sheet-write path (soft warnings apply)
+                  properties:
+                    targetType: { type: string, enum: [character, npc] }
+                    targetId: { type: string }
+                    field: { type: string, examples: ["hp_current"] }
+      responses:
+        "201":
+          description: Recorded roll (also fanned out over SSE to authorized viewers)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Roll" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /campaigns/{campaignId}/stream:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+    get:
+      summary: Subscribe to the campaign's live event stream (Server-Sent Events)
+      description: >
+        Returns `text/event-stream`. The server emits only events the subscriber is authorized to see
+        (same PermissionService as REST). Event `type` values: `sheet.updated`, `content.updated`,
+        `roster.updated`, `combat.updated`, `roll.created`. Each `data` payload is the authorized
+        projection of the changed resource. Clients use `EventSource` (auto-reconnect).
+      responses:
+        "200":
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE frames; each event's data is a StreamEvent JSON object
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: TOME_SESSION
+  parameters:
+    RuleSetId: { name: ruleSetId, in: path, required: true, schema: { type: string } }
+    CharacterId: { name: characterId, in: path, required: true, schema: { type: string } }
+    CampaignId: { name: campaignId, in: path, required: true, schema: { type: string } }
+    EncounterId: { name: encounterId, in: path, required: true, schema: { type: string } }
+  responses:
+    Unauthorized: { description: Not authenticated, content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
+    Forbidden: { description: Authenticated but not authorized, content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
+    NotFound: { description: Not found, content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
+    BadRequest: { description: Invalid request, content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
+    Conflict: { description: Stale version or constraint conflict (optimistic concurrency), content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
+  schemas:
+    Problem:
+      type: object
+      description: RFC-7807 problem detail
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+    RuleWarning:
+      type: object
+      properties:
+        code: { type: string }
+        field: { type: string }
+        message: { type: string }
+    RuleSetSummary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+    SheetDefinition:
+      type: object
+      description: The data-driven sheet schema the web renders; inner field shapes are rule-set specific
+      properties:
+        ruleSetId: { type: string }
+        version: { type: string }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              labelKey: { type: string }
+              fields:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    labelKey: { type: string }
+                    type: { type: string, enum: [int, text, bool, select, list, derived] }
+                    derivedFrom: { type: string, description: Present for derived fields }
+    CharacterSummary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        ruleSetId: { type: string }
+    Character:
+      allOf:
+        - $ref: "#/components/schemas/CharacterSummary"
+        - type: object
+          properties:
+            ownerId: { type: string }
+            hpCurrent: { type: integer, nullable: true }
+            hpMax: { type: integer, nullable: true }
+            data: { type: object, description: Sheet values incl. computed derived values }
+            warnings: { type: array, items: { $ref: "#/components/schemas/RuleWarning" } }
+            version: { type: integer }
+    CampaignSummary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        ruleSetId: { type: string }
+        status: { type: string, enum: [active, archived] }
+        role: { type: string, enum: [dm, player], description: The caller's role in this campaign }
+    Campaign:
+      allOf:
+        - $ref: "#/components/schemas/CampaignSummary"
+        - type: object
+          properties:
+            dmId: { type: string }
+            version: { type: integer }
+    CampaignView:
+      type: object
+      description: Role-aware detail — DM gets full data; player gets self + shared only
+      properties:
+        campaign: { $ref: "#/components/schemas/Campaign" }
+        members: { type: array, items: { $ref: "#/components/schemas/Member" } }
+        sharedContent: { type: array, items: { $ref: "#/components/schemas/Content" } }
+        activeEncounter: { $ref: "#/components/schemas/Encounter" }
+    Member:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        characterId: { type: string }
+        playerId: { type: string }
+        characterName: { type: string }
+    Npc:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        name: { type: string }
+        ruleSetId: { type: string }
+        hpCurrent: { type: integer, nullable: true }
+        hpMax: { type: integer, nullable: true }
+        data: { type: object }
+        isPrivate: { type: boolean }
+        version: { type: integer }
+    Content:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        title: { type: string }
+        body: { type: string }
+        visibility: { type: string, enum: [private, shared] }
+        version: { type: integer }
+    Session:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        title: { type: string }
+        scheduledFor: { type: string, format: date-time, nullable: true }
+        notes: { type: string }
+        status: { type: string, enum: [planned, completed] }
+    Encounter:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        sessionId: { type: string, nullable: true }
+        status: { type: string, enum: [pending, active, ended] }
+        round: { type: integer }
+        currentTurn: { type: integer }
+        combatants:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              characterId: { type: string, nullable: true }
+              npcId: { type: string, nullable: true }
+              name: { type: string }
+              initiative: { type: integer }
+              isRevealed: { type: boolean }
+        version: { type: integer }
+    Roll:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string, nullable: true }
+        encounterId: { type: string, nullable: true }
+        rollerId: { type: string }
+        expression: { type: string }
+        results: { type: array, items: { type: integer } }
+        total: { type: integer }
+        appliedTo:
+          type: object
+          nullable: true
+          properties:
+            targetType: { type: string }
+            targetId: { type: string }
+            field: { type: string }
+    StreamEvent:
+      type: object
+      description: Envelope for SSE frames on /campaigns/{id}/stream
+      properties:
+        type: { type: string, enum: [sheet.updated, content.updated, roster.updated, combat.updated, roll.created] }
+        campaignId: { type: string }
+        data: { type: object, description: Authorized projection of the changed resource }
