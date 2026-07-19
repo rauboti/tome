@@ -31,6 +31,13 @@
 
 ## Notes
 
-- All three scope forks resolved with the maintainer on 2026-07-19 (see spec Clarifications): guided
-  soft-validation, real-time live table, and dice + combat/initiative in scope. No open markers
-  remain. Spec is ready for `/speckit-plan` (optionally `/speckit-clarify` for finer detail first).
+- Session 2026-07-19 resolved three scope forks: guided soft-validation, real-time live table, and
+  dice + combat/initiative in scope.
+- Session 2026-07-20 (`/speckit-clarify`) resolved: Hybrid rule-set model (shared data-driven engine +
+  per-ruleset logic); v1 ships **D&D 3.5 only** with Dark Souls as User Story 5 (P5) and 5E deferred;
+  role-gated access via Hive (Admin/User) with the DM adding players' characters to the roster
+  (in-app invitations deferred to a future Hive capability).
+- Deferred to planning (not blocking): concurrent-edit conflict-resolution policy (SC-006 states the
+  intent — no lost data — but the mechanism, e.g. optimistic locking vs. field merge, is a plan-level
+  decision); the exact way a DM discovers/references a specific player's character to add.
+- No open [NEEDS CLARIFICATION] markers remain. Spec is ready for `/speckit-plan`.

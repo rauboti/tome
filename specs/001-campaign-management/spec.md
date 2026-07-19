@@ -39,29 +39,32 @@ left. Fully testable with a single user and no campaign.
 
 ---
 
-### User Story 2 - Run a campaign and let players join (Priority: P2)
+### User Story 2 - Run a campaign and build its roster (Priority: P2)
 
-A dungeon master (DM) creates a campaign bound to one rule set and invites players. Each player joins
-with a character they own that was built for the same rule set. The DM sees the full campaign roster
-and every participating character; each player sees only their own character sheet plus information
-the DM has chosen to share with the group.
+A dungeon master (DM) creates a campaign bound to one rule set. Players who already have accounts and
+have created characters of that rule set are added to the campaign by the DM. The DM sees the full
+campaign roster and every participating character; each player sees only their own character sheet
+plus information the DM has chosen to share with the group.
 
 **Why this priority**: A campaign turns individual sheets into a shared table. It introduces the two
 distinct audiences the product is defined by — the all-seeing DM and the limited-view player — and
-enforces the rule that a character can only join a campaign of its own rule set. It depends on P1.
+enforces the rule that a character can only belong to a campaign of its own rule set. It depends on
+P1.
 
-**Independent Test**: A DM creates a 5E campaign, a player attempts to join with a 3.5 character (is
-refused) and then with a 5E character (succeeds); verify the DM sees the character while a second
-player cannot see the first player's private sheet.
+**Independent Test**: A DM creates a campaign of the campaign's rule set, a player joins with a
+matching-rule-set character (succeeds); verify the DM sees that character while a second player cannot
+see the first player's private sheet. (The mismatch-refusal path becomes fully exercisable once a
+second rule set exists — see User Story 5; within v1's single rule set it is covered by validation
+tests rather than an end-to-end join attempt.)
 
 **Acceptance Scenarios**:
 
 1. **Given** a signed-in DM, **When** they create a campaign and choose a rule set, **Then** the
    campaign is created bound to that rule set with the creator as its DM.
-2. **Given** an open campaign of rule set X, **When** a player joins with a character of rule set X,
-   **Then** the character is added to the campaign roster.
-3. **Given** an open campaign of rule set X, **When** a player attempts to join with a character of a
-   different rule set, **Then** the system refuses the join and explains the rule-set mismatch.
+2. **Given** a campaign of rule set X, **When** the DM adds a player's character of rule set X,
+   **Then** the character is added to the campaign roster and its owner participates as a player.
+3. **Given** a campaign of rule set X, **When** the DM attempts to add a character of a different rule
+   set, **Then** the system refuses the addition and explains the rule-set mismatch.
 4. **Given** a campaign with several players, **When** a player opens the campaign, **Then** they see
    their own character sheet and shared campaign information but not another player's private sheet.
 5. **Given** a campaign with several players, **When** the DM opens the campaign, **Then** they see
@@ -131,6 +134,38 @@ watching player sees the revealed combat state update live.
 
 ---
 
+### User Story 5 - Add the custom Dark Souls rule set (Priority: P5)
+
+Once the platform works end to end with D&D 3.5, a second rule set — the custom Dark Souls adaptation
+— is added to prove and exercise the shared engine's extensibility. It is introduced by supplying its
+sheet definition and rule-set logic, without altering the shared engine or the dice/combat/sync/
+permissions capabilities. Players can then create Dark Souls characters and join Dark Souls campaigns,
+with the same cross-ruleset join rule (a Dark Souls character cannot join a 3.5 campaign, and vice
+versa).
+
+**Why this priority**: This is the first real test of the Hybrid model (FR-001) and is deliberately
+sequenced after the core product is proven with a single rule set. Its detailed design — including
+whether it derives from D&D 3.5 or 5E and where it deviates — is intentionally deferred and will be
+explored (and this spec amended if needed) when this story is picked up.
+
+**Independent Test**: With the 3.5-based product working, add the Dark Souls rule set's definition and
+logic only; verify a user can create a Dark Souls character and run a Dark Souls campaign through live
+play, that no shared-engine or cross-cutting code changed, and that cross-ruleset joins are refused.
+
+**Acceptance Scenarios**:
+
+1. **Given** the shared sheet engine, **When** the Dark Souls rule set's definition and logic are
+   supplied, **Then** Dark Souls characters and campaigns become available with no change to the
+   shared engine or the dice/combat/sync/permissions capabilities.
+2. **Given** a Dark Souls campaign, **When** a player joins with a Dark Souls character, **Then** the
+   join succeeds; **When** they attempt to join with a 3.5 character, **Then** it is refused.
+
+> **Note (deferred detail)**: The Dark Souls rule set's base lineage (3.5 vs 5E) and its specific
+> deviations are open and will be specified when this story is planned; expect an amendment to this
+> spec at that point.
+
+---
+
 ### Edge Cases
 
 - A user attempts to add a character to a campaign whose rule set differs from the character's rule
@@ -154,11 +189,16 @@ watching player sees the revealed combat state update live.
 
 **Rule sets**
 
-- **FR-001**: System MUST support multiple rule sets, including D&D 3.5, D&D 5E, and a custom Dark
-  Souls adaptation, each defining the structure and fields of a character sheet for characters and
-  NPCs of that rule set.
+- **FR-001**: System MUST support multiple rule sets through a shared sheet engine: each rule set's
+  sheet structure (its sections and fields) is expressed as a definition the engine reads, while
+  rule-set-specific derived-value and validation logic is provided per rule set. Cross-cutting
+  capabilities (character/sheet storage, permissions, real-time sync, dice, combat/initiative) MUST
+  operate over any rule set's sheet without being reimplemented per rule set.
 - **FR-002**: System MUST record the rule set of every character, NPC, and campaign, and MUST treat
   the rule set as fixed for the life of that character or campaign.
+- **FR-023**: v1 MUST ship with D&D 3.5 as the only bundled rule set. The system MUST allow further
+  rule sets to be added later — by supplying a sheet definition plus the rule set's validation/derived
+  logic — without changing the shared sheet engine or the cross-cutting capabilities in FR-001.
 
 **Characters & sheets**
 
@@ -178,10 +218,14 @@ watching player sees the revealed combat state update live.
 
 - **FR-007**: Users MUST be able to create a campaign bound to exactly one rule set, becoming that
   campaign's dungeon master.
-- **FR-008**: System MUST allow players to join a campaign with a character they own, and MUST refuse
-  the join when the character's rule set does not match the campaign's rule set, with a clear reason.
-- **FR-009**: System MUST maintain a campaign roster of participating players and their characters,
-  and allow players to be added and removed without deleting their characters.
+- **FR-008**: System MUST enforce that every character added to a campaign shares the campaign's rule
+  set, refusing the addition with a clear reason on mismatch.
+- **FR-009**: In v1 the DM MUST be able to add existing characters (created by their owners) to the
+  campaign roster and remove them, without deleting the underlying characters; player self-service
+  joining (e.g. invite links) is deferred (see Assumptions).
+- **FR-024**: Access to Tome MUST require a platform (Hive) account carrying a Tome role — **Admin** or
+  **User** — provisioned by a Hive administrator; users without a Tome role MUST NOT be able to use
+  Tome. (The per-campaign DM/player distinction is separate from these platform-wide roles.)
 - **FR-010**: System MUST allow a campaign to be archived or closed while preserving each member's
   characters.
 
@@ -229,9 +273,10 @@ watching player sees the revealed combat state update live.
 
 - **User**: A signed-in person. May be the dungeon master of some campaigns and a player in others.
   Owns characters.
-- **Rule set**: A named system of rules (D&D 3.5, D&D 5E, custom Dark Souls adaptation) that defines
-  the shape of a character sheet and the rules governing its values. Determines campaign/character
-  compatibility.
+- **Rule set**: A named system of rules that determines campaign/character compatibility. Defined in
+  two parts (per FR-001): a **sheet definition** (data: the sections and fields) read by the shared
+  engine, plus **rule-set logic** (derived values and soft validation) provided for that rule set.
+  v1 bundles D&D 3.5; the custom Dark Souls adaptation and D&D 5E are added later.
 - **Character**: A player character owned by a user, built for one rule set. Carries a character sheet.
   Participates in at most one campaign at a time (assumption) of the same rule set.
 - **Character sheet**: The data describing a character or NPC — the fields defined by its rule set
@@ -240,7 +285,8 @@ watching player sees the revealed combat state update live.
   campaign's rule set.
 - **Campaign**: A game run by a DM, bound to one rule set, with a roster of players and their
   characters, NPCs, shared and private content, and sessions.
-- **Membership**: The link between a player's character and a campaign, subject to the rule-set match.
+- **Membership**: The link between a player's character and a campaign, created by the DM adding the
+  character, subject to the rule-set match.
 - **Session**: A record of a unit of play within a campaign, used to prepare beforehand and continue
   campaign state afterward.
 - **Note / shared content**: DM-authored information marked as either private (DM-only) or shared
@@ -257,15 +303,17 @@ watching player sees the revealed combat state update live.
 
 - **SC-001**: A participant can create a character and fill in a complete sheet for a supported rule
   set in a single sitting without needing paper, and retrieve it unchanged on a later visit.
-- **SC-002**: A DM can stand up a campaign and have all players joined with valid characters in under
+- **SC-002**: A DM can stand up a campaign and add all players' valid characters to its roster in under
   15 minutes for a typical group of up to 6 players.
 - **SC-003**: 100% of attempts to join a campaign with a mismatched rule set are refused, and 0% of
   valid same-rule-set joins are refused.
 - **SC-004**: A player can never see another player's private sheet or DM-private content; verified by
   access checks denying 100% of unauthorized-view attempts.
-- **SC-005**: The three launch rule sets (D&D 3.5, D&D 5E, custom Dark Souls adaptation) are each
-  usable end to end — character creation through campaign participation — without code changes to add
-  another character of that rule set.
+- **SC-005**: D&D 3.5 is usable end to end in v1 — character creation, campaign participation, live
+  play — and users can create any number of 3.5 characters without code changes.
+- **SC-009**: A second rule set can be introduced by supplying its sheet definition and rule-set logic
+  alone, with no changes to the shared sheet engine or the dice/combat/sync/permissions capabilities
+  (validated when the Dark Souls rule set is added — User Story 5).
 - **SC-006**: During normal play, sheet updates made by an authorized editor become available to other
   authorized viewers of that content within the same session without data loss from concurrent edits.
 - **SC-007**: When the DM reveals a change during a live session, authorized players see the update
@@ -276,16 +324,25 @@ watching player sees the revealed combat state update live.
 
 ## Assumptions
 
-- **Identity is delegated**: Users authenticate through the platform identity service (per the Tome
-  constitution, Principle V); Tome does not manage its own logins or user store.
+- **Identity is delegated**: Users authenticate through the platform identity service, Hive (per the
+  Tome constitution, Principle V); Tome does not manage its own logins or user store.
+- **Role-gated access (v1)**: Access to Tome requires a Hive-assigned Tome role (**Admin** or
+  **User**), provisioned by a Hive administrator when the account is created. There is no in-app
+  self-service invitation in v1; the DM builds the roster by adding existing players' characters
+  (FR-009, FR-024).
+- **Future invitation flow**: An invitation-link capability is expected to be built in Hive first and
+  later lifted to platform apps, at which point sign-in-and-create-user can be safeguarded so only
+  invited people get accounts. Out of scope for Tome v1; noted to inform the roster/membership design.
 - **One active campaign per character (v1)**: A character participates in at most one campaign at a
   time; multi-campaign characters are out of scope for the baseline.
 - **DM owns the campaign**: The campaign creator is its sole DM for the baseline; co-DMs and handing
   off the DM role are out of scope for v1.
-- **Rule-set definitions are provided, not user-authored (v1)**: The three launch rule sets are
-  defined and maintained by the product; letting end users create entirely new rule sets is out of
-  scope for the baseline (the Dark Souls adaptation is a product-provided custom rule set, not a
-  user-built one).
+- **Single launch rule set**: v1 ships with **D&D 3.5 only**. The custom Dark Souls adaptation is a
+  later increment (User Story 5) and D&D 5E is deferred beyond it. Rule sets are provided and
+  maintained by the product, not authored by end users, in the baseline.
+- **Dark Souls lineage is open**: The Dark Souls rule set will derive from either D&D 3.5 or 5E with
+  deviations where sensible; the specifics are intentionally unresolved until User Story 5 is planned,
+  at which point this spec may be amended.
 - **Web-first**: The baseline targets web browsers on desktop and tablet; native mobile apps and
   offline play are out of scope for v1.
 - **Bilingual**: The interface is available in Norwegian Bokmål and English (per platform
@@ -303,3 +360,18 @@ watching player sees the revealed combat state update live.
   updates propagate to participants live, without manual refresh (FR-019, SC-007).
 - Q: Are dice rolling and combat/initiative tracking in the baseline? → A: **Yes, both** — in-app dice
   roller and combat/initiative tracker are in scope for v1 (FR-020, FR-021, User Story 4).
+
+### Session 2026-07-20
+
+- Q: How are a rule set's sheet structure and validation rules defined? → A: **Hybrid** — a shared
+  data-driven sheet engine reads each rule set's field definitions, with rule-set-specific derived/
+  validation logic in code; cross-cutting dice/combat/sync/permissions are written once over any sheet
+  (FR-001, FR-023, SC-009).
+- Q: Which rule sets launch in v1? → A: **D&D 3.5 only** for the first edition; the custom Dark Souls
+  adaptation becomes its own later story (User Story 5, P5) and D&D 5E is deferred beyond it (FR-023).
+- Q: What is the Dark Souls rule set based on? → A: **Deferred** — it will derive from 3.5 or 5E with
+  deviations, to be detailed (and the spec possibly amended) when User Story 5 is planned.
+- Q: How do players get into a campaign in v1? → A: **DM adds existing characters** — access is gated
+  by a Hive-assigned Tome role (Admin/User); players sign in via Hive and create their own characters,
+  then the DM adds matching-rule-set characters to the campaign. In-app invitation links are deferred
+  to a future Hive capability (FR-009, FR-024, Assumptions).
