@@ -101,6 +101,9 @@ interface RuleSet {
     /** The rule-set id this strategy handles, e.g. `dnd35`. Matches `SheetDefinition.ruleSetId`. */
     fun id(): String
 
+    /** Human-readable name for pickers/summaries, e.g. `D&D 3.5`. */
+    fun name(): String
+
     /** The sheet definition (data) this rule set renders and validates against. */
     fun definition(): SheetDefinition
 
