@@ -56,7 +56,7 @@ every story builds on.
 - [X] T018 [P] Contract test for rule-set endpoints (`GET /api/rule-sets`, `/{id}`) in `api/src/test/kotlin/no/rauboti/tome/rulesets/RuleSetControllerTest.kt`
 - [X] T019 `RuleSetRegistry` + `RuleSetController` (`GET /api/rule-sets`, `/{id}` serving the definition) in `api/src/main/kotlin/no/rauboti/tome/rulesets/`
 - [X] T020 [P] Web app shell/layout (`@rauboti/ui` AppShell/Navbar) + React Router routes in `web/src/components/layout/` and `web/src/pages/`
-- [ ] T021 [P] Web auth/session context + login-redirect handling (`useSession`) in `web/src/auth/`
+- [X] T021 [P] Web auth/session context + login-redirect handling (`useSession`) in `web/src/auth/`
 - [ ] T022 [P] Web i18n setup (i18next init, `nb.json`/`en.json`, English fallback) in `web/src/i18n/`
 - [ ] T023 [P] Definition-driven `SheetRenderer` + field widgets (int/text/bool/select/list/derived) with a Vitest render test in `web/src/components/sheet/`
 - [ ] T024 [P] Typed API client base + Zod schemas for auth & rule-sets in `web/src/api/`
