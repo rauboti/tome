@@ -1,0 +1,109 @@
+{
+  "ruleSetId": "dnd35",
+  "version": "1.0.0",
+  "sections": [
+    {
+      "id": "identity",
+      "labelKey": "dnd35.section.identity",
+      "fields": [
+        { "id": "name", "labelKey": "dnd35.field.name", "type": "text" },
+        { "id": "player", "labelKey": "dnd35.field.player", "type": "text" },
+        { "id": "race", "labelKey": "dnd35.field.race", "type": "text" },
+        { "id": "class", "labelKey": "dnd35.field.class", "type": "text" },
+        { "id": "level", "labelKey": "dnd35.field.level", "type": "int" },
+        {
+          "id": "alignment",
+          "labelKey": "dnd35.field.alignment",
+          "type": "select",
+          "options": [
+            { "value": "LG", "labelKey": "dnd35.alignment.LG" },
+            { "value": "NG", "labelKey": "dnd35.alignment.NG" },
+            { "value": "CG", "labelKey": "dnd35.alignment.CG" },
+            { "value": "LN", "labelKey": "dnd35.alignment.LN" },
+            { "value": "TN", "labelKey": "dnd35.alignment.TN" },
+            { "value": "CN", "labelKey": "dnd35.alignment.CN" },
+            { "value": "LE", "labelKey": "dnd35.alignment.LE" },
+            { "value": "NE", "labelKey": "dnd35.alignment.NE" },
+            { "value": "CE", "labelKey": "dnd35.alignment.CE" }
+          ]
+        },
+        {
+          "id": "size",
+          "labelKey": "dnd35.field.size",
+          "type": "select",
+          "options": [
+            { "value": "small", "labelKey": "dnd35.size.small" },
+            { "value": "medium", "labelKey": "dnd35.size.medium" },
+            { "value": "large", "labelKey": "dnd35.size.large" }
+          ]
+        },
+        { "id": "deity", "labelKey": "dnd35.field.deity", "type": "text" },
+        { "id": "experience", "labelKey": "dnd35.field.experience", "type": "int" }
+      ]
+    },
+    {
+      "id": "abilities",
+      "labelKey": "dnd35.section.abilities",
+      "fields": [
+        { "id": "strength", "labelKey": "dnd35.field.strength", "type": "int" },
+        { "id": "strMod", "labelKey": "dnd35.field.strMod", "type": "derived", "derivedFrom": "floor((strength - 10) / 2)" },
+        { "id": "dexterity", "labelKey": "dnd35.field.dexterity", "type": "int" },
+        { "id": "dexMod", "labelKey": "dnd35.field.dexMod", "type": "derived", "derivedFrom": "floor((dexterity - 10) / 2)" },
+        { "id": "constitution", "labelKey": "dnd35.field.constitution", "type": "int" },
+        { "id": "conMod", "labelKey": "dnd35.field.conMod", "type": "derived", "derivedFrom": "floor((constitution - 10) / 2)" },
+        { "id": "intelligence", "labelKey": "dnd35.field.intelligence", "type": "int" },
+        { "id": "intMod", "labelKey": "dnd35.field.intMod", "type": "derived", "derivedFrom": "floor((intelligence - 10) / 2)" },
+        { "id": "wisdom", "labelKey": "dnd35.field.wisdom", "type": "int" },
+        { "id": "wisMod", "labelKey": "dnd35.field.wisMod", "type": "derived", "derivedFrom": "floor((wisdom - 10) / 2)" },
+        { "id": "charisma", "labelKey": "dnd35.field.charisma", "type": "int" },
+        { "id": "chaMod", "labelKey": "dnd35.field.chaMod", "type": "derived", "derivedFrom": "floor((charisma - 10) / 2)" }
+      ]
+    },
+    {
+      "id": "combat",
+      "labelKey": "dnd35.section.combat",
+      "fields": [
+        { "id": "hpMax", "labelKey": "dnd35.field.hpMax", "type": "int" },
+        { "id": "hpCurrent", "labelKey": "dnd35.field.hpCurrent", "type": "int" },
+        { "id": "armorClass", "labelKey": "dnd35.field.armorClass", "type": "int" },
+        { "id": "initiative", "labelKey": "dnd35.field.initiative", "type": "derived", "derivedFrom": "dexMod" },
+        { "id": "baseAttackBonus", "labelKey": "dnd35.field.baseAttackBonus", "type": "int" }
+      ]
+    },
+    {
+      "id": "saves",
+      "labelKey": "dnd35.section.saves",
+      "fields": [
+        { "id": "fortBase", "labelKey": "dnd35.field.fortBase", "type": "int" },
+        { "id": "fortitude", "labelKey": "dnd35.field.fortitude", "type": "derived", "derivedFrom": "fortBase + conMod" },
+        { "id": "refBase", "labelKey": "dnd35.field.refBase", "type": "int" },
+        { "id": "reflex", "labelKey": "dnd35.field.reflex", "type": "derived", "derivedFrom": "refBase + dexMod" },
+        { "id": "willBase", "labelKey": "dnd35.field.willBase", "type": "int" },
+        { "id": "will", "labelKey": "dnd35.field.will", "type": "derived", "derivedFrom": "willBase + wisMod" }
+      ]
+    },
+    {
+      "id": "skills",
+      "labelKey": "dnd35.section.skills",
+      "fields": [
+        { "id": "skills", "labelKey": "dnd35.field.skills", "type": "list" }
+      ]
+    },
+    {
+      "id": "feats",
+      "labelKey": "dnd35.section.feats",
+      "fields": [
+        { "id": "feats", "labelKey": "dnd35.field.feats", "type": "list" }
+      ]
+    },
+    {
+      "id": "gear",
+      "labelKey": "dnd35.section.gear",
+      "fields": [
+        { "id": "equipment", "labelKey": "dnd35.field.equipment", "type": "list" },
+        { "id": "languages", "labelKey": "dnd35.field.languages", "type": "list" },
+        { "id": "notes", "labelKey": "dnd35.field.notes", "type": "text" }
+      ]
+    }
+  ]
+}

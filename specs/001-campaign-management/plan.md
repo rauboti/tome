@@ -166,3 +166,22 @@ sheet renderer are written lift-ready in case they become shared `@rauboti/*` bu
 | **Optimistic concurrency** (`version` column, 409 on stale write) | SC-006: concurrent edits (DM + player on a shared sheet) must not silently overwrite | Last-write-wins — rejected: silent data loss; field-level CRDT merge — rejected as overkill for a handful of editors (research D5) |
 | **i18n infrastructure** (react-i18next + nb/en bundles) | Constitution Platform Integration (bilingual nb/en); consistent with avec | Single-language UI — rejected by platform convention. Game terminology may remain canonical per the spec assumption, so only chrome/labels are translated (research D7) |
 | **Cross-repo: Hive client registration + Tome `Admin`/`User` roles** | FR-024: access is gated by a Hive-assigned Tome role; the BFF login needs a registered `tome` client | Not a code-complexity item but a **Principle III maintainer-approval flag** — Tome cannot self-provision Hive; this owned change is bundled and surfaced for explicit approval (research D1/D6) |
+
+## Deferred Decisions (revisit)
+
+> Choices intentionally made "good enough for now", flagged for a later pros/cons pass rather than
+> resolved up front. Not blocking; revisit once US1 is exercised end to end.
+
+- **Stored vs. computed derived sheet values.** Today derived fields (ability modifiers, saves,
+  initiative, …) are persisted into the sheet `data` JSONB and recomputed by `RuleSet.computeDerived`
+  on every write (data-model.md; openapi `Character.data` says "incl. computed derived values"). This
+  keeps every reader (combat, dice, SSE, player view) dependent only on `SheetData`, never on the
+  rule-set logic (FR-023/SC-009). **Cost:** storage redundancy + more state that can drift or error.
+  **Alternative to weigh later:** store *only* base inputs and compute derived on read. The sole
+  consumer is the application itself, so a shared "resolve a sheet through its `RuleSet`" read helper
+  is feasible — trading redundancy for a compute-on-read coupling. Motivation: **less player data
+  entry → higher adoption; less stored state → fewer error points.** Decide with real US1 usage in hand.
+- **Iterative attacks from BAB.** `baseAttackBonus` is a single player-entered `int` for v1. At higher
+  levels 3.5 grants extra attacks (`+6/+1`, `+11/+6/+1`, … −5 each, up to 4). A later enhancement can
+  *derive and display* the full iterative-attack sequence from the single BAB value (a read-time
+  presentation concern, so it dovetails with the stored-vs-computed decision above).
