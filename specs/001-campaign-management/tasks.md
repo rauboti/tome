@@ -53,7 +53,7 @@ every story builds on.
 - [X] T015 [P] Author the D&D 3.5 sheet definition (sections, fields, `derivedFrom`) in `api/src/main/resources/rulesets/dnd35/definition.json`
 - [X] T016 `DnD35RuleSet` unit test — `computeDerived` (ability modifiers, saves, BAB) and `validate` (returns warnings, never blocks) in `api/src/test/kotlin/no/rauboti/tome/rulesets/DnD35RuleSetTest.kt`
 - [X] T017 Implement `DnD35RuleSet.computeDerived` + `validate` in `api/src/main/kotlin/no/rauboti/tome/rulesets/DnD35RuleSet.kt` (make T016 pass)
-- [ ] T018 [P] Contract test for rule-set endpoints (`GET /api/rule-sets`, `/{id}`) in `api/src/test/kotlin/no/rauboti/tome/rulesets/RuleSetControllerTest.kt`
+- [X] T018 [P] Contract test for rule-set endpoints (`GET /api/rule-sets`, `/{id}`) in `api/src/test/kotlin/no/rauboti/tome/rulesets/RuleSetControllerTest.kt`
 - [ ] T019 `RuleSetRegistry` + `RuleSetController` (`GET /api/rule-sets`, `/{id}` serving the definition) in `api/src/main/kotlin/no/rauboti/tome/rulesets/`
 - [ ] T020 [P] Web app shell/layout (`@rauboti/ui` AppShell/Navbar) + React Router routes in `web/src/components/layout/` and `web/src/pages/`
 - [ ] T021 [P] Web auth/session context + login-redirect handling (`useSession`) in `web/src/auth/`
