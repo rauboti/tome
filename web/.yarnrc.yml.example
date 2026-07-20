@@ -1,0 +1,17 @@
+# Template for web/.yarnrc.yml (which is gitignored — it carries a secret).
+#
+# Local: copy this file to `.yarnrc.yml` and replace the token placeholder with
+#   a GitHub Personal Access Token that has `read:packages` scope. The real
+#   `.yarnrc.yml` is never committed.
+# CI:    generated from this template by substituting the RAUBOTI_PACKAGE_TOKEN
+#   secret (wired up in the CI workflow).
+nodeLinker: node-modules
+
+npmScopes:
+  rauboti:
+    npmRegistryServer: "https://npm.pkg.github.com"
+    npmAlwaysAuth: true
+    # First-party scope — skip Yarn's new-package quarantine so a just-published
+    # version installs immediately. Public deps keep the default age gate.
+    npmMinimalAgeGate: 0
+    npmAuthToken: "<your-token>"
