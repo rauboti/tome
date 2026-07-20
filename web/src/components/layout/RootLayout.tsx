@@ -1,6 +1,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import { NavLink, Outlet } from 'react-router'
 import { AppShell, ColorModeButton, Navbar, UserMenu } from '@rauboti/ui'
+import { useTranslation } from 'react-i18next'
 import { useSession } from '@/auth/SessionContext'
 
 /**
@@ -10,9 +11,9 @@ import { useSession } from '@/auth/SessionContext'
  * drawer. Session data + sign-out come from `useSession`; RootLayout only renders behind RequireAuth,
  * so the user is always present. Routed pages render through the <Outlet/>.
  *
- * Labels are literal English for now — T022 swaps them for `t(...)`.
  */
 export const RootLayout = () => {
+  const { t } = useTranslation()
   const { user, signOut } = useSession()
   const onSignOut = () => void signOut()
 
@@ -20,7 +21,7 @@ export const RootLayout = () => {
     <UserMenu
       name={user?.displayName}
       onSignOut={onSignOut}
-      signOutLabel="Sign out"
+      signOutLabel={t('auth.signOut')}
       inline={inline}
     />
   )
@@ -29,7 +30,7 @@ export const RootLayout = () => {
     <AppShell
       nav={
         <Navbar
-          brand="Tome"
+          brand={t('app.name')}
           actions={
             <>
               <ColorModeButton />
@@ -40,17 +41,17 @@ export const RootLayout = () => {
         >
           <Navbar.Item asChild>
             <NavLink to="/" end>
-              Campaigns
+              {t('nav.campaigns')}
             </NavLink>
           </Navbar.Item>
           <Navbar.Item asChild>
-            <NavLink to="/characters">Characters</NavLink>
+            <NavLink to="/characters">{t('nav.characters')}</NavLink>
           </Navbar.Item>
         </Navbar>
       }
       footer={
         <Text color="text.muted" fontSize="sm">
-          Tome
+          {t('app.name')}
         </Text>
       }
     >
