@@ -181,6 +181,12 @@ sheet renderer are written lift-ready in case they become shared `@rauboti/*` bu
   consumer is the application itself, so a shared "resolve a sheet through its `RuleSet`" read helper
   is feasible — trading redundancy for a compute-on-read coupling. Motivation: **less player data
   entry → higher adoption; less stored state → fewer error points.** Decide with real US1 usage in hand.
+- **Which sheet values to promote to columns.** v1 promotes only `name`/`rule_set_id`/`user_id` out
+  of the `characters.data` JSONB. HP (`hpMax`/`hpCurrent`) was initially promoted "for combat/dice"
+  but is folded back into `data` for now — it was redundant with the dnd35 sheet fields, and picking
+  promotions off a single rule set risks over-fitting to 3.5. Revisit once Dark Souls (US5) exists:
+  with two rule sets in hand, decide which cross-cutting values (HP, initiative, …) genuinely earn a
+  typed/indexed column for combat/roster queries, and migrate them out then (tracked as a task after US5).
 - **Iterative attacks from BAB.** `baseAttackBonus` is a single player-entered `int` for v1. At higher
   levels 3.5 grants extra attacks (`+6/+1`, `+11/+6/+1`, … −5 each, up to 4). A later enhancement can
   *derive and display* the full iterative-attack sequence from the single BAB value (a read-time
