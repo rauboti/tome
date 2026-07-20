@@ -51,8 +51,8 @@ every story builds on.
 - [X] T013 Sheet engine core types — `SheetData`, `SheetDefinition`, `SheetChange`, `RuleWarning`, and the `RuleSet` interface in `api/src/main/kotlin/no/rauboti/tome/rulesets/RuleSet.kt`
 - [X] T014 [P] JSONB support — Jackson (`tools.jackson`) ObjectMapper wiring + JdbcTemplate `SheetData`⇄`jsonb` conversion in `api/src/main/kotlin/no/rauboti/tome/common/JsonbSupport.kt`
 - [X] T015 [P] Author the D&D 3.5 sheet definition (sections, fields, `derivedFrom`) in `api/src/main/resources/rulesets/dnd35/definition.json`
-- [ ] T016 `DnD35RuleSet` unit test — `computeDerived` (ability modifiers, saves, BAB) and `validate` (returns warnings, never blocks) in `api/src/test/kotlin/no/rauboti/tome/rulesets/DnD35RuleSetTest.kt`
-- [ ] T017 Implement `DnD35RuleSet.computeDerived` + `validate` in `api/src/main/kotlin/no/rauboti/tome/rulesets/DnD35RuleSet.kt` (make T016 pass)
+- [X] T016 `DnD35RuleSet` unit test — `computeDerived` (ability modifiers, saves, BAB) and `validate` (returns warnings, never blocks) in `api/src/test/kotlin/no/rauboti/tome/rulesets/DnD35RuleSetTest.kt`
+- [X] T017 Implement `DnD35RuleSet.computeDerived` + `validate` in `api/src/main/kotlin/no/rauboti/tome/rulesets/DnD35RuleSet.kt` (make T016 pass)
 - [ ] T018 [P] Contract test for rule-set endpoints (`GET /api/rule-sets`, `/{id}`) in `api/src/test/kotlin/no/rauboti/tome/rulesets/RuleSetControllerTest.kt`
 - [ ] T019 `RuleSetRegistry` + `RuleSetController` (`GET /api/rule-sets`, `/{id}` serving the definition) in `api/src/main/kotlin/no/rauboti/tome/rulesets/`
 - [ ] T020 [P] Web app shell/layout (`@rauboti/ui` AppShell/Navbar) + React Router routes in `web/src/components/layout/` and `web/src/pages/`
