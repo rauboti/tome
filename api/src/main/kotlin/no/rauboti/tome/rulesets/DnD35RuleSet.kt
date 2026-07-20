@@ -22,6 +22,8 @@ class DnD35RuleSet(
 
     override fun id(): String = RULE_SET_ID
 
+    override fun name(): String = "D&D 3.5"
+
     override fun definition(): SheetDefinition = sheetDefinition
 
     /**
