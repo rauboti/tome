@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- the provider and its `useSession` hook are
-   one cohesive module; co-locating them (plus the tiny path/schema exports) only costs this file a
-   full HMR reload. */
+   one cohesive module; co-locating them only costs this file a full HMR reload. */
 import {
   createContext,
   useCallback,
@@ -9,20 +8,9 @@ import {
   useState,
 } from 'react'
 import type { ReactNode } from 'react'
-import { z } from 'zod'
-
-/** The BFF login entry point — a full-page navigation (it 302s to Hive, so not a client route). */
-export const LOGIN_PATH = '/auth/login'
-
-/** `GET /api/auth/me` payload (openapi). Roles/locale stay permissive strings — the app only
- *  displays them; the Admin/User gate is enforced server-side (FR-024). */
-export const meSchema = z.object({
-  userId: z.string(),
-  displayName: z.string().optional(),
-  roles: z.array(z.string()),
-  locale: z.string().optional(),
-})
-export type Me = z.infer<typeof meSchema>
+import { ApiError, setOnForbidden } from '@/api/client'
+import { getMe, logout, type Me } from '@/api/schemas'
+import { applyLocale } from '@/i18n'
 
 /** Session state, resolved once the `/api/auth/me` probe settles. `noAccess` is a signed-in Hive
  *  user with no Tome role (the api answers 403, FR-024) — distinct from `unauthenticated` (401). */
@@ -42,22 +30,26 @@ type SessionContextValue = SessionState & {
 const SessionContext = createContext<SessionContextValue | null>(null)
 
 /**
- * Probe `GET /api/auth/me`. The BFF holds the Hive token server-side, so the browser sends only its
- * session cookie (`credentials: 'include'`). 200 → signed in with a Tome role; 401 → not signed in;
- * 403 → signed in but no Tome role (no-access). Any other failure is treated as unauthenticated so
- * the guard falls back to the login screen rather than a blank app.
+ * Probe the session via the shared client. The BFF holds the Hive token server-side, so the browser
+ * sends only its session cookie. 200 → signed in with a Tome role; 401 → not signed in; 403 → signed
+ * in but no Tome role (no-access, FR-024). Whenever a payload arrives its locale is applied *before*
+ * the state lands, so the first paint is already in the right language (FR-015). The probe opts out
+ * of the client's auto-redirect (so the app renders a login screen instead of bouncing to Hive) and
+ * of the global no-access handler (it resolves its own 403).
  */
 const fetchSession = async (signal: AbortSignal): Promise<SessionState> => {
   try {
-    const res = await fetch('/api/auth/me', {
-      credentials: 'include',
+    const user = await getMe({
+      redirectOnUnauthorized: false,
+      notifyForbidden: false,
       signal,
     })
-    if (res.status === 401) return { status: 'unauthenticated', user: null }
-    if (res.status === 403) return { status: 'noAccess', user: null }
-    if (!res.ok) return { status: 'unauthenticated', user: null }
-    return { status: 'authenticated', user: meSchema.parse(await res.json()) }
-  } catch {
+    await applyLocale(user.locale)
+    return { status: 'authenticated', user }
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) {
+      return { status: 'noAccess', user: null }
+    }
     return { status: 'unauthenticated', user: null }
   }
 }
@@ -73,7 +65,13 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     void fetchSession(controller.signal).then((next) => {
       if (!controller.signal.aborted) setState(next)
     })
-    return () => controller.abort()
+    // Any later data call that 403s (e.g. a role revoked mid-session) drops the whole app to the
+    // no-access screen, no matter which request surfaced it.
+    setOnForbidden(() => setState({ status: 'noAccess', user: null }))
+    return () => {
+      controller.abort()
+      setOnForbidden(null)
+    }
   }, [])
 
   const reload = useCallback(async () => {
@@ -85,10 +83,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     // Best-effort server logout; drop to unauthenticated regardless so the guard shows the login
     // screen (a dead session is already effectively logged out).
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
+      await logout()
     } finally {
       setState({ status: 'unauthenticated', user: null })
     }

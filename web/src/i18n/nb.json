@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "Tome"
+  },
+  "nav": {
+    "campaigns": "Kampanjer",
+    "characters": "Karakterer"
+  },
+  "auth": {
+    "signIn": "Logg inn med Hive",
+    "signOut": "Logg ut",
+    "checkingSession": "Sjekker økten din",
+    "tagline": "Kjør rollespillkampanjen din.",
+    "signinUnavailable": "Innlogging er utilgjengelig akkurat nå. Prøv igjen.",
+    "noAccess": {
+      "title": "Ingen tilgang til Tome",
+      "message": "Du er logget inn, men kontoen din har ikke fått tilgang til Tome. Be en administrator om en rolle, og last inn på nytt."
+    }
+  },
+  "common": {
+    "loading": "Laster…",
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "add": "Legg til",
+    "remove": "Fjern",
+    "retry": "Prøv igjen",
+    "error": "Noe gikk galt",
+    "yes": "Ja",
+    "no": "Nei"
+  },
+  "language": {
+    "label": "Språk",
+    "nb": "Norsk",
+    "en": "English"
+  },
+  "dnd35": {
+    "section": {
+      "identity": "Identity",
+      "abilities": "Abilities",
+      "combat": "Combat",
+      "saves": "Saving Throws",
+      "skills": "Skills",
+      "feats": "Feats",
+      "gear": "Gear"
+    },
+    "field": {
+      "name": "Name",
+      "player": "Player",
+      "race": "Race",
+      "class": "Class",
+      "level": "Level",
+      "alignment": "Alignment",
+      "size": "Size",
+      "deity": "Deity",
+      "experience": "Experience",
+      "strength": "Strength",
+      "strMod": "Str Modifier",
+      "dexterity": "Dexterity",
+      "dexMod": "Dex Modifier",
+      "constitution": "Constitution",
+      "conMod": "Con Modifier",
+      "intelligence": "Intelligence",
+      "intMod": "Int Modifier",
+      "wisdom": "Wisdom",
+      "wisMod": "Wis Modifier",
+      "charisma": "Charisma",
+      "chaMod": "Cha Modifier",
+      "hpMax": "Max HP",
+      "hpCurrent": "Current HP",
+      "armorClass": "Armor Class",
+      "initiative": "Initiative",
+      "baseAttackBonus": "Base Attack Bonus",
+      "fortBase": "Fortitude (base)",
+      "fortitude": "Fortitude",
+      "refBase": "Reflex (base)",
+      "reflex": "Reflex",
+      "willBase": "Will (base)",
+      "will": "Will",
+      "skills": "Skills",
+      "feats": "Feats",
+      "equipment": "Equipment",
+      "languages": "Languages",
+      "notes": "Notes"
+    },
+    "alignment": {
+      "LG": "Lawful Good",
+      "NG": "Neutral Good",
+      "CG": "Chaotic Good",
+      "LN": "Lawful Neutral",
+      "TN": "True Neutral",
+      "CN": "Chaotic Neutral",
+      "LE": "Lawful Evil",
+      "NE": "Neutral Evil",
+      "CE": "Chaotic Evil"
+    },
+    "size": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    }
+  }
+}

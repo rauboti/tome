@@ -1,5 +1,6 @@
 import { Center, Spinner } from '@chakra-ui/react'
 import { Outlet } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { useSession } from './SessionContext'
 import { LoginScreen } from './LoginScreen'
 import { NoAccessScreen } from './NoAccessScreen'
@@ -11,11 +12,16 @@ import { NoAccessScreen } from './NoAccessScreen'
  * and the routed app (`<Outlet/>`, inside the RootLayout shell) once signed in with access.
  */
 export const RequireAuth = () => {
+  const { t } = useTranslation()
   const { status } = useSession()
 
   if (status === 'loading') {
     return (
-      <Center minH="100dvh" role="status" aria-label="Checking your session">
+      <Center
+        minH="100dvh"
+        role="status"
+        aria-label={t('auth.checkingSession')}
+      >
         <Spinner />
       </Center>
     )
