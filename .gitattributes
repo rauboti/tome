@@ -1,0 +1,4 @@
+# Normalise line endings to LF in the repo for all text files. Keeps shell
+# scripts (notably api/mvnw) LF so they run inside Linux containers/CI regardless
+# of the contributor's OS, and avoids CRLF churn on Windows checkouts.
+* text=auto eol=lf
