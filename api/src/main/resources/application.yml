@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: tome
+  datasource:
+    # Defaults mirror docker-compose.yml / .env; overridden via env in containers.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/tome}
+    username: ${POSTGRES_USER:tome}
+    password: ${POSTGRES_PASSWORD:tome_local_dev}
+  flyway:
+    # Runs on startup; default location classpath:db/migration. Forward-only.
+    # The empty migration dir is created in T008; the first migration
+    # (V1__create_character.sql) arrives in T028. Until then there is nothing to
+    # apply and startup proceeds.
+    enabled: true
+  mvc:
+    problemdetails:
+      # Render Spring's built-in MVC exceptions (400, 404, 405, …) as RFC-7807
+      # problem+json, uniform with the app's own handlers (T012).
+      enabled: true
+
+# Consumer integration with Hive (research D1, D6). These are config *keys* only;
+# the JWT decoder (resource server) and the OAuth login client are wired from them
+# in the security filter chain (T009) and AuthController (T011).
+tome:
+  hive:
+    # Browser-reachable Hive base: the authorize URL is derived from it, and it is the expected
+    # token `iss` (Hive stamps its external URL).
+    external-url: ${HIVE_EXTERNAL_URL:http://localhost:5000}
+    # Container-reachable Hive base: the token + JWKS URLs are derived from it (server-side calls).
+    # In the shared Docker stack this is Hive's service name; standalone it can match external-url.
+    internal-url: ${HIVE_INTERNAL_URL:http://localhost:5000}
+    client-id: ${HIVE_CLIENT_ID:tome}
+    client-secret: ${HIVE_CLIENT_SECRET:}
+  cors:
+    # Comma-separated; consumed by the CORS configuration (T009).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3040}
+  web:
+    # The public web origin. The BFF redirects the browser here after login AND derives its OAuth
+    # redirect URI from it (`{base-url}/auth/callback`), so this single value defines the callback.
+    # Dev default is the Vite origin; Docker sets it to the nginx origin (see docker-compose.yml).
+    base-url: ${WEB_BASE_URL:http://localhost:5173}
+
+server:
+  port: 8080
+  servlet:
+    session:
+      cookie:
+        name: TOME_SESSION
+        # BFF session hardening: the cookie carries the only client-side auth handle, so it is
+        # HttpOnly (no JS access) and SameSite=Lax (CSRF-resistant while surviving the top-level
+        # OAuth redirect back from Hive). Secure is off for plain-HTTP local dev and set true in
+        # production (SESSION_COOKIE_SECURE=true) where the app is served over HTTPS.
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Actuator exposes only its health probe (used by the compose healthcheck).
+        include: health
+  endpoint:
+    health:
+      access: read-only
