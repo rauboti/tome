@@ -26,7 +26,7 @@ are written first and must FAIL before implementation.
 
 **Purpose**: Scaffold both tiers and the compose stack, mirroring avec/pulse/taskmaster.
 
-- [ ] T001 Create `api/` Spring Boot skeleton — `api/pom.xml` (Boot 4.1 parent, Java 25, package root `no.rauboti.tome`; deps: web, actuator, security, oauth2-client, oauth2-resource-server, jdbc, flyway starter, flyway-database-postgresql, postgresql, jackson-module-kotlin, kotlin-reflect; test: starter-test, spring-security-test, webmvc-test, mockk, spring-boot-testcontainers, testcontainers-postgresql) + `api/mvnw`/`mvnw.cmd`
+- [X] T001 Create `api/` Spring Boot skeleton — `api/pom.xml` (Boot 4.1 parent, Java 25, package root `no.rauboti.tome`; deps: web, actuator, security, oauth2-client, oauth2-resource-server, jdbc, flyway starter, flyway-database-postgresql, postgresql, jackson-module-kotlin, kotlin-reflect; test: starter-test, spring-security-test, webmvc-test, mockk, spring-boot-testcontainers, testcontainers-postgresql) + `api/mvnw`/`mvnw.cmd`
 - [ ] T002 Create `web/` Vite + React skeleton — `web/package.json` (React 19, Chakra v3, `@rauboti/ui` ^0.3.5, react-router 7, zod, i18next/react-i18next; dev: vitest, @testing-library/*, msw), `web/vite.config.ts`, `web/tsconfig*.json`, `web/index.html`
 - [ ] T003 [P] Configure Spotless/ktlint (ADR-0001) in `api/pom.xml`
 - [ ] T004 [P] Configure ESLint + Prettier in `web/eslint.config.js` and `web/.prettierrc`
