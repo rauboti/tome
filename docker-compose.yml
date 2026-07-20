@@ -1,0 +1,78 @@
+services:
+  tome-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tome}
+      POSTGRES_USER: ${POSTGRES_USER:-tome}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tome_local_dev}
+    ports:
+      - "${POSTGRES_PORT:-5436}:5432"
+    volumes:
+      - tome_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-tome} -d ${POSTGRES_DB:-tome}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  tome-api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    depends_on:
+      tome-db:
+        condition: service_healthy
+    environment:
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3040}
+      # Hive (identity) consumer config. Placeholder-friendly so the container starts; set real
+      # values in .env to exercise login/JWT validation. EXTERNAL = browser-reachable (authorize +
+      # iss); INTERNAL = container-reachable (token + JWKS). In the shared stack, INTERNAL becomes
+      # Hive's service name (e.g. http://hive-api:8080).
+      HIVE_EXTERNAL_URL: ${HIVE_EXTERNAL_URL:-http://localhost:5000}
+      HIVE_INTERNAL_URL: ${HIVE_INTERNAL_URL:-http://localhost:5000}
+      HIVE_CLIENT_ID: ${HIVE_CLIENT_ID:-tome}
+      HIVE_CLIENT_SECRET: ${HIVE_CLIENT_SECRET:-tome-local-dev}
+      POSTGRES_USER: ${POSTGRES_USER:-tome}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tome_local_dev}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://tome-db:5432/${POSTGRES_DB:-tome}
+      # Public web origin (the nginx service, published on 3040). The BFF redirects here after login
+      # and derives its OAuth redirect URI from it ({WEB_BASE_URL}/auth/callback). nginx forwards
+      # /auth to the api, so the browser only ever talks to this origin.
+      WEB_BASE_URL: ${WEB_BASE_URL:-http://localhost:3040}
+    ports:
+      - "5040:8080"
+    healthcheck:
+      # busybox wget (alpine JRE) — Actuator's liveness probe.
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  tome-web:
+    build:
+      context: ./web
+      secrets:
+        - rauboti_token
+    restart: unless-stopped
+    depends_on:
+      tome-api:
+        condition: service_healthy
+    ports:
+      - "3040:80"
+
+volumes:
+  tome_pgdata:
+
+secrets:
+  # @rauboti/ui registry token, consumed only at web build time (BuildKit secret;
+  # never lands in an image layer). Export RAUBOTI_PACKAGE_TOKEN or set it in .env.
+  rauboti_token:
+    environment: RAUBOTI_PACKAGE_TOKEN

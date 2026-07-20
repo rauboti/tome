@@ -1,0 +1,9 @@
+# Build output and local cruft — keep the build context to the wrapper + sources.
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+*.log
+*.md
+hs_err_pid*

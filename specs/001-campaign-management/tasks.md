@@ -29,8 +29,8 @@ are written first and must FAIL before implementation.
 - [X] T001 Create `api/` Spring Boot skeleton — `api/pom.xml` (Boot 4.1 parent, Java 25, package root `no.rauboti.tome`; deps: web, actuator, security, oauth2-client, oauth2-resource-server, jdbc, flyway starter, flyway-database-postgresql, postgresql, jackson-module-kotlin, kotlin-reflect; test: starter-test, spring-security-test, webmvc-test, mockk, spring-boot-testcontainers, testcontainers-postgresql) + `api/mvnw`/`mvnw.cmd`
 - [X] T002 Create `web/` Vite + React skeleton — `web/package.json` (React 19, Chakra v3, `@rauboti/ui` ^0.3.5, react-router 7, zod, i18next/react-i18next; dev: vitest, @testing-library/*, msw), `web/vite.config.ts`, `web/tsconfig*.json`, `web/index.html`
 - [X] T003 [P] Configure Spotless/ktlint (ADR-0001) in `api/pom.xml`
-- [ ] T004 [P] Configure ESLint + Prettier in `web/eslint.config.js` and `web/.prettierrc`
-- [ ] T005 Create `tome/docker-compose.yml` (`tome-db` postgres:17-alpine `5436:5432`; `tome-api` build `./api` `5040:8080`; `tome-web` build `./web` `3040:80`; healthchecks; `rauboti_token` BuildKit secret) + `api/Dockerfile` + `web/Dockerfile` + `web/nginx.conf`
+- [X] T004 [P] Configure ESLint + Prettier in `web/eslint.config.js` and `web/.prettierrc`
+- [X] T005 Create `tome/docker-compose.yml` (`tome-db` postgres:17-alpine `5436:5432`; `tome-api` build `./api` `5040:8080`; `tome-web` build `./web` `3040:80`; healthchecks; `rauboti_token` BuildKit secret) + `api/Dockerfile` + `web/Dockerfile` + `web/nginx.conf`
 - [ ] T006 [P] Create `tome/.env.example` and platform-root `tome.env` (Hive consumer: `HIVE_EXTERNAL_URL`/`HIVE_INTERNAL_URL`/`HIVE_CLIENT_ID`/`HIVE_CLIENT_SECRET`, `WEB_BASE_URL`, `CORS_ALLOWED_ORIGINS`, `POSTGRES_*`)
 - [ ] T007 [P] Create `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` (datasource, Hive URLs, CORS, Flyway)
 
