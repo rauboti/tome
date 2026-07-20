@@ -2,3 +2,5 @@ dist
 coverage
 .yarn
 yarn.lock
+# Local, gitignored — carries the @rauboti token; not ours to format.
+.yarnrc.yml
