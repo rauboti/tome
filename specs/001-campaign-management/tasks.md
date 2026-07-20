@@ -31,8 +31,8 @@ are written first and must FAIL before implementation.
 - [X] T003 [P] Configure Spotless/ktlint (ADR-0001) in `api/pom.xml`
 - [X] T004 [P] Configure ESLint + Prettier in `web/eslint.config.js` and `web/.prettierrc`
 - [X] T005 Create `tome/docker-compose.yml` (`tome-db` postgres:17-alpine `5436:5432`; `tome-api` build `./api` `5040:8080`; `tome-web` build `./web` `3040:80`; healthchecks; `rauboti_token` BuildKit secret) + `api/Dockerfile` + `web/Dockerfile` + `web/nginx.conf`
-- [ ] T006 [P] Create `tome/.env.example` and platform-root `tome.env` (Hive consumer: `HIVE_EXTERNAL_URL`/`HIVE_INTERNAL_URL`/`HIVE_CLIENT_ID`/`HIVE_CLIENT_SECRET`, `WEB_BASE_URL`, `CORS_ALLOWED_ORIGINS`, `POSTGRES_*`)
-- [ ] T007 [P] Create `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` (datasource, Hive URLs, CORS, Flyway)
+- [X] T006 [P] Create `tome/.env.example` and platform-root `tome.env` (Hive consumer: `HIVE_EXTERNAL_URL`/`HIVE_INTERNAL_URL`/`HIVE_CLIENT_ID`/`HIVE_CLIENT_SECRET`, `WEB_BASE_URL`, `CORS_ALLOWED_ORIGINS`, `POSTGRES_*`)
+- [X] T007 [P] Create `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` (datasource, Hive URLs, CORS, Flyway)
 
 ---
 

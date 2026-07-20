@@ -1,0 +1,8 @@
+# Test profile: integration tests get their datasource from a throwaway
+# Testcontainers Postgres wired via @ServiceConnection (the harness lands with the
+# first integration test, T026), so no datasource/URL is set here. Flyway applies
+# the schema migrations against that container; no demo seed — tests insert only
+# the rows they need.
+spring:
+  flyway:
+    enabled: true

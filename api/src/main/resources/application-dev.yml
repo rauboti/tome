@@ -1,0 +1,19 @@
+# Dev profile: adds a demo-seed location alongside the schema migrations so a
+# locally-run api serves sample data (seed files arrive with the feature work).
+# Activate with SPRING_PROFILES_ACTIVE=dev — docker-compose sets this for the api
+# service. The default (prod) profile omits db/seed, keeping production seed-free.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+logging:
+  level:
+    no.rauboti.tome: DEBUG
+
+# Local-dev OAuth client secret for the Hive login flow (Authorization-Code + PKCE,
+# used from T009). Matches the client_secret_hash seeded for the `tome` app in
+# hive's demo data (its SHA-256). Local-dev only, non-sensitive — real
+# environments inject HIVE_CLIENT_SECRET via env.
+tome:
+  hive:
+    client-secret: tome-local-dev
