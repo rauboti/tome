@@ -44,7 +44,7 @@ every story builds on.
 **⚠️ CRITICAL**: No user story work begins until this phase is complete.
 
 - [X] T008 Datasource + Flyway wiring and empty migration dir `api/src/main/resources/db/migration/` (config in `application.yml`)
-- [ ] T009 [P] Security filter chain + CORS + BFF config — **lift from taskmaster/pulse** (Hive oauth2-client Authorization-Code+PKCE, resource-server JWKS validation, HTTP-only session cookie), adapting client-id/URLs for tome; **enforce the Tome role gate** (a principal without an `Admin`/`User` role is denied, FR-024) in `api/src/main/kotlin/no/rauboti/tome/config/SecurityConfig.kt`
+- [X] T009 [P] Security filter chain + CORS + BFF config — **lift from taskmaster/pulse** (Hive oauth2-client Authorization-Code+PKCE, resource-server JWKS validation, HTTP-only session cookie), adapting client-id/URLs for tome; **enforce the Tome role gate** (a principal without an `Admin`/`User` role is denied, FR-024) in `api/src/main/kotlin/no/rauboti/tome/config/SecurityConfig.kt`
 - [ ] T010 [P] Auth contract test — `/api/auth/me` returns 401 unauthenticated, 200 with `userId`+`roles` (Admin/User) when authed, **and 403 when authenticated without a Tome role** (FR-024); logout 204 (MockMvc + `spring-security-test`) in `api/src/test/kotlin/no/rauboti/tome/auth/AuthControllerTest.kt`
 - [ ] T011 [P] Implement `AuthController` — `GET /api/auth/me` (userId, roles from JWT `roles` claim, locale), `POST /api/auth/logout` in `api/src/main/kotlin/no/rauboti/tome/auth/AuthController.kt`
 - [ ] T012 [P] RFC-7807 error handling (`@RestControllerAdvice`) + `StaleVersionException` → 409 mapping in `api/src/main/kotlin/no/rauboti/tome/common/`
