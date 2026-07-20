@@ -81,7 +81,7 @@ violation warns but still saves; a stale write returns 409.
 
 ### Implementation for User Story 1
 
-- [ ] T028 [US1] Migration `V1__create_character.sql` (jsonb `data`, promoted `name`/`rule_set_id`/`owner_id`/`hp_current`/`hp_max`, `version`, timestamps) in `api/src/main/resources/db/migration/`
+- [X] T028 [US1] Migration `V1__create_character.sql` (jsonb `data`, promoted `name`/`rule_set_id`/`owner_id`/`hp_current`/`hp_max`, `version`, timestamps) in `api/src/main/resources/db/migration/`
 - [ ] T029 [US1] `Character` model + `CharacterRepository` (JdbcTemplate, jsonb via T014) in `api/src/main/kotlin/no/rauboti/tome/characters/`
 - [ ] T030 [US1] `CharacterService` — create/get/update/delete with `RuleSet.validate` + `computeDerived` and optimistic concurrency in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterService.kt`
 - [ ] T031 [US1] `CharacterController` REST endpoints in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterController.kt`
@@ -210,6 +210,7 @@ engine or cross-cutting code (SC-009).
 - [ ] T080 Performance sanity — sheet save p95 < 300 ms; live update within 3 s (SC-007); a full combat round for ≤6 PCs + NPCs (SC-008)
 - [ ] T081 [P] Ensure Spotless + ESLint/Prettier gates pass in `mvn verify` / web `lint`
 - [ ] T082 [P] i18n coverage — nb/en for all chrome/labels with English fallback
+- [ ] T083 (AFTER US5) Column-promotion review — with a second rule set (Dark Souls) in hand, decide which cross-cutting sheet values (HP `hpMax`/`hpCurrent`, initiative, …) genuinely earn a promoted/indexed column for combat/roster queries vs. staying in `characters.data`, and migrate them out (new `V*__promote_*.sql`) + update the model/repo. See plan.md "Deferred Decisions".
 
 ---
 

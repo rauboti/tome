@@ -23,16 +23,17 @@ The paper-sheet replacement (User Story 1). Owned by a user, built for one rule 
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | UUID PK | |
-| `owner_id` | text | Hive subject of the owner |
+| `user_id` | uuid | Hive subject of the owning user |
 | `rule_set_id` | text | Validated against the engine; fixed for life (FR-002) |
 | `name` | text | Promoted from the sheet for lists/rosters |
-| `hp_current` | int | Promoted for combat/dice; nullable until set |
-| `hp_max` | int | Promoted; nullable until set |
-| `data` | jsonb | The sheet values, shaped by the rule set's definition |
+| `data` | jsonb | The sheet values, shaped by the rule set's definition (incl. HP: `hpMax`/`hpCurrent`) |
 | `version` | int | Optimistic concurrency |
 | `created_at` / `updated_at` | timestamptz | |
 
-- **Relationships**: owned by a user (`owner_id`); may have 0..1 active `membership` (v1: one active
+- **Promotion**: only `name`/`rule_set_id`/`user_id` are promoted out of the sheet for now. HP
+  (`hpMax`/`hpCurrent`) lives inside `data` — which sheet values earn a promoted column (for combat
+  queries etc.) is deferred until the second rule set (Dark Souls, US5) exists to generalize from.
+- **Relationships**: owned by a user (`user_id`); may have 0..1 active `membership` (v1: one active
   campaign per character — Assumptions).
 - **Validation**: `rule_set_id` must be recognized; `data` validated by `RuleSet.validate` on write
   (warnings only, never blocks — FR-005); derived values recomputed by `RuleSet.computeDerived` on
