@@ -75,7 +75,7 @@ violation warns but still saves; a stale write returns 409.
 
 ### Tests for User Story 1 (write first, must FAIL) ⚠️
 
-- [ ] T025 [P] [US1] Contract test for `/api/characters` (POST/GET/PUT/DELETE) against openapi in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterContractTest.kt`
+- [X] T025 [P] [US1] Contract test for `/api/characters` (POST/GET/PUT/DELETE) against openapi in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterContractTest.kt`
 - [ ] T026 [P] [US1] Integration test (Testcontainers) — create→edit→reload persistence, derived values recomputed on write, soft warning returned without blocking, `409` on stale `version` in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterIntegrationTest.kt`
 - [ ] T027 [P] [US1] Web test — `SheetRenderer` edit flow, derived-value display, warning banner, version-conflict handling (Vitest/RTL/MSW) in `web/src/components/characters/CharacterSheet.test.tsx`
 
