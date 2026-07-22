@@ -51,28 +51,28 @@ class AuthControllerTest : IntegrationTest() {
     fun `me returns userId and roles for a User-role caller`() {
         val sub = UUID.randomUUID()
         mvc
-            .get("/api/auth/me") { with(user(sub, "User")) }
+            .get("/api/auth/me") { with(user(sub, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.userId") { value(sub.toString()) }
-                jsonPath("$.roles[0]") { value("User") }
+                jsonPath("$.roles[0]") { value("user") }
             }
     }
 
     @Test
     fun `me is accessible to an Admin-role caller (gate accepts Admin too)`() {
         mvc
-            .get("/api/auth/me") { with(user(roles = arrayOf("Admin"))) }
+            .get("/api/auth/me") { with(user(roles = arrayOf("admin"))) }
             .andExpect {
                 status { isOk() }
-                jsonPath("$.roles[0]") { value("Admin") }
+                jsonPath("$.roles[0]") { value("admin") }
             }
     }
 
     @Test
     fun `logout returns 204 for an authenticated caller`() {
         mvc
-            .post("/api/auth/logout") { with(user(roles = arrayOf("User"))) }
+            .post("/api/auth/logout") { with(user(roles = arrayOf("user"))) }
             .andExpect { status { isNoContent() } }
     }
 }

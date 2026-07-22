@@ -14,10 +14,11 @@ export const sheetValuesSchema = z.record(z.string(), z.unknown())
 export type SheetValues = z.infer<typeof sheetValuesSchema>
 
 /** A soft validation finding (openapi `RuleWarning`): guidance, never a block (FR-005). `field` is
- *  the offending field id, or absent for a sheet-wide warning. */
+ *  the offending field id, or `null` for a sheet-wide warning — the BFF serializes it from a Kotlin
+ *  nullable, so `.nullish()` (not `.optional()`, which would reject the explicit `null`). */
 export const ruleWarningSchema = z.object({
   code: z.string(),
-  field: z.string().optional(),
+  field: z.string().nullish(),
   message: z.string(),
 })
 export type RuleWarning = z.infer<typeof ruleWarningSchema>

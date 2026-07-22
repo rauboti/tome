@@ -56,7 +56,7 @@ class CharacterContractTest : IntegrationTest() {
         val body =
             mvc
                 .post("/api/characters") {
-                    with(user(owner, "User"))
+                    with(user(owner, "user"))
                     contentType = MediaType.APPLICATION_JSON
                     content = """{"ruleSetId":"dnd35","name":"$name","data":{"strength":16}}"""
                 }.andReturn()
@@ -84,7 +84,7 @@ class CharacterContractTest : IntegrationTest() {
         val sub = UUID.randomUUID()
         mvc
             .post("/api/characters") {
-                with(user(sub, "User"))
+                with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"ruleSetId":"dnd35","name":"Alaric","data":{"strength":16}}"""
             }.andExpect {
@@ -101,7 +101,7 @@ class CharacterContractTest : IntegrationTest() {
     fun `creating a character without the required fields returns 400`() {
         mvc
             .post("/api/characters") {
-                with(user(roles = arrayOf("User")))
+                with(user(roles = arrayOf("user")))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{}"""
             }.andExpect { status { isBadRequest() } }
@@ -112,7 +112,7 @@ class CharacterContractTest : IntegrationTest() {
         val sub = UUID.randomUUID()
         val id = createCharacter(sub, name = "Brenna")
         mvc
-            .get("/api/characters") { with(user(sub, "User")) }
+            .get("/api/characters") { with(user(sub, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$[?(@.id == '$id')].name") { value("Brenna") }
@@ -125,7 +125,7 @@ class CharacterContractTest : IntegrationTest() {
         val sub = UUID.randomUUID()
         val id = createCharacter(sub)
         mvc
-            .get("/api/characters/$id") { with(user(sub, "User")) }
+            .get("/api/characters/$id") { with(user(sub, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.id") { value(id) }
@@ -138,7 +138,7 @@ class CharacterContractTest : IntegrationTest() {
     @Test
     fun `getting an unknown character returns 404`() {
         mvc
-            .get("/api/characters/${UUID.randomUUID()}") { with(user(roles = arrayOf("User"))) }
+            .get("/api/characters/${UUID.randomUUID()}") { with(user(roles = arrayOf("user"))) }
             .andExpect { status { isNotFound() } }
     }
 
@@ -148,7 +148,7 @@ class CharacterContractTest : IntegrationTest() {
         val id = createCharacter(sub)
         mvc
             .put("/api/characters/$id") {
-                with(user(sub, "User"))
+                with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"name":"Alaric the Bold","data":{"strength":18},"version":0}"""
             }.andExpect {
@@ -164,7 +164,7 @@ class CharacterContractTest : IntegrationTest() {
         val id = createCharacter(sub)
         mvc
             .put("/api/characters/$id") {
-                with(user(sub, "User"))
+                with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"data":{"strength":18},"version":99}"""
             }.andExpect { status { isConflict() } }
@@ -175,10 +175,10 @@ class CharacterContractTest : IntegrationTest() {
         val sub = UUID.randomUUID()
         val id = createCharacter(sub)
         mvc
-            .delete("/api/characters/$id") { with(user(sub, "User")) }
+            .delete("/api/characters/$id") { with(user(sub, "user")) }
             .andExpect { status { isNoContent() } }
         mvc
-            .get("/api/characters/$id") { with(user(sub, "User")) }
+            .get("/api/characters/$id") { with(user(sub, "user")) }
             .andExpect { status { isNotFound() } }
     }
 }

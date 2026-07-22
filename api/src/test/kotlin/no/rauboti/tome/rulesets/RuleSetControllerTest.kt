@@ -36,7 +36,7 @@ class RuleSetControllerTest : IntegrationTest() {
     @Test
     fun `lists the bundled dnd35 rule set as a summary`() {
         mvc
-            .get("/api/rule-sets") { with(user("User")) }
+            .get("/api/rule-sets") { with(user("user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$[0].id") { value("dnd35") }
@@ -47,7 +47,7 @@ class RuleSetControllerTest : IntegrationTest() {
     @Test
     fun `returns the full dnd35 sheet definition`() {
         mvc
-            .get("/api/rule-sets/dnd35") { with(user("User")) }
+            .get("/api/rule-sets/dnd35") { with(user("user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.ruleSetId") { value("dnd35") }
@@ -58,7 +58,7 @@ class RuleSetControllerTest : IntegrationTest() {
     @Test
     fun `an unknown rule set id returns 404`() {
         mvc
-            .get("/api/rule-sets/does-not-exist") { with(user("User")) }
+            .get("/api/rule-sets/does-not-exist") { with(user("user")) }
             .andExpect { status { isNotFound() } }
     }
 }

@@ -54,7 +54,7 @@ class CharacterIntegrationTest : IntegrationTest() {
         val body =
             mvc
                 .post("/api/characters") {
-                    with(user(owner, "User"))
+                    with(user(owner, "user"))
                     contentType = MediaType.APPLICATION_JSON
                     content = """{"ruleSetId":"dnd35","name":"$name","data":$data}"""
                 }.andReturn()
@@ -70,11 +70,13 @@ class CharacterIntegrationTest : IntegrationTest() {
         val id = postCharacter(owner, "Aria", """{"level":3,"notes":"scout","feats":["Dodge"]}""")["id"]
 
         mvc
-            .get("/api/characters/$id") { with(user(owner, "User")) }
+            .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.name") { value("Aria") }
                 jsonPath("$.ruleSetId") { value("dnd35") }
+                // The promoted name is seeded into the sheet, so the rendered "Name" field is not blank.
+                jsonPath("$.data.name") { value("Aria") }
                 jsonPath("$.data.level") { value(3) }
                 jsonPath("$.data.notes") { value("scout") }
                 jsonPath("$.data.feats[0]") { value("Dodge") }
@@ -93,7 +95,7 @@ class CharacterIntegrationTest : IntegrationTest() {
 
         // GET proves the derived values were computed on write and round-trip through storage.
         mvc
-            .get("/api/characters/$id") { with(user(owner, "User")) }
+            .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.data.strMod") { value(3) } // floor((16-10)/2)
@@ -113,7 +115,7 @@ class CharacterIntegrationTest : IntegrationTest() {
 
         mvc
             .put("/api/characters/$id") {
-                with(user(owner, "User"))
+                with(user(owner, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"data":{"strength":18},"version":${created.int("version")}}"""
             }.andExpect {
@@ -123,7 +125,7 @@ class CharacterIntegrationTest : IntegrationTest() {
             }
 
         mvc
-            .get("/api/characters/$id") { with(user(owner, "User")) }
+            .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.data.strength") { value(18) }
@@ -137,7 +139,7 @@ class CharacterIntegrationTest : IntegrationTest() {
         // Strength 0 is below the 3.5 minimum → a soft warning, but the write must still succeed.
         mvc
             .post("/api/characters") {
-                with(user(owner, "User"))
+                with(user(owner, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"ruleSetId":"dnd35","name":"Cursed","data":{"strength":0}}"""
             }.andExpect {
@@ -158,7 +160,7 @@ class CharacterIntegrationTest : IntegrationTest() {
         // First edit wins, bumping the version.
         mvc
             .put("/api/characters/$id") {
-                with(user(owner, "User"))
+                with(user(owner, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"data":{"strength":12},"version":$stale}"""
             }.andExpect { status { isOk() } }
@@ -166,14 +168,14 @@ class CharacterIntegrationTest : IntegrationTest() {
         // Second edit carries the now-stale version → rejected.
         mvc
             .put("/api/characters/$id") {
-                with(user(owner, "User"))
+                with(user(owner, "user"))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"data":{"strength":99},"version":$stale}"""
             }.andExpect { status { isConflict() } }
 
         // The winning edit stands; the stale write left no trace.
         mvc
-            .get("/api/characters/$id") { with(user(owner, "User")) }
+            .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {
                 status { isOk() }
                 jsonPath("$.data.strength") { value(12) }
