@@ -97,14 +97,20 @@ describe('SheetRenderer', () => {
     expect(onChange).toHaveBeenLastCalledWith('level', 12)
   })
 
-  test('a select renders its options and reports the chosen value', async () => {
+  test('a select field shows the chosen label and reports the picked value', async () => {
     const onChange = renderSheet({ alignment: 'LG' })
 
-    const select = screen.getByRole('combobox', { name: 'Alignment' })
-    expect(
-      screen.getByRole('option', { name: 'Chaotic Evil' }),
-    ).toBeInTheDocument()
-    await userEvent.selectOptions(select, 'CE')
+    // The combobox input shows the current selection's label, not its raw value.
+    const combo = screen.getByRole('combobox', { name: 'Alignment' })
+    expect(combo).toHaveValue('Lawful Good')
+
+    // Open the dropdown (chevron toggle) and pick another alignment.
+    await userEvent.click(
+      screen.getByRole('button', { name: /toggle options/i }),
+    )
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'Chaotic Evil' }),
+    )
 
     expect(onChange).toHaveBeenLastCalledWith('alignment', 'CE')
   })

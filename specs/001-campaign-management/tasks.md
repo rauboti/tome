@@ -86,7 +86,7 @@ violation warns but still saves; a stale write returns 409.
 - [X] T030 [US1] `CharacterService` — create/get/update/delete with `RuleSet.validate` + `computeDerived` and optimistic concurrency in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterService.kt`
 - [X] T031 [US1] `CharacterController` REST endpoints in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterController.kt`
 - [X] T032 [US1] Web characters API client + Zod schemas in `web/src/api/characters.ts`
-- [ ] T033 [US1] Web `CharactersPage` (list + create dialog) in `web/src/pages/CharactersPage.tsx` and `web/src/components/characters/`
+- [X] T033 [US1] Web `CharactersPage` (list + create dialog) in `web/src/pages/CharactersPage.tsx` and `web/src/components/characters/`
 - [ ] T034 [US1] Web character sheet edit screen using `SheetRenderer` (save/version handling, warnings) in `web/src/components/characters/CharacterSheet.tsx`
 
 **Checkpoint**: US1 is a fully functional, independently testable MVP.

@@ -18,7 +18,7 @@
   "dependencies": {
     "@chakra-ui/react": "^3.36.0",
     "@emotion/react": "^11.14.0",
-    "@rauboti/ui": "^0.3.5",
+    "@rauboti/ui": "^0.4.2",
     "i18next": "^26.3.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
