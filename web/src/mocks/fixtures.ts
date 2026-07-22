@@ -31,6 +31,7 @@ export const dnd35Definition: SheetDefinition = {
     {
       id: 'identity',
       labelKey: 'dnd35.section.identity',
+      columns: 2,
       fields: [
         // Explicit `null`s mirror the BFF's serialization of absent optional field props (Kotlin
         // nullables) — guards the regression where the schema rejected `null` and the sheet failed
@@ -58,6 +59,7 @@ export const dnd35Definition: SheetDefinition = {
     {
       id: 'abilities',
       labelKey: 'dnd35.section.abilities',
+      columns: 4,
       fields: [
         { id: 'strength', labelKey: 'dnd35.field.strength', type: 'int' },
         {

@@ -1,7 +1,16 @@
 import { Heading, HStack, IconButton, Stack } from '@chakra-ui/react'
-import { Button, Card, Combobox, Input, SegmentedControl } from '@rauboti/ui'
+import {
+  Button,
+  Card,
+  Combobox,
+  Grid,
+  Input,
+  SegmentedControl,
+} from '@rauboti/ui'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { SheetDefinition, SheetField } from '@/api/schemas'
+import { deriveValues } from './derive'
 
 /**
  * Definition-driven sheet renderer: given a rule set's [SheetDefinition] and the current sheet
@@ -30,26 +39,45 @@ export const SheetRenderer = ({
 }: SheetRendererProps) => {
   const { t } = useTranslation()
 
+  // Derived fields recompute live from the definition's formulas as inputs change, so a modifier
+  // updates the moment you edit its ability (etc.). Display only — the server recomputes on save
+  // (authoritative), so these never need persisting and any drift self-corrects on save.
+  const displayValues = useMemo(
+    () => ({ ...values, ...deriveValues(definition, values) }),
+    [definition, values],
+  )
+
   return (
     <Stack gap="6">
-      {definition.sections.map((section) => (
-        <Card key={section.id}>
-          <Stack gap="4">
-            <Heading size="md">{t(section.labelKey)}</Heading>
-            {section.fields.map((field) => (
-              <FieldWidget
-                key={field.id}
-                field={field}
-                label={t(field.labelKey)}
-                value={values[field.id]}
-                onChange={(next) => onChange(field.id, next)}
-                readOnly={readOnly}
-                t={t}
-              />
-            ))}
-          </Stack>
-        </Card>
-      ))}
+      {definition.sections.map((section) => {
+        // Layout is definition-driven: `columns` fields per row on wider screens (single column on
+        // mobile so nothing is cramped); a field may span several columns via `colSpan`.
+        const columns = section.columns ?? 1
+        return (
+          <Card key={section.id}>
+            <Stack gap="4">
+              <Heading size="md">{t(section.labelKey)}</Heading>
+              <Grid columns={{ base: 1, md: columns }} gap="4">
+                {section.fields.map((field) => {
+                  const span = Math.min(field.colSpan ?? 1, columns)
+                  return (
+                    <Grid.Item key={field.id} colSpan={{ base: 1, md: span }}>
+                      <FieldWidget
+                        field={field}
+                        label={t(field.labelKey)}
+                        value={displayValues[field.id]}
+                        onChange={(next) => onChange(field.id, next)}
+                        readOnly={readOnly}
+                        t={t}
+                      />
+                    </Grid.Item>
+                  )
+                })}
+              </Grid>
+            </Stack>
+          </Card>
+        )
+      })}
     </Stack>
   )
 }

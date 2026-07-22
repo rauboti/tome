@@ -52,18 +52,24 @@ data class SheetDefinition(
     val sections: List<SheetSection>,
 )
 
-/** A titled group of fields on the sheet. [labelKey] is an i18n key resolved by the web. */
+/**
+ * A titled group of fields on the sheet. [labelKey] is an i18n key resolved by the web. [columns] is
+ * the number of columns the web lays the section's fields out in (null → 1, i.e. one field per row);
+ * a field can span several of them via [SheetField.colSpan]. Layout only — the engine ignores it.
+ */
 data class SheetSection(
     val id: String,
     val labelKey: String,
     val fields: List<SheetField>,
+    val columns: Int? = null,
 )
 
 /**
  * One field on the sheet. [type] is one of [FieldType] (kept a plain string so the definition stays
  * pure data — the openapi contract types it as a string enum). [derivedFrom] is set for
  * [FieldType.DERIVED] fields (a formula reference the rule-set logic computes); [options] lists the
- * choices for a [FieldType.SELECT] field.
+ * choices for a [FieldType.SELECT] field. [colSpan] is how many of the section's [SheetSection.columns]
+ * this field occupies (null → 1) — e.g. a full-width field in a 2-column section uses `colSpan: 2`.
  */
 data class SheetField(
     val id: String,
@@ -71,6 +77,7 @@ data class SheetField(
     val type: String,
     val derivedFrom: String? = null,
     val options: List<FieldOption>? = null,
+    val colSpan: Int? = null,
 )
 
 /** A choice for a `select` field: the stored [value] plus its i18n [labelKey]. */

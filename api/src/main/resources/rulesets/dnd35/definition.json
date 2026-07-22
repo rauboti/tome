@@ -5,12 +5,12 @@
     {
       "id": "identity",
       "labelKey": "dnd35.section.identity",
+      "columns": 2,
       "fields": [
         { "id": "name", "labelKey": "dnd35.field.name", "type": "text" },
         { "id": "player", "labelKey": "dnd35.field.player", "type": "text" },
         { "id": "race", "labelKey": "dnd35.field.race", "type": "text" },
         { "id": "class", "labelKey": "dnd35.field.class", "type": "text" },
-        { "id": "level", "labelKey": "dnd35.field.level", "type": "int" },
         {
           "id": "alignment",
           "labelKey": "dnd35.field.alignment",
@@ -27,23 +27,26 @@
             { "value": "CE", "labelKey": "dnd35.alignment.CE" }
           ]
         },
+        { "id": "deity", "labelKey": "dnd35.field.deity", "type": "text" },
         {
           "id": "size",
           "labelKey": "dnd35.field.size",
           "type": "select",
+          "colSpan": 2,
           "options": [
             { "value": "small", "labelKey": "dnd35.size.small" },
             { "value": "medium", "labelKey": "dnd35.size.medium" },
             { "value": "large", "labelKey": "dnd35.size.large" }
           ]
         },
-        { "id": "deity", "labelKey": "dnd35.field.deity", "type": "text" },
+        { "id": "level", "labelKey": "dnd35.field.level", "type": "int" },
         { "id": "experience", "labelKey": "dnd35.field.experience", "type": "int" }
       ]
     },
     {
       "id": "abilities",
       "labelKey": "dnd35.section.abilities",
+      "columns": 4,
       "fields": [
         { "id": "strength", "labelKey": "dnd35.field.strength", "type": "int" },
         { "id": "strMod", "labelKey": "dnd35.field.strMod", "type": "derived", "derivedFrom": "floor((strength - 10) / 2)" },
@@ -62,17 +65,19 @@
     {
       "id": "combat",
       "labelKey": "dnd35.section.combat",
+      "columns": 6,
       "fields": [
-        { "id": "hpMax", "labelKey": "dnd35.field.hpMax", "type": "int" },
-        { "id": "hpCurrent", "labelKey": "dnd35.field.hpCurrent", "type": "int" },
-        { "id": "armorClass", "labelKey": "dnd35.field.armorClass", "type": "int" },
-        { "id": "initiative", "labelKey": "dnd35.field.initiative", "type": "derived", "derivedFrom": "dexMod" },
-        { "id": "baseAttackBonus", "labelKey": "dnd35.field.baseAttackBonus", "type": "int" }
+        { "id": "hpMax", "labelKey": "dnd35.field.hpMax", "type": "int", "colSpan": 2 },
+        { "id": "hpCurrent", "labelKey": "dnd35.field.hpCurrent", "type": "int", "colSpan": 2 },
+        { "id": "armorClass", "labelKey": "dnd35.field.armorClass", "type": "int", "colSpan": 2 },
+        { "id": "baseAttackBonus", "labelKey": "dnd35.field.baseAttackBonus", "type": "int", "colSpan": 3 },
+        { "id": "initiative", "labelKey": "dnd35.field.initiative", "type": "derived", "derivedFrom": "dexMod", "colSpan": 3 }
       ]
     },
     {
       "id": "saves",
       "labelKey": "dnd35.section.saves",
+      "columns": 2,
       "fields": [
         { "id": "fortBase", "labelKey": "dnd35.field.fortBase", "type": "int" },
         { "id": "fortitude", "labelKey": "dnd35.field.fortitude", "type": "derived", "derivedFrom": "fortBase + conMod" },
