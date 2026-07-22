@@ -37,6 +37,11 @@
       "ruleSet": "Rule set",
       "create": "Create",
       "createError": "Couldn't create the character. Try again."
+    },
+    "sheet": {
+      "loadError": "Couldn't load this character.",
+      "saveError": "Couldn't save your changes. Try again.",
+      "conflict": "This character was changed elsewhere. Reload and try again."
     }
   },
   "language": {
