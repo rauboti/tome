@@ -9,10 +9,13 @@ Tome helps a dungeon master run a tabletop RPG campaign — digital character sh
 DM view and limited player view, NPCs, live sessions, and combat with dice + initiative. v1 ships
 **D&D 3.5 only** via a Hybrid rule-set engine (data-driven sheet definitions + per-ruleset logic);
 Dark Souls is a later story (US5), 5E deferred. Stack: Kotlin + Spring Boot 4.1 BFF (`api/`,
-`no.rauboti.tome`, JdbcTemplate) + Vite/React 19/Chakra + `@rauboti/ui` (`web/`), PostgreSQL 17/Flyway
-(sheets as JSONB), auth delegated to Hive (BFF, roles Admin/User), real-time via Server-Sent Events,
-bilingual nb/en. Ports 3040/5040/5436. See plan.md, research.md, data-model.md, contracts/openapi.yaml,
-and quickstart.md in the feature directory. Project principles: `.specify/memory/constitution.md`.
+`no.rauboti.tome`, `MongoTemplate` — no JPA) + Vite/React 19/Chakra + `@rauboti/ui` (`web/`), MongoDB
+(single-node replica set; sheets as BSON documents holding base inputs only, derived values computed
+on read; migrations via Mongock), auth delegated to Hive (BFF, roles Admin/User), real-time via
+Server-Sent Events, bilingual nb/en. Ports 3040/5040/5436. **Persistence switched Postgres→MongoDB and
+adopted compute-on-read derived values on 2026-07-22 (amendment, post-US1) — see plan.md.** See
+plan.md, research.md, data-model.md, contracts/openapi.yaml, and quickstart.md in the feature
+directory. Project principles: `.specify/memory/constitution.md`.
 
 ## Git workflow (non-negotiable)
 

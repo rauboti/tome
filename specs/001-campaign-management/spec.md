@@ -375,3 +375,11 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
   by a Hive-assigned Tome role (Admin/User); players sign in via Hive and create their own characters,
   then the DM adds matching-rule-set characters to the campaign. In-app invitation links are deferred
   to a future Hive capability (FR-009, FR-024, Assumptions).
+
+### Session 2026-07-22
+
+- Q: Are a rule set's derived values (e.g. ability modifiers, saves) stored alongside the sheet, or
+  always recomputed? → A: **Always recomputed, never stored** — only the base inputs an editor enters
+  are persisted; derived values are computed whenever the sheet is presented, so a reader always sees
+  values consistent with the current inputs and no stored derived value can go stale (refines FR-005;
+  the storage/computation mechanics are an implementation concern recorded in research.md/plan.md).

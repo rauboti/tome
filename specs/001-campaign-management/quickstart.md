@@ -21,7 +21,7 @@ A run guide plus end-to-end validation scenarios that prove the feature works. I
 |---------|-----------|-----------|
 | `tome-web` (nginx) | 3040 | 80 |
 | `tome-api` (Spring Boot) | 5040 | 8080 |
-| `tome-db` (Postgres 17) | 5436 | 5432 |
+| `tome-db` (MongoDB, replica set `rs0`) | 5436 | 27017 |
 
 ## Run
 
@@ -39,7 +39,7 @@ Standalone within the combined platform stack, the root `docker-compose.yml` `in
 ```bash
 # api
 cd api && ./mvnw spring-boot:run          # needs tome-db up; uses application-dev.yml
-./mvnw verify                              # runs unit + integration (Testcontainers) + Spotless gate
+./mvnw verify                              # runs unit + integration (Testcontainers MongoDB replica set) + Spotless gate
 
 # web
 cd web && yarn && yarn dev                 # Vite dev server (proxies /api to :5040)
@@ -108,5 +108,5 @@ the dice/combat/sync/permissions code (SC-009). Expect a spec amendment for the 
 ## Key references
 
 - Endpoints & schemas: [contracts/openapi.yaml](contracts/openapi.yaml)
-- Entities, authorization model, migrations: [data-model.md](data-model.md)
-- Decisions (SSE, JSONB engine, dice, concurrency, roles): [research.md](research.md)
+- Collections/aggregates, authorization model, indexes & invariants, Mongock migrations: [data-model.md](data-model.md)
+- Decisions (SSE, MongoDB document engine, compute-on-read derived values, dice, concurrency, roles): [research.md](research.md)

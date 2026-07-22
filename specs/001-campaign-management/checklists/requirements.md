@@ -40,4 +40,9 @@
 - Deferred to planning (not blocking): concurrent-edit conflict-resolution policy (SC-006 states the
   intent — no lost data — but the mechanism, e.g. optimistic locking vs. field merge, is a plan-level
   decision); the exact way a DM discovers/references a specific player's character to add.
+- Session 2026-07-22 amendment (post-US1): recorded that derived values are **always recomputed, never
+  stored** (refines FR-005; behavioral only). The concurrent persistence-technology change (document
+  store + document-per-aggregate) is an implementation concern and is intentionally kept out of the
+  spec — it lands in research.md/plan.md via `/speckit-plan`. Re-validated: all Content Quality and
+  Requirement Completeness items still pass (no implementation details leaked into the spec).
 - No open [NEEDS CLARIFICATION] markers remain. Spec is ready for `/speckit-plan`.
