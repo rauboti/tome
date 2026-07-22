@@ -73,6 +73,27 @@ describe('CharacterSheet', () => {
     expect(strMod).toBeDisabled()
   })
 
+  test('recomputes a derived value live as its input changes, before any save', async () => {
+    server.use(
+      http.get('/api/characters/char-1', () => HttpResponse.json(character)),
+    )
+    renderSheet()
+
+    // Str Modifier starts at floor((18 - 10) / 2) = 4 from the loaded strength.
+    expect(
+      await screen.findByRole('textbox', { name: 'Str Modifier' }),
+    ).toHaveValue('4')
+
+    // Editing Strength updates the modifier immediately — no save / round-trip.
+    const strength = screen.getByRole('spinbutton', { name: 'Strength' })
+    await userEvent.clear(strength)
+    await userEvent.type(strength, '20')
+
+    expect(screen.getByRole('textbox', { name: 'Str Modifier' })).toHaveValue(
+      '5',
+    )
+  })
+
   test('editing a field and saving sends a PUT carrying the version that was read', async () => {
     let putBody: { data?: Record<string, unknown>; version?: number } | null =
       null
@@ -109,7 +130,9 @@ describe('CharacterSheet', () => {
           ...character,
           data: { ...character.data, strength: 0, strMod: -5 },
           version: character.version + 1,
-          warnings: [{ code: 'ability.below-minimum', field: 'strength', message }],
+          warnings: [
+            { code: 'ability.below-minimum', field: 'strength', message },
+          ],
         }),
       ),
     )
@@ -123,7 +146,8 @@ describe('CharacterSheet', () => {
   })
 
   test('surfaces a version conflict when the save returns 409', async () => {
-    const detail = 'This character was changed by someone else. Reload and try again.'
+    const detail =
+      'This character was changed by someone else. Reload and try again.'
     server.use(
       http.get('/api/characters/char-1', () => HttpResponse.json(character)),
       http.put('/api/characters/char-1', () =>
@@ -142,6 +166,8 @@ describe('CharacterSheet', () => {
     await userEvent.click(screen.getByRole('button', { name: /save/i }))
 
     const alert = await screen.findByRole('alert')
-    expect(alert).toHaveTextContent(/changed by someone else|conflict|out of date/i)
+    expect(alert).toHaveTextContent(
+      /changed by someone else|conflict|out of date/i,
+    )
   })
 })

@@ -62,6 +62,8 @@ export const sheetFieldSchema = z.object({
   type: z.enum(['int', 'text', 'bool', 'select', 'list', 'derived']),
   derivedFrom: z.string().nullish(),
   options: z.array(fieldOptionSchema).nullish(),
+  /** How many of the section's `columns` this field spans (null/absent → 1). */
+  colSpan: z.number().int().nullish(),
 })
 export type SheetField = z.infer<typeof sheetFieldSchema>
 
@@ -69,6 +71,8 @@ export const sheetSectionSchema = z.object({
   id: z.string(),
   labelKey: z.string(),
   fields: z.array(sheetFieldSchema),
+  /** Columns the section lays its fields out in (null/absent → 1, one field per row). */
+  columns: z.number().int().nullish(),
 })
 export type SheetSection = z.infer<typeof sheetSectionSchema>
 

@@ -459,6 +459,7 @@ components:
             properties:
               id: { type: string }
               labelKey: { type: string }
+              columns: { type: integer, nullable: true, description: "layout columns for this section's fields; null → 1" }
               fields:
                 type: array
                 items:
@@ -467,6 +468,7 @@ components:
                     id: { type: string }
                     labelKey: { type: string }
                     type: { type: string, enum: [int, text, bool, select, list, derived] }
+                    colSpan: { type: integer, nullable: true, description: "columns this field spans within the section; null → 1" }
                     derivedFrom: { type: string, nullable: true, description: "formula for a derived field; null otherwise" }
                     options:
                       type: array
