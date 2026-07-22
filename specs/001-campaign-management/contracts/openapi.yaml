@@ -295,10 +295,12 @@ paths:
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [title], properties: { title: { type: string }, scheduledFor: { type: string, format: date-time }, notes: { type: string } } } } } }
       responses: { "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Session" } } } } }
 
-  /campaigns/{campaignId}/encounters:
-    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
+  /campaigns/{campaignId}/sessions/{sessionId}/encounters:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
     post:
-      summary: Start an encounter with initiative-ordered combatants (DM only)
+      summary: Start an encounter within a session with initiative-ordered combatants (DM only)
       requestBody:
         required: true
         content:
@@ -307,43 +309,46 @@ paths:
               type: object
               required: [combatants]
               properties:
-                sessionId: { type: string }
                 combatants:
                   type: array
                   items:
                     type: object
-                    required: [initiative]
+                    required: [combatantId, combatantType, initiative]
                     properties:
-                      characterId: { type: string }
-                      npcId: { type: string }
+                      combatantId: { type: string, description: id of a character or an NPC }
+                      combatantType: { type: string, enum: [character, npc] }
                       initiative: { type: integer }
                       isRevealed: { type: boolean, default: true }
       responses:
         "201": { description: Encounter started (status active), content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
-  /campaigns/{campaignId}/encounters/{encounterId}/next-turn:
+  /campaigns/{campaignId}/sessions/{sessionId}/encounters/{encounterId}/next-turn:
     parameters:
       - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
       - { $ref: "#/components/parameters/EncounterId" }
     post:
       summary: Advance the turn/round (DM only); broadcast to revealed viewers via SSE
       responses:
         "200": { description: Updated encounter, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
-  /campaigns/{campaignId}/encounters/{encounterId}/end:
+  /campaigns/{campaignId}/sessions/{sessionId}/encounters/{encounterId}/end:
     parameters:
       - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
       - { $ref: "#/components/parameters/EncounterId" }
     post:
       summary: End the encounter (DM only)
       responses: { "200": { description: Ended, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } } }
-  /campaigns/{campaignId}/encounters/{encounterId}/combatants/{combatantId}:
+  /campaigns/{campaignId}/sessions/{sessionId}/encounters/{encounterId}/combatants/{combatantId}:
     parameters:
       - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
       - { $ref: "#/components/parameters/EncounterId" }
       - name: combatantId
         in: path
         required: true
+        description: the combatant entry's own id (its `_id`, not the referenced character/npc id)
         schema: { type: string }
     patch:
       summary: Update a combatant mid-combat (DM only) — reveal/hide or adjust initiative
@@ -361,33 +366,36 @@ paths:
         "200": { description: Updated encounter, content: { application/json: { schema: { $ref: "#/components/schemas/Encounter" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
 
-  /rolls:
+  # A roll is appended to its container's rolls[] (campaign / session / encounter). The container is the
+  # URL path — the stored Roll carries no scope ids. Three levels mirror the resource hierarchy.
+  /campaigns/{campaignId}/rolls:
+    parameters: [ { $ref: "#/components/parameters/CampaignId" } ]
     post:
-      summary: Make a server-authoritative dice roll; optionally apply the result to a sheet value
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [expression]
-              properties:
-                expression: { type: string, examples: ["2d6+3", "4d6kh3", "1d20+5"] }
-                campaignId: { type: string }
-                encounterId: { type: string }
-                applyTo:
-                  type: object
-                  description: Optional target; applied through the normal sheet-write path (soft warnings apply)
-                  properties:
-                    targetType: { type: string, enum: [character, npc] }
-                    targetId: { type: string }
-                    field: { type: string, examples: ["hp_current"] }
+      summary: Make a campaign-scoped roll (appended to campaign.rolls[])
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RollRequest" } } } }
       responses:
-        "201":
-          description: Recorded roll (also fanned out over SSE to authorized viewers)
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Roll" }
+        "201": { description: Recorded roll (also fanned out over SSE), content: { application/json: { schema: { $ref: "#/components/schemas/Roll" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /campaigns/{campaignId}/sessions/{sessionId}/rolls:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
+    post:
+      summary: Make a session-scoped roll (appended to session.rolls[])
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RollRequest" } } } }
+      responses:
+        "201": { description: Recorded roll (also fanned out over SSE), content: { application/json: { schema: { $ref: "#/components/schemas/Roll" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /campaigns/{campaignId}/sessions/{sessionId}/encounters/{encounterId}/rolls:
+    parameters:
+      - { $ref: "#/components/parameters/CampaignId" }
+      - { $ref: "#/components/parameters/SessionId" }
+      - { $ref: "#/components/parameters/EncounterId" }
+    post:
+      summary: Make an encounter-scoped roll (appended to encounter.rolls[])
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/RollRequest" } } } }
+      responses:
+        "201": { description: Recorded roll (also fanned out over SSE), content: { application/json: { schema: { $ref: "#/components/schemas/Roll" } } } }
         "400": { $ref: "#/components/responses/BadRequest" }
 
   /campaigns/{campaignId}/stream:
@@ -419,6 +427,7 @@ components:
     RuleSetId: { name: ruleSetId, in: path, required: true, schema: { type: string } }
     CharacterId: { name: characterId, in: path, required: true, schema: { type: string } }
     CampaignId: { name: campaignId, in: path, required: true, schema: { type: string } }
+    SessionId: { name: sessionId, in: path, required: true, schema: { type: string } }
     EncounterId: { name: encounterId, in: path, required: true, schema: { type: string } }
   responses:
     Unauthorized: { description: Not authenticated, content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } } }
@@ -491,9 +500,7 @@ components:
         - type: object
           properties:
             ownerId: { type: string }
-            hpCurrent: { type: integer, nullable: true }
-            hpMax: { type: integer, nullable: true }
-            data: { type: object, description: Sheet values incl. computed derived values }
+            data: { type: object, description: "Resolved sheet — base inputs plus derived values computed by the rule set on read (derived values are not persisted; on write they are ignored). HP inputs (hpCurrent/hpMax) live inside data, not at the top level (no promoted fields in v1; revisit after the Dark Souls rule set — see tasks T083)" }
             warnings: { type: array, items: { $ref: "#/components/schemas/RuleWarning" } }
             version: { type: integer }
     CampaignSummary:
@@ -510,6 +517,7 @@ components:
         - type: object
           properties:
             dmId: { type: string }
+            rolls: { type: array, items: { $ref: "#/components/schemas/Roll" }, description: "Campaign-scoped rolls (embedded; not tied to a session/encounter)" }
             version: { type: integer }
     CampaignView:
       type: object
@@ -534,9 +542,7 @@ components:
         campaignId: { type: string }
         name: { type: string }
         ruleSetId: { type: string }
-        hpCurrent: { type: integer, nullable: true }
-        hpMax: { type: integer, nullable: true }
-        data: { type: object }
+        data: { type: object, description: "Resolved sheet — base inputs plus derived values computed on read. HP inputs (hpCurrent/hpMax) live inside data, not at the top level (no promoted fields in v1; revisit after Dark Souls — tasks T083)" }
         isPrivate: { type: boolean }
         version: { type: integer }
     Content:
@@ -550,6 +556,7 @@ components:
         version: { type: integer }
     Session:
       type: object
+      description: "Own collection, referencing its campaign; loaded separately when assembling the campaign view"
       properties:
         id: { type: string }
         campaignId: { type: string }
@@ -557,12 +564,15 @@ components:
         scheduledFor: { type: string, format: date-time, nullable: true }
         notes: { type: string }
         status: { type: string, enum: [planned, completed] }
+        rolls: { type: array, items: { $ref: "#/components/schemas/Roll" }, description: "Session-scoped rolls (embedded)" }
+        version: { type: integer }
     Encounter:
       type: object
+      description: "Own collection; references its session and campaign, assembled into the campaign view at read time"
       properties:
         id: { type: string }
-        campaignId: { type: string }
-        sessionId: { type: string, nullable: true }
+        sessionId: { type: string }
+        campaignId: { type: string, description: "denormalized parent campaign, for per-campaign scoping" }
         status: { type: string, enum: [pending, active, ended] }
         round: { type: integer }
         currentTurn: { type: integer }
@@ -571,20 +581,20 @@ components:
           items:
             type: object
             properties:
-              id: { type: string }
-              characterId: { type: string, nullable: true }
-              npcId: { type: string, nullable: true }
+              id: { type: string, description: the combatant entry's own id }
+              combatantId: { type: string, description: id of the referenced character or NPC }
+              combatantType: { type: string, enum: [character, npc] }
               name: { type: string }
               initiative: { type: integer }
               isRevealed: { type: boolean }
+        rolls: { type: array, items: { $ref: "#/components/schemas/Roll" }, description: "Encounter-scoped rolls (embedded)" }
         version: { type: integer }
     Roll:
       type: object
+      description: "Embedded in its container's rolls[] (campaign/session/encounter); scope is the container, so no campaignId/sessionId/encounterId fields"
       properties:
         id: { type: string }
-        campaignId: { type: string, nullable: true }
-        encounterId: { type: string, nullable: true }
-        rollerId: { type: string }
+        initiatorId: { type: string, description: "Hive subject who initiated the roll" }
         expression: { type: string }
         results: { type: array, items: { type: integer } }
         total: { type: integer }
@@ -595,6 +605,19 @@ components:
             targetType: { type: string }
             targetId: { type: string }
             field: { type: string }
+    RollRequest:
+      type: object
+      required: [expression]
+      description: "Roll-creation body; the container (campaign/session/encounter) is given by the URL path"
+      properties:
+        expression: { type: string, examples: ["2d6+3", "4d6kh3", "1d20+5"] }
+        applyTo:
+          type: object
+          description: Optional target; applied through the normal sheet-write path (soft warnings apply)
+          properties:
+            targetType: { type: string, enum: [character, npc] }
+            targetId: { type: string }
+            field: { type: string, examples: ["hp_current"] }
     StreamEvent:
       type: object
       description: Envelope for SSE frames on /campaigns/{id}/stream

@@ -14,11 +14,22 @@ are written first and must FAIL before implementation.
 
 **Organization**: Grouped by user story (US1–US5) for independent implementation and testing.
 
+> **⚠ Amendment 2026-07-22 (post-US1): Postgres → MongoDB + compute-on-read derived values.**
+> US1 (T001–T034) was built and completed on **Postgres/JSONB/Flyway/JdbcTemplate** and is left below
+> as historical record (still `[X]`). **Phase 3B (T084–T104)** re-platforms that built slice onto
+> **MongoDB** (Spring Data + `MongoTemplate`, Mongock, Testcontainers `MongoDBContainer` replica set)
+> and switches derived sheet values to **computed-on-read, never stored** — using a
+> disable-then-re-enable test strategy. The pending **US2–US5 tasks (T035–T083) have been rewritten in
+> place** to target MongoDB. New task IDs (T084+) continue the existing number space so prior IDs stay
+> stable; **execution order is by phase position, not by ID** — Phase 3B runs immediately after US1
+> and before US2. See research.md (D3/D5/D8), data-model.md, plan.md.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies on incomplete tasks)
 - Paths follow the platform two-tier layout from plan.md: `api/` (Kotlin/Spring Boot,
-  `no.rauboti.tome`, JdbcTemplate) and `web/` (Vite/React 19/`@rauboti/ui`).
+  `no.rauboti.tome`, **`MongoTemplate`** — Postgres/`JdbcTemplate` in the pre-2026-07-22 US1 build) and
+  `web/` (Vite/React 19/`@rauboti/ui`).
 
 ---
 
@@ -76,7 +87,7 @@ violation warns but still saves; a stale write returns 409.
 ### Tests for User Story 1 (write first, must FAIL) ⚠️
 
 - [X] T025 [P] [US1] Contract test for `/api/characters` (POST/GET/PUT/DELETE) against openapi in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterContractTest.kt`
-- [X] T026 [P] [US1] Integration test (Testcontainers) — create→edit→reload persistence, derived values recomputed on write, soft warning returned without blocking, `409` on stale `version` in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterIntegrationTest.kt`
+- [X] T026 [P] [US1] Integration test (Testcontainers) — create→edit→reload persistence, derived values recomputed on write, soft warning returned without blocking, `409` on stale `version` in `api/src/test/kotlin/no/rauboti/tome/characters/CharacterIntegrationTest.kt` *(Postgres-era behavior "derived recomputed on write" — **superseded by T100**, which asserts derived are computed on read and NOT stored)*
 - [X] T027 [P] [US1] Web test — `SheetRenderer` edit flow, derived-value display, warning banner, version-conflict handling (Vitest/RTL/MSW) in `web/src/components/characters/CharacterSheet.test.tsx`
 
 ### Implementation for User Story 1
@@ -90,6 +101,76 @@ violation warns but still saves; a stale write returns 409.
 - [X] T034 [US1] Web character sheet edit screen using `SheetRenderer` (save/version handling, warnings) in `web/src/components/characters/CharacterSheet.tsx`
 
 **Checkpoint**: US1 is a fully functional, independently testable MVP.
+
+---
+
+## Phase 3B: Persistence re-platform — MongoDB + compute-on-read (AMENDMENT 2026-07-22)
+
+**Runs immediately after US1, before US2** (task IDs T084+ continue the number space; order is by phase
+position, not ID). Re-platforms the built US1 slice from Postgres to MongoDB and switches derived sheet
+values to **computed-on-read, never stored** — with **no change to observable REST behavior**
+(SC-001/SC-006 still hold; openapi shapes unchanged). Design: research.md D3/D5/D8, data-model.md.
+
+**Strategy**: quarantine the Postgres-bound tests → swap infra → rebuild the character slice → re-enable
+and rewrite the tests incrementally as each piece lands. Tasks are deliberately small for line-by-line
+review.
+
+**Independent Test**: `./mvnw verify` green against a MongoDB Testcontainer; create→edit→reload persists
+base inputs; GET/PUT responses carry resolved derived values; the **stored document contains no derived
+fields**; a stale `@Version` write returns 409; `docker compose up --build` boots the Mongo stack.
+
+**Preflight (Constitution III)**: fresh branch off `main` before any code; leave work uncommitted for
+Gaute to review/commit. This whole phase is one increment's worth of small tasks.
+
+**Data disposition**: **clean cutover** — US1's data is disposable local dev data, so there is **no
+data-migration script** (drop the Postgres stack, start fresh on MongoDB). ⚠ Confirm at preflight that
+no irreplaceable character data exists in the running Postgres volume; **if any must be kept, export it
+before T085** (one-off, out of scope for the changelogs). See research.md §D3 "Data disposition".
+
+### Infra swap (build + stack)
+
+- [ ] T084 [P] Swap api dependencies in `api/pom.xml` — remove `spring-boot-starter-jdbc`, the Flyway starters, `flyway-database-postgresql`, `postgresql`, `testcontainers-postgresql`; add `spring-boot-starter-data-mongodb`, Mongock (`mongock-springboot-v3` + `mongodb-springdata-v4-driver`), `testcontainers-mongodb`
+- [ ] T085 Replace the `tome-db` service in `docker-compose.yml` — `mongo:8` on host `5436`→`27017`, single-node replica set (`--replSet rs0`) with a one-time `rs.initiate()` (init container or healthcheck-gated), local dev credentials; update `tome-api` env (`MONGODB_URI`) and the `depends_on` healthcheck
+- [ ] T086 [P] Replace `POSTGRES_*` with Mongo settings in `tome/.env.example` and platform-root `tome.env` (`MONGODB_URI`, `MONGO_DB`, credentials, replica-set name)
+- [ ] T087 [P] Rewrite datasource config in `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` — drop `spring.datasource`/Flyway; add `spring.data.mongodb.uri` + Mongock changelog-scan package
+
+### Test quarantine (keep the build green while infra churns)
+
+- [ ] T088 Temporarily `@Disabled("re-platform: re-enabled in T100–T102")` the Postgres/Testcontainers-bound US1 api tests — `CharacterIntegrationTest` and `CharacterContractTest` — in `api/src/test/kotlin/no/rauboti/tome/characters/`. Leave the pure `DnD35RuleSetTest` and the DB-agnostic web tests enabled
+
+### MongoDB foundation
+
+- [ ] T089 Mongo config — `MongoConfig` (Mongo client, `MongoTemplate`, `MongoTransactionManager`) + Mongock runner wiring in `api/src/main/kotlin/no/rauboti/tome/config/MongoConfig.kt`
+- [ ] T090 [P] Testcontainers base — `MongoDBContainer` (single-node replica set) via `@ServiceConnection` in an abstract integration base `api/src/test/kotlin/no/rauboti/tome/support/MongoIntegrationTest.kt`
+- [ ] T091 Mongock changelog `C001` — create `characters` collection + index `{ userId: 1 }` in `api/src/main/kotlin/no/rauboti/tome/config/migration/C001_CreateCharacters.kt`
+- [ ] T092 Retire JSONB glue — delete `api/src/main/kotlin/no/rauboti/tome/common/JsonbSupport.kt` (BSON is native) and remove `api/src/main/resources/db/migration/V1__create_character.sql` + the now-empty `db/migration/` dir
+
+### Character slice on MongoDB + compute-on-read
+
+- [ ] T093 [US1] Rewrite `Character` as a Mongo document — `@Document("characters")`, `@Id` UUID, `@Version` int, `data` = base inputs only (drop the promoted-column shape) in `api/src/main/kotlin/no/rauboti/tome/characters/Character.kt`
+- [ ] T094 [US1] Rewrite `CharacterRepository` — `MongoTemplate` insert/findById/findByUserId/save/delete; optimistic concurrency via `@Version` (no hand-rolled `WHERE version = ?`) in `.../characters/CharacterRepository.kt`
+- [ ] T095 [P] [US1] Add the character resolve-on-read helper — `CharacterDataResolver.resolve(data, ruleSet)` = base inputs + `RuleSet.computeDerived`, the single home of character compute-on-read (D8), in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterDataResolver.kt`. **Entity-scoped by design** — NPC and other entities get analogous resolvers later; extract a shared core only if duplication warrants
+- [ ] T096 [US1] Rewrite `CharacterService` — on write: `validate` + **strip fields the definition marks `derived`** before persisting; on read/echo: return the resolved sheet via `CharacterDataResolver`; map `OptimisticLockingFailureException` → 409 in `.../characters/CharacterService.kt`
+- [ ] T097 [US1] Update `CharacterController` — GET and the POST/PUT echo return the resolved sheet (base + derived) in `.../characters/CharacterController.kt`
+- [ ] T098 [US1] Map Spring Data `OptimisticLockingFailureException` → RFC-7807 `409` (replacing/adapting the `StaleVersionException` mapping) in `api/src/main/kotlin/no/rauboti/tome/common/`
+
+### Frontend alignment (compute-on-read)
+
+- [ ] T099 [P] [US1] Align the web sheet with compute-on-read in `web/src/components/characters/CharacterSheet.tsx` + `web/src/api/characters.ts` — derive locally on change for instant feedback, treat the server's resolved response as authoritative on load/save, don't send derived fields, don't assume stored data carries them
+
+### Re-enable / rewrite tests incrementally
+
+- [ ] T100 [US1] Re-enable + rewrite `CharacterIntegrationTest` on `MongoIntegrationTest` — create→edit→reload persists base inputs; response carries resolved derived values; **assert the raw stored document has no derived fields**; soft warning without blocking; `409` on stale `@Version`
+- [ ] T101 [US1] Re-enable + rewrite `CharacterContractTest` against the Mongo-backed context (openapi shapes unchanged)
+- [ ] T102 [P] [US1] Confirm/adjust the web `CharacterSheet.test.tsx` for compute-on-read (server-authoritative resolved sheet; MSW responses carry derived values)
+
+### Green + cleanup
+
+- [ ] T103 Remove all `@Disabled` quarantine annotations; `./mvnw verify` (unit + Mongo integration + Spotless) and web `yarn test` both green
+- [ ] T104 Grep the api module for residual Postgres/Flyway/JdbcTemplate/JSONB references (imports, config, comments) and remove; confirm `docker compose up --build` boots the Mongo stack and US1 works end to end
+
+**Checkpoint**: US1 runs on MongoDB with compute-on-read; build green; the shared engine + resolve helper
+are ready for US2–US5 to build on.
 
 ---
 
@@ -109,10 +190,10 @@ DM full view vs limited player view and access denial for non-members.
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Migration `V2__create_campaign_membership.sql` (campaign; membership with `UNIQUE(campaign_id,character_id)` and `UNIQUE(character_id)`) in `api/src/main/resources/db/migration/`
-- [ ] T039 [US2] `Campaign` + `Membership` models + repositories (JdbcTemplate) in `api/src/main/kotlin/no/rauboti/tome/campaigns/`
+- [ ] T038 [US2] Mongock changelog `C002` — create `campaigns` collection + indexes (`{dmId:1}`, `{"members.playerId":1}`, and **unique partial multikey** `{"members.characterId":1}` with `partialFilterExpression {status:"active"}` = "one active campaign per character", data-model.md Invariants) in `api/src/main/kotlin/no/rauboti/tome/config/migration/C002_CreateCampaigns.kt`
+- [ ] T039 [US2] `Campaign` aggregate document (`@Document("campaigns")`, `@Id`, `@Version`, embedded `members[]` of `{characterId,playerId,addedAt}`) + `CampaignRepository` (MongoTemplate; `$push`/`$pull` for roster) in `api/src/main/kotlin/no/rauboti/tome/campaigns/` — membership is embedded, not a separate collection
 - [ ] T040 [US2] `PermissionService` — campaign-scoped visibility (DM full; player self + shared; deny others) in `api/src/main/kotlin/no/rauboti/tome/campaigns/PermissionService.kt`
-- [ ] T041 [US2] `CampaignService` — create, archive, roster add (enforce `character.ruleSet == campaign.ruleSet`, FR-008), remove (keep character); **a DM MAY add a self-owned character to their own campaign (FR-017) — this creates an ordinary membership and MUST NOT grant that player DM visibility nor let the DM hide content from themselves** in `api/src/main/kotlin/no/rauboti/tome/campaigns/CampaignService.kt`
+- [ ] T041 [US2] `CampaignService` — create, archive, roster add (enforce `character.ruleSet == campaign.ruleSet` FR-008, **and** reject a character already in an active campaign via an app pre-check backed by the unique partial index D6), remove (pull the member, keep the character); **a DM MAY add a self-owned character to their own campaign (FR-017) — this creates an ordinary membership and MUST NOT grant that player DM visibility nor let the DM hide content from themselves** in `api/src/main/kotlin/no/rauboti/tome/campaigns/CampaignService.kt`
 - [ ] T042 [US2] `CampaignController` + members endpoints returning the role-aware `CampaignView`; the caller's `role` is computed per campaign (DM vs player) even when they are both (FR-017) in `api/src/main/kotlin/no/rauboti/tome/campaigns/CampaignController.kt`
 - [ ] T043 [US2] Web campaigns API client + Zod schemas in `web/src/api/campaigns.ts`
 - [ ] T044 [US2] Web campaign create + roster management (DM adds by character id / removes) in `web/src/components/campaigns/`
@@ -137,10 +218,10 @@ own PC; session goes planned → completed.
 
 ### Implementation for User Story 3
 
-- [ ] T049 [US3] Migrations `V3__create_npc.sql`, `V4__create_content.sql`, `V5__create_session.sql` in `api/src/main/resources/db/migration/`
-- [ ] T050 [US3] `Npc` model/repo/service/controller (reuses the sheet engine) in `api/src/main/kotlin/no/rauboti/tome/npcs/`
-- [ ] T051 [US3] `Content` model/repo/service/controller (visibility private/shared) in `api/src/main/kotlin/no/rauboti/tome/content/`
-- [ ] T052 [US3] `Session` model/repo/service/controller in `api/src/main/kotlin/no/rauboti/tome/sessions/`
+- [ ] T049 [US3] Extend the `Campaign` aggregate with embedded `npcs[]` / `content[]` and campaign-level `rolls[]` (models + serialization) — these stay **embedded in the campaign document** (`sessions` are a separate collection — T052); **guard writes against the 16 MB document limit** (clear error before the driver does — residual growth candidates are `content`/campaign `rolls`, data-model.md "Document-size bound") in `api/src/main/kotlin/no/rauboti/tome/campaigns/`
+- [ ] T050 [US3] `Npc` embedded model + service/controller (reuses the sheet engine + an NPC-side resolver analogous to `CharacterDataResolver` — compute-on-read, base inputs only; extract a shared core if it duplicates the character one) operating on `campaign.npcs[]` via `CampaignRepository` array updates — no separate repo/collection — in `api/src/main/kotlin/no/rauboti/tome/npcs/`
+- [ ] T051 [US3] `Content` embedded model + service/controller (visibility private/shared) operating on `campaign.content[]` via `CampaignRepository` array updates in `api/src/main/kotlin/no/rauboti/tome/content/`
+- [ ] T052 [US3] `Session` as its **own `sessions` collection** (`@Document`, `@Id`, `@Version`, `campaignId` reference, embedded session-level `rolls[]`) + `SessionRepository` (MongoTemplate, list by `campaignId`) + service/controller (nested under `/campaigns/{id}/sessions`) in `api/src/main/kotlin/no/rauboti/tome/sessions/`
 - [ ] T053 [US3] Extend `PermissionService` with `npc.isPrivate` and `content.visibility` rules in `api/src/main/kotlin/no/rauboti/tome/campaigns/PermissionService.kt`
 - [ ] T054 [US3] Web NPC management UI (DM) in `web/src/components/campaigns/Npcs.tsx`
 - [ ] T055 [US3] Web content share/private UI + player view in `web/src/components/campaigns/Content.tsx`
@@ -171,13 +252,13 @@ blocking), advance turns → a watching player's view updates live; players neve
 ### Implementation for User Story 4
 
 - [ ] T061 [US4] Dice evaluator (pure Kotlin, `SecureRandom`) in `api/src/main/kotlin/no/rauboti/tome/dice/DiceEvaluator.kt`
-- [ ] T062 [US4] Migrations `V6__create_encounter_combatant.sql`, `V7__create_roll.sql` in `api/src/main/resources/db/migration/`
-- [ ] T063 [US4] Roll recording + optional apply-to-sheet (through the `CharacterService`/NPC write path so warnings apply) + `POST /api/rolls` controller in `api/src/main/kotlin/no/rauboti/tome/dice/`
+- [ ] T062 [US4] Mongock changelogs `C003` (create `sessions` + index `{campaignId:1}`) and `C004` (create `encounters` + indexes `{sessionId:1}`, `{campaignId:1}`) in `api/src/main/kotlin/no/rauboti/tome/config/migration/` — **no `rolls` changelog**: rolls are embedded in their container (campaign/session/encounter), not a collection
+- [ ] T063 [US4] `Roll` as an **embedded sub-document** (`initiatorId`, expression, results, total, `appliedTo?`, `createdAt` — **no scope-id fields**) appended to its container's `rolls[]` via **nested endpoints** (`POST /campaigns/{id}/rolls`, `…/sessions/{sid}/rolls`, `…/encounters/{eid}/rolls`); optional apply-to-sheet through the `CharacterService`/NPC write path (warnings apply; response resolved-on-read) in `api/src/main/kotlin/no/rauboti/tome/dice/`
 - [ ] T064 [US4] SSE infrastructure — emitter registry + `AuthorizedEventPublisher` (reuses `PermissionService`) + async config in `api/src/main/kotlin/no/rauboti/tome/realtime/`
 - [ ] T065 [US4] `GET /api/campaigns/{id}/stream` (`SseEmitter`) controller in `api/src/main/kotlin/no/rauboti/tome/realtime/StreamController.kt`
 - [ ] T066 [US4] Publish domain events (`sheet.updated`, `content.updated`, `roster.updated`, `combat.updated`, `roll.created`) from the character/campaign/content/combat/roll services via the publisher
-- [ ] T067 [US4] `Encounter`/`Combatant` models/repos + `EncounterService` (initiative order, next-turn/round, end) in `api/src/main/kotlin/no/rauboti/tome/combat/`
-- [ ] T068 [US4] `EncounterController` — start, next-turn, end, add combatants, and **`PATCH` a combatant to change `isRevealed`/`initiative` mid-combat** (reveal drives the SSE fan-out, FR-021) in `api/src/main/kotlin/no/rauboti/tome/combat/EncounterController.kt`
+- [ ] T067 [US4] `Encounter` as its **own `encounters` collection** (`@Document`, `@Id`, `@Version` — the live-combat concurrency unit; `sessionId` + denormalized `campaignId` references; embedded `combatants[]` and encounter-level `rolls[]`); combatants carry **`combatantId` + `combatantType`** (`character`|`npc`, resolution enforced in-app; optional `$jsonSchema` validator) + `EncounterRepository` (MongoTemplate) + `EncounterService` (initiative order, next-turn/round, end) in `api/src/main/kotlin/no/rauboti/tome/combat/`
+- [ ] T068 [US4] `EncounterController` — endpoints **nested under a session** (`/campaigns/{id}/sessions/{sessionId}/encounters…`): start, next-turn, end, add combatants, and **`PATCH` a combatant to change `isRevealed`/`initiative` mid-combat** (reveal drives the SSE fan-out, FR-021) in `api/src/main/kotlin/no/rauboti/tome/combat/EncounterController.kt`
 - [ ] T069 [US4] Web `useCampaignStream` (`EventSource`) hook + MSW SSE mock in `web/src/realtime/`
 - [ ] T070 [US4] Web `DiceRoller` UI + roll log + apply-to-sheet prompt in `web/src/components/dice/`
 - [ ] T071 [US4] Web `InitiativeTracker` + turn/round control (DM) + revealed-state player view, updating live via SSE in `web/src/components/combat/`
@@ -210,7 +291,7 @@ engine or cross-cutting code (SC-009).
 - [ ] T080 Performance sanity — sheet save p95 < 300 ms; live update within 3 s (SC-007); a full combat round for ≤6 PCs + NPCs (SC-008)
 - [ ] T081 [P] Ensure Spotless + ESLint/Prettier gates pass in `mvn verify` / web `lint`
 - [ ] T082 [P] i18n coverage — nb/en for all chrome/labels with English fallback
-- [ ] T083 (AFTER US5) Column-promotion review — with a second rule set (Dark Souls) in hand, decide which cross-cutting sheet values (HP `hpMax`/`hpCurrent`, initiative, …) genuinely earn a promoted/indexed column for combat/roster queries vs. staying in `characters.data`, and migrate them out (new `V*__promote_*.sql`) + update the model/repo. See plan.md "Deferred Decisions".
+- [ ] T083 (AFTER US5) Top-level-field/index review — with a second rule set (Dark Souls) in hand, decide which cross-cutting **base-input** sheet values (e.g. HP `hpCurrent`/`hpMax`) genuinely earn a top-level document field and/or index for combat/roster queries vs. staying inside `data`, and lift them out via a Mongock changelog + model/repo update. **The decision MUST also be reflected in `contracts/openapi.yaml`** — promoting the field to a top-level property on the `Character`/`Npc` schemas (v1 keeps HP inside `data`, so the schemas expose no top-level `hp*`). Note: **derived** values are never stored (surfaced by `CharacterDataResolver` on read), so only base inputs are candidates. See plan.md "Deferred Decisions".
 
 ---
 
@@ -218,12 +299,16 @@ engine or cross-cutting code (SC-009).
 
 ### Phase dependencies
 
-- **Setup (Phase 1)** → no dependencies.
-- **Foundational (Phase 2)** → depends on Setup; **blocks all user stories**.
-- **User stories (Phases 3–7)** → each depends on Foundational. Recommended order is priority order
-  (US1 → US2 → US3 → US4 → US5) because later stories build on earlier data:
-  - US2 needs US1's `character`; US3 needs US2's `campaign`; US4 needs US2/US3 (campaign, NPCs) and
-    US1 (sheets, for apply-to-sheet); US5 needs the whole engine proven.
+- **Setup (Phase 1)** → no dependencies. *(Completed on Postgres; superseded by Phase 3B for storage.)*
+- **Foundational (Phase 2)** → depends on Setup; **blocks all user stories**. *(Completed; the JSONB/
+  JdbcTemplate/Flyway parts are superseded by Phase 3B.)*
+- **Phase 3B re-platform (MongoDB + compute-on-read)** → depends on US1 being built; **must complete
+  before US2–US5**, since those are authored against MongoDB (`MongoTemplate`, embedded aggregates,
+  Mongock, `CharacterDataResolver`). This is the amendment's pivot point.
+- **User stories (Phases 4–7 / US2–US5)** → each depends on Foundational **and Phase 3B**. Recommended
+  order is priority order because later stories build on earlier data:
+  - US2 needs US1's `character`; US3 needs US2's `campaign` (embeds NPCs/content/sessions); US4 needs
+    US2/US3 (campaign, NPCs) and US1 (sheets, for apply-to-sheet); US5 needs the whole engine proven.
 - **Polish (Phase 8)** → after the desired stories are complete.
 
 ### Within each user story
@@ -252,9 +337,11 @@ engine or cross-cutting code (SC-009).
 
 ### Incremental delivery
 
-US1 (MVP) → US2 (shared table) → US3 (DM tools) → US4 (live combat) → US5 (2nd rule set, after a spec
-amendment). Each story is an independently testable, demoable increment. Per the constitution, start a
-fresh feature branch before each increment's code.
+US1 (MVP, built on Postgres) → **Phase 3B re-platform to MongoDB + compute-on-read** → US2 (shared
+table) → US3 (DM tools) → US4 (live combat) → US5 (2nd rule set, after a spec amendment). Each story —
+and Phase 3B — is an independently testable, demoable increment. Per the constitution, start a fresh
+feature branch before each increment's code (Phase 3B is one increment; its tasks are kept small for
+line-by-line review).
 
 ---
 
