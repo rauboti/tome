@@ -1,5 +1,5 @@
 import { Heading, HStack, IconButton, Stack } from '@chakra-ui/react'
-import { Button, Card, Input, SegmentedControl, Select } from '@rauboti/ui'
+import { Button, Card, Combobox, Input, SegmentedControl } from '@rauboti/ui'
 import { useTranslation } from 'react-i18next'
 import type { SheetDefinition, SheetField } from '@/api/schemas'
 
@@ -120,23 +120,39 @@ const FieldWidget = ({
         />
       )
 
-    case 'select':
+    case 'select': {
+      const options = field.options ?? []
+      // Read-only: show the chosen option's label (not its raw value) in a disabled field,
+      // mirroring how a derived field renders — the Combobox has no read-only mode.
+      if (readOnly) {
+        const selected = options.find((option) => option.value === value)
+        return (
+          <Input
+            label={label}
+            required
+            value={selected ? t(selected.labelKey) : ''}
+            readOnly
+            disabled
+          />
+        )
+      }
       return (
-        <Select
+        <Combobox
           label={label}
           required
-          value={asText(value)}
-          disabled={readOnly}
-          onChange={(e) => onChange(e.currentTarget.value || null)}
-        >
-          <option value="">—</option>
-          {(field.options ?? []).map((option) => (
-            <option key={option.value} value={option.value}>
-              {t(option.labelKey)}
-            </option>
-          ))}
-        </Select>
+          items={options.map((option) => ({
+            value: option.value,
+            label: t(option.labelKey),
+          }))}
+          value={
+            value === null || value === undefined || value === ''
+              ? []
+              : [String(value)]
+          }
+          onValueChange={(values) => onChange(values[0] ?? null)}
+        />
       )
+    }
 
     case 'list':
       return (

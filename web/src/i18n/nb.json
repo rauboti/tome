@@ -28,6 +28,17 @@
     "yes": "Ja",
     "no": "Nei"
   },
+  "characters": {
+    "new": "Ny karakter",
+    "empty": "Ingen karakterer ennå. Opprett din første.",
+    "loadError": "Kunne ikke laste karakterene dine.",
+    "form": {
+      "name": "Navn",
+      "ruleSet": "Regelsett",
+      "create": "Opprett",
+      "createError": "Kunne ikke opprette karakteren. Prøv igjen."
+    }
+  },
   "language": {
     "label": "Språk",
     "nb": "Norsk",

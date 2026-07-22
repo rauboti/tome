@@ -28,6 +28,17 @@
     "yes": "Yes",
     "no": "No"
   },
+  "characters": {
+    "new": "New character",
+    "empty": "No characters yet. Create your first one.",
+    "loadError": "Couldn't load your characters.",
+    "form": {
+      "name": "Name",
+      "ruleSet": "Rule set",
+      "create": "Create",
+      "createError": "Couldn't create the character. Try again."
+    }
+  },
   "language": {
     "label": "Language",
     "nb": "Norsk",
