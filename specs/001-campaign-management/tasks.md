@@ -83,7 +83,7 @@ violation warns but still saves; a stale write returns 409.
 
 - [X] T028 [US1] Migration `V1__create_character.sql` (jsonb `data`, promoted `name`/`rule_set_id`/`owner_id`/`hp_current`/`hp_max`, `version`, timestamps) in `api/src/main/resources/db/migration/`
 - [X] T029 [US1] `Character` model + `CharacterRepository` (JdbcTemplate, jsonb via T014) in `api/src/main/kotlin/no/rauboti/tome/characters/`
-- [ ] T030 [US1] `CharacterService` — create/get/update/delete with `RuleSet.validate` + `computeDerived` and optimistic concurrency in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterService.kt`
+- [X] T030 [US1] `CharacterService` — create/get/update/delete with `RuleSet.validate` + `computeDerived` and optimistic concurrency in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterService.kt`
 - [ ] T031 [US1] `CharacterController` REST endpoints in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterController.kt`
 - [ ] T032 [US1] Web characters API client + Zod schemas in `web/src/api/characters.ts`
 - [ ] T033 [US1] Web `CharactersPage` (list + create dialog) in `web/src/pages/CharactersPage.tsx` and `web/src/components/characters/`
