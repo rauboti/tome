@@ -37,6 +37,11 @@
       "ruleSet": "Regelsett",
       "create": "Opprett",
       "createError": "Kunne ikke opprette karakteren. Prøv igjen."
+    },
+    "sheet": {
+      "loadError": "Kunne ikke laste denne karakteren.",
+      "saveError": "Kunne ikke lagre endringene. Prøv igjen.",
+      "conflict": "Denne karakteren ble endret et annet sted. Last inn på nytt og prøv igjen."
     }
   },
   "language": {
