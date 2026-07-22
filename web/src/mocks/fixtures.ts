@@ -10,8 +10,10 @@ import type { Me, RuleSetSummary, SheetDefinition } from '@/api/schemas'
 export const authenticatedUser: Me = {
   userId: 'ada-lovelace',
   displayName: 'Ada Lovelace',
-  roles: ['User'],
-  // locale omitted → English UI (FR-015).
+  roles: ['user'],
+  // Explicit null, exactly as the BFF serializes a user with no locale set → English UI (FR-015).
+  // (Guards the regression where the schema rejected `null` and dropped the app to the login screen.)
+  locale: null,
 }
 
 /** The bundled rule sets (`GET /api/rule-sets`) — v1 ships D&D 3.5 only. */
@@ -30,7 +32,16 @@ export const dnd35Definition: SheetDefinition = {
       id: 'identity',
       labelKey: 'dnd35.section.identity',
       fields: [
-        { id: 'name', labelKey: 'dnd35.field.name', type: 'text' },
+        // Explicit `null`s mirror the BFF's serialization of absent optional field props (Kotlin
+        // nullables) — guards the regression where the schema rejected `null` and the sheet failed
+        // to load the rule-set definition.
+        {
+          id: 'name',
+          labelKey: 'dnd35.field.name',
+          type: 'text',
+          derivedFrom: null,
+          options: null,
+        },
         { id: 'level', labelKey: 'dnd35.field.level', type: 'int' },
         {
           id: 'alignment',

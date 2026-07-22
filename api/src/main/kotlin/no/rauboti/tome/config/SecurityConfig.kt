@@ -84,8 +84,10 @@ class SecurityConfig(
                 // Any signed-in Hive user may sign out, even without a Tome grant.
                 it.requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                 // Everything else under /api (incl. /api/auth/me) is gated on a Tome app role.
-                // A signed-in Hive user without an Admin/User grant gets a 403 (FR-024).
-                it.requestMatchers("/api/**").hasAnyRole("Admin", "User")
+                // A signed-in Hive user without an admin/user grant gets a 403 (FR-024). Role keys
+                // are Hive's lowercase app-role keys (`admin`/`user`) — the token's `roles` claim
+                // carries the keys, not the display names (consistent with the other consumers).
+                it.requestMatchers("/api/**").hasAnyRole("admin", "user")
                 it.anyRequest().authenticated()
             }.exceptionHandling {
                 // Unauthenticated API call → plain 401 (no redirect); the SPA starts a Hive login.

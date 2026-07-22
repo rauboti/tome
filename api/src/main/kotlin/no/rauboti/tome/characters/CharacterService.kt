@@ -42,6 +42,11 @@ class CharacterService(
     /**
      * Create a character for [ownerId] under [ruleSetId]. The rule set must be one the engine knows
      * (else a 400 — the create contract has no 404); derived values are computed before the insert.
+     *
+     * The promoted [name] column mirrors the sheet's `name` field (data-model.md), so seed it into
+     * the sheet [data] when the caller didn't supply one — otherwise the rendered "Name" field would
+     * be blank even though the character has a name (the create form collects only the name, not the
+     * whole sheet). An explicit `data.name` from the caller is left untouched.
      */
     @Transactional
     fun create(
@@ -51,7 +56,8 @@ class CharacterService(
         data: SheetData,
     ): CharacterWithWarnings {
         val ruleSet = resolveForWrite(ruleSetId)
-        val computed = ruleSet.computeDerived(data)
+        val seeded = if (data.containsKey("name")) data else data + ("name" to name)
+        val computed = ruleSet.computeDerived(seeded)
         val warnings = ruleSet.validate(computed, SheetChange(previous = emptyMap(), changedFields = computed.keys))
         return CharacterWithWarnings(repository.insert(ownerId, ruleSetId, name, computed), warnings)
     }

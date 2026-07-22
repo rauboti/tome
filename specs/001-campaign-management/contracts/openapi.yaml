@@ -27,11 +27,11 @@ paths:
                 required: [userId, roles]
                 properties:
                   userId: { type: string, description: Hive subject }
-                  displayName: { type: string }
+                  displayName: { type: string, nullable: true }
                   roles:
                     type: array
-                    items: { type: string, enum: [Admin, User] }
-                  locale: { type: string, enum: [nb, en] }
+                    items: { type: string, enum: [admin, user] }
+                  locale: { type: string, enum: [nb, en], nullable: true, description: "null when the user has set no locale" }
         "401": { $ref: "#/components/responses/Unauthorized" }
   /auth/logout:
     post:
@@ -439,7 +439,7 @@ components:
       type: object
       properties:
         code: { type: string }
-        field: { type: string }
+        field: { type: string, nullable: true, description: "null for a sheet-wide warning" }
         message: { type: string }
     RuleSetSummary:
       type: object
@@ -467,7 +467,16 @@ components:
                     id: { type: string }
                     labelKey: { type: string }
                     type: { type: string, enum: [int, text, bool, select, list, derived] }
-                    derivedFrom: { type: string, description: Present for derived fields }
+                    derivedFrom: { type: string, nullable: true, description: "formula for a derived field; null otherwise" }
+                    options:
+                      type: array
+                      nullable: true
+                      description: "choices for a select field; null otherwise"
+                      items:
+                        type: object
+                        properties:
+                          value: { type: string }
+                          labelKey: { type: string }
     CharacterSummary:
       type: object
       properties:

@@ -39,10 +39,11 @@ private fun audienceValidator(): OAuth2TokenValidator<Jwt> =
 
 /**
  * Maps the token's `roles` claim to Spring's `ROLE_` convention, so endpoints can use
- * `hasRole("Admin")` / `@PreAuthorize`. Hive scopes each token to a single app, so `roles`
+ * `hasRole("admin")` / `@PreAuthorize`. Hive scopes each token to a single app, so `roles`
  * is a flat list of the keys the user holds in Tome (the `aud` — already checked by
- * [tomeJwtValidator] — identifies the app). The values are Tome's role keys **`Admin`/`User`**
- * (FR-024); casing must match what Hive stamps for the `tome` app. Absent/empty → no
+ * [tomeJwtValidator] — identifies the app). The values are Hive's lowercase app-role keys
+ * **`admin`/`user`** (the display names `Administrator`/`User` live in Hive's role catalog, not
+ * the token) — casing must match what Hive stamps for the `tome` app (FR-024). Absent/empty → no
  * authorities, i.e. no access (a signed-in Hive user without a Tome grant is denied).
  */
 class TomeJwtAuthoritiesConverter : Converter<Jwt, Collection<GrantedAuthority>> {
