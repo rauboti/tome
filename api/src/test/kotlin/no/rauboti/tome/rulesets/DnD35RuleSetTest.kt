@@ -294,4 +294,18 @@ class DnD35RuleSetTest {
         assertEquals(0, slots[2]["bonusSpells"])
         assertEquals(1, slots[2]["total"]) // 1 + 0
     }
+
+    @Test
+    fun `the spells table uses a class-filtered catalog select with a level column (T114)`() {
+        val spellcasting = ruleSet.definition().sections.first { it.id == "spellcasting" }
+        val spells = spellcasting.fields.first { it.id == "spells" }
+        assertEquals(FieldType.TABLE, spells.type)
+
+        val spellColumn = spells.columns!!.first { it.id == "spell" }
+        assertEquals(FieldType.SELECT, spellColumn.type)
+        assertEquals("spells", spellColumn.optionsFrom?.catalog)
+        assertEquals("casterClass", spellColumn.optionsFrom?.filterBy)
+        // A `level` sibling column exists for the catalog pick to fill from the option meta.
+        assertTrue(spells.columns!!.any { it.id == "level" })
+    }
 }
