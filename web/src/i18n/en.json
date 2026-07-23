@@ -108,6 +108,8 @@
       "skills": "Skills",
       "feats": "Feats",
       "equipment": "Equipment",
+      "gear": "Equipment",
+      "totalWeight": "Total Weight",
       "languages": "Languages",
       "notes": "Notes"
     },
@@ -151,6 +153,21 @@
       "damage": "Damage",
       "critical": "Critical",
       "range": "Range",
+      "notes": "Notes"
+    },
+    "feat": {
+      "name": "Name",
+      "type": "Type",
+      "description": "Description",
+      "general": "General",
+      "combat": "Combat",
+      "metamagic": "Metamagic",
+      "itemCreation": "Item Creation"
+    },
+    "gear": {
+      "item": "Item",
+      "quantity": "Quantity",
+      "weight": "Weight",
       "notes": "Notes"
     }
   }
