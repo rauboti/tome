@@ -65,13 +65,45 @@
     {
       "id": "combat",
       "labelKey": "dnd35.section.combat",
-      "columns": 6,
+      "columns": 4,
       "fields": [
-        { "id": "hpMax", "labelKey": "dnd35.field.hpMax", "type": "int", "colSpan": 2 },
-        { "id": "hpCurrent", "labelKey": "dnd35.field.hpCurrent", "type": "int", "colSpan": 2 },
-        { "id": "armorClass", "labelKey": "dnd35.field.armorClass", "type": "int", "colSpan": 2 },
-        { "id": "baseAttackBonus", "labelKey": "dnd35.field.baseAttackBonus", "type": "int", "colSpan": 3 },
-        { "id": "initiative", "labelKey": "dnd35.field.initiative", "type": "derived", "derivedFrom": "dexMod", "colSpan": 3 }
+        { "id": "hpMax", "labelKey": "dnd35.field.hpMax", "type": "int" },
+        { "id": "hpCurrent", "labelKey": "dnd35.field.hpCurrent", "type": "int" },
+        { "id": "baseAttackBonus", "labelKey": "dnd35.field.baseAttackBonus", "type": "int" },
+        { "id": "grappleSizeMod", "labelKey": "dnd35.field.grappleSizeMod", "type": "int" },
+        { "id": "initiative", "labelKey": "dnd35.field.initiative", "type": "derived", "derivedFrom": "dexMod" },
+        { "id": "grapple", "labelKey": "dnd35.field.grapple", "type": "derived", "derivedFrom": "baseAttackBonus + strMod + grappleSizeMod" }
+      ]
+    },
+    {
+      "id": "defense",
+      "labelKey": "dnd35.section.defense",
+      "columns": 3,
+      "fields": [
+        {
+          "id": "armorClass",
+          "labelKey": "dnd35.field.armorClass",
+          "type": "derived",
+          "derivedFrom": "10 + armorBonus + shieldBonus + dexMod + sizeMod + naturalArmor + deflection + dodge"
+        },
+        {
+          "id": "touchAC",
+          "labelKey": "dnd35.field.touchAC",
+          "type": "derived",
+          "derivedFrom": "10 + dexMod + sizeMod + deflection + dodge"
+        },
+        {
+          "id": "flatFootedAC",
+          "labelKey": "dnd35.field.flatFootedAC",
+          "type": "derived",
+          "derivedFrom": "10 + armorBonus + shieldBonus + sizeMod + naturalArmor + deflection"
+        },
+        { "id": "armorBonus", "labelKey": "dnd35.field.armorBonus", "type": "int" },
+        { "id": "shieldBonus", "labelKey": "dnd35.field.shieldBonus", "type": "int" },
+        { "id": "naturalArmor", "labelKey": "dnd35.field.naturalArmor", "type": "int" },
+        { "id": "deflection", "labelKey": "dnd35.field.deflection", "type": "int" },
+        { "id": "dodge", "labelKey": "dnd35.field.dodge", "type": "int" },
+        { "id": "sizeMod", "labelKey": "dnd35.field.sizeMod", "type": "int" }
       ]
     },
     {
