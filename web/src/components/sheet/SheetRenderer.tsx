@@ -311,7 +311,6 @@ const TableWidget = ({
 
   return (
     <Stack gap="3">
-      <Heading size="sm">{label}</Heading>
       {rows.map((row, rowIndex) => {
         const displayRow = { ...row, ...deriveRow(columns, row, sheetScope) }
         const removable = !readOnly && rowIndex >= presetRows.length

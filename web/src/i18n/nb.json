@@ -113,6 +113,22 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large"
+    },
+    "skill": {
+      "name": "Skill",
+      "ability": "Ability",
+      "ranks": "Ranks",
+      "classSkill": "Class Skill",
+      "misc": "Misc",
+      "total": "Total"
+    },
+    "ability": {
+      "strMod": "Str",
+      "dexMod": "Dex",
+      "conMod": "Con",
+      "intMod": "Int",
+      "wisMod": "Wis",
+      "chaMod": "Cha"
     }
   }
 }

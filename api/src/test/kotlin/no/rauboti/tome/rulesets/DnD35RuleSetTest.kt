@@ -110,4 +110,61 @@ class DnD35RuleSetTest {
         val warnings = ruleSet.validate(emptyMap(), SheetChange(previous = emptyMap(), changedFields = emptySet()))
         assertTrue(warnings.isEmpty())
     }
+
+    @Test
+    fun `the skills section is a table seeded with the canonical skill list (T106)`() {
+        val skills =
+            ruleSet
+                .definition()
+                .sections
+                .first { it.id == "skills" }
+                .fields
+                .first()
+        assertEquals(FieldType.TABLE, skills.type)
+        assertTrue((skills.presetRows?.size ?: 0) >= 30) // the standard 3.5 skill list
+        assertTrue(skills.columns!!.any { it.id == "total" && it.type == FieldType.DERIVED })
+    }
+
+    @Test
+    fun `computes a skill row total from ranks plus its key-ability modifier (T106)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "strength" to 18, // strMod +4
+                    "skills" to listOf(mapOf("skill" to "Climb", "keyAbility" to "strMod", "ranks" to 8, "misc" to 1)),
+                ),
+            )
+
+        @Suppress("UNCHECKED_CAST")
+        val skills = out["skills"] as List<Map<String, Any?>>
+        assertEquals(13, skills[0]["total"]) // 8 + strMod 4 + 1
+    }
+
+    @Test
+    fun `validate warns when skill ranks exceed the 3-5 maximum for the level (T106)`() {
+        val warnings =
+            ruleSet.validate(
+                mapOf(
+                    "level" to 1, // class-skill max = level + 3 = 4
+                    "skills" to listOf(mapOf("skill" to "Climb", "keyAbility" to "strMod", "ranks" to 8, "classSkill" to true)),
+                ),
+                SheetChange(previous = emptyMap(), changedFields = setOf("skills")),
+            )
+        assertEquals(1, warnings.size)
+        assertEquals("skill.ranks-exceed-max", warnings.first().code)
+        assertEquals("skills", warnings.first().field)
+    }
+
+    @Test
+    fun `validate does not warn for skill ranks within the maximum (T106)`() {
+        val warnings =
+            ruleSet.validate(
+                mapOf(
+                    "level" to 5, // class-skill max = 8
+                    "skills" to listOf(mapOf("skill" to "Climb", "keyAbility" to "strMod", "ranks" to 8, "classSkill" to true)),
+                ),
+                SheetChange(previous = emptyMap(), changedFields = emptySet()),
+            )
+        assertTrue(warnings.isEmpty())
+    }
 }

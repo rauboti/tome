@@ -58,6 +58,26 @@ class DnD35RuleSet(
         if (data.containsKey("level") && intOf(data, "level") < MIN_LEVEL) {
             warnings += RuleWarning("level.below-minimum", "Level must be at least $MIN_LEVEL.", "level")
         }
+        // Soft-check skill ranks against the 3.5 maximum: level + 3 for a class skill, half that for a
+        // cross-class skill (SRD). Only when level is known; a rankless (preset-only) row isn't flagged.
+        if (data.containsKey("level")) {
+            val level = intOf(data, "level")
+            for (row in data["skills"] as? List<*> ?: emptyList<Any?>()) {
+                val skill = row as? Map<*, *> ?: continue
+                val ranks = (skill["ranks"] as? Number)?.toInt() ?: continue
+                val isClassSkill = skill["classSkill"] as? Boolean ?: false
+                val maxRanks = if (isClassSkill) level + MAX_RANKS_OVER_LEVEL else (level + MAX_RANKS_OVER_LEVEL) / 2
+                if (ranks > maxRanks) {
+                    val name = (skill["skill"] as? String) ?: "skill"
+                    warnings +=
+                        RuleWarning(
+                            code = "skill.ranks-exceed-max",
+                            message = "Ranks in '$name' ($ranks) exceed the maximum of $maxRanks at level $level.",
+                            field = "skills",
+                        )
+                }
+            }
+        }
         return warnings
     }
 
@@ -72,6 +92,9 @@ class DnD35RuleSet(
         private const val DEFINITION_PATH = "rulesets/dnd35/definition.json"
         private const val MIN_ABILITY_SCORE = 1
         private const val MIN_LEVEL = 1
+
+        /** Max skill ranks over character level: class skill = level + 3, cross-class = (level + 3) / 2. */
+        private const val MAX_RANKS_OVER_LEVEL = 3
         private val ABILITIES =
             listOf("strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma")
     }
