@@ -220,4 +220,31 @@ class DnD35RuleSetTest {
         assertEquals(22, out["flatFootedAC"]) // 10 + 8 + 2 + 0 + natural 1 + deflection 1
         assertEquals(11, out["grapple"]) // BAB 5 + strMod 2 + grappleSizeMod 4 (its own scale, not sizeMod)
     }
+
+    @Test
+    fun `feats and gear are user-row tables (T109)`() {
+        val sections = ruleSet.definition().sections
+        val feats = sections.first { it.id == "feats" }.fields.first()
+        val gear = sections.first { it.id == "gear" }.fields.first()
+        assertEquals(FieldType.TABLE, feats.type)
+        assertEquals(FieldType.TABLE, gear.type)
+        assertTrue(feats.presetRows.isNullOrEmpty()) // user-added rows
+        assertTrue(gear.presetRows.isNullOrEmpty())
+    }
+
+    @Test
+    fun `computes total gear weight as the sum of the gear rows' weight column (T109)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "gear" to
+                        listOf(
+                            mapOf("item" to "Greatsword", "quantity" to 1, "weight" to 8),
+                            mapOf("item" to "Full plate", "quantity" to 1, "weight" to 50),
+                            mapOf("item" to "Rations", "quantity" to 5, "weight" to 5),
+                        ),
+                ),
+            )
+        assertEquals(63, out["totalWeight"]) // 8 + 50 + 5 (sum of the weight column)
+    }
 }

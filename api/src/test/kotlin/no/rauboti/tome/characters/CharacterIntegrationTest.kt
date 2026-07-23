@@ -81,7 +81,8 @@ class CharacterIntegrationTest : IntegrationTest() {
     @Test
     fun `a created character persists and reloads exactly`() {
         val owner = UUID.randomUUID()
-        val id = postCharacter(owner, "Aria", """{"level":3,"notes":"scout","feats":["Dodge"]}""")["id"]
+        // `feats` is a structured table (T109): a row is an object, not a bare string.
+        val id = postCharacter(owner, "Aria", """{"level":3,"notes":"scout","feats":[{"name":"Dodge","type":"general"}]}""")["id"]
 
         mvc
             .get("/api/characters/$id") { with(user(owner, "user")) }
@@ -93,7 +94,7 @@ class CharacterIntegrationTest : IntegrationTest() {
                 jsonPath("$.data.name") { value("Aria") }
                 jsonPath("$.data.level") { value(3) }
                 jsonPath("$.data.notes") { value("scout") }
-                jsonPath("$.data.feats[0]") { value("Dodge") }
+                jsonPath("$.data.feats[0].name") { value("Dodge") }
             }
     }
 

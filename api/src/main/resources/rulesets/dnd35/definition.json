@@ -230,14 +230,44 @@
       "id": "feats",
       "labelKey": "dnd35.section.feats",
       "fields": [
-        { "id": "feats", "labelKey": "dnd35.field.feats", "type": "list" }
+        {
+          "id": "feats",
+          "labelKey": "dnd35.field.feats",
+          "type": "table",
+          "columns": [
+            { "id": "name", "labelKey": "dnd35.feat.name", "type": "text" },
+            {
+              "id": "type",
+              "labelKey": "dnd35.feat.type",
+              "type": "select",
+              "options": [
+                { "value": "general", "labelKey": "dnd35.feat.general" },
+                { "value": "combat", "labelKey": "dnd35.feat.combat" },
+                { "value": "metamagic", "labelKey": "dnd35.feat.metamagic" },
+                { "value": "itemCreation", "labelKey": "dnd35.feat.itemCreation" }
+              ]
+            },
+            { "id": "description", "labelKey": "dnd35.feat.description", "type": "text" }
+          ]
+        }
       ]
     },
     {
       "id": "gear",
       "labelKey": "dnd35.section.gear",
       "fields": [
-        { "id": "equipment", "labelKey": "dnd35.field.equipment", "type": "list" },
+        {
+          "id": "gear",
+          "labelKey": "dnd35.field.gear",
+          "type": "table",
+          "columns": [
+            { "id": "item", "labelKey": "dnd35.gear.item", "type": "text" },
+            { "id": "quantity", "labelKey": "dnd35.gear.quantity", "type": "int" },
+            { "id": "weight", "labelKey": "dnd35.gear.weight", "type": "int" },
+            { "id": "notes", "labelKey": "dnd35.gear.notes", "type": "text" }
+          ]
+        },
+        { "id": "totalWeight", "labelKey": "dnd35.field.totalWeight", "type": "derived", "derivedFrom": "sum(gear.weight)" },
         { "id": "languages", "labelKey": "dnd35.field.languages", "type": "list" },
         { "id": "notes", "labelKey": "dnd35.field.notes", "type": "text" }
       ]
