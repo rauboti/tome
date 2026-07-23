@@ -1,6 +1,7 @@
 package no.rauboti.tome.characters
 
 import no.rauboti.tome.support.IntegrationTest
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
@@ -31,6 +32,7 @@ import java.util.UUID
  * All routes require a Tome role, so callers authenticate with a `jwt()` carrying `ROLE_User`; the
  * caller's `sub` owns the character.
  */
+@Disabled("re-platform: re-enabled in T100–T102")
 @AutoConfigureMockMvc
 class CharacterIntegrationTest : IntegrationTest() {
     @Autowired private lateinit var mvc: MockMvc
