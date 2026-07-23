@@ -58,12 +58,22 @@ export const fieldOptionSchema = z.object({
  *  definition fail to parse → the sheet screen couldn't load the character. */
 /** One column of a `table` field (openapi `SheetField.columns[]`). A column is itself a field —
  *  base-input or per-row `derived` — but one level deep (no nested tables). */
+/** Points a `select` at a named catalog filtered by another field's value (openapi
+ *  `SheetField.optionsFrom`, T113): the picker fetches options for the current `filterBy` field value. */
+export const optionsFromSchema = z.object({
+  catalog: z.string(),
+  filterBy: z.string(),
+})
+export type OptionsFrom = z.infer<typeof optionsFromSchema>
+
 export const sheetColumnSchema = z.object({
   id: z.string(),
   labelKey: z.string(),
   type: z.enum(['int', 'text', 'bool', 'select', 'derived']),
   derivedFrom: z.string().nullish(),
   options: z.array(fieldOptionSchema).nullish(),
+  /** For a catalog-backed select column (e.g. spells filtered by caster class). */
+  optionsFrom: optionsFromSchema.nullish(),
 })
 export type SheetColumn = z.infer<typeof sheetColumnSchema>
 
@@ -80,6 +90,8 @@ export const sheetFieldSchema = z.object({
   /** For a `table` field: fixed rows the definition seeds (canonical content); each a row object
    *  keyed by column id. Preset cells render read-only; users may still append rows. */
   presetRows: z.array(z.record(z.string(), z.unknown())).nullish(),
+  /** For a catalog-backed select field (see [optionsFromSchema]). */
+  optionsFrom: optionsFromSchema.nullish(),
 })
 export type SheetField = z.infer<typeof sheetFieldSchema>
 

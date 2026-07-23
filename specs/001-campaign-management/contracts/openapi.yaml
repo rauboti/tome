@@ -82,7 +82,7 @@ paths:
                   type: object
                   properties:
                     value: { type: string, description: "stored value, e.g. the spell id" }
-                    labelKey: { type: string, description: "display label (or literal name for SRD content)" }
+                    label: { type: string, description: "literal display label (catalog content is data, not an i18n key)" }
                     meta:
                       type: object
                       nullable: true

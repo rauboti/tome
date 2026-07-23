@@ -1,8 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { http, HttpResponse } from 'msw'
 import { ThemeProvider } from '@rauboti/ui'
 import { SheetRenderer } from './SheetRenderer'
+import { server } from '@/mocks/server'
 import type { SheetDefinition } from '@/api/schemas'
 // Real bundles so labels resolve to their canonical D&D terms (T022).
 import '@/i18n'
@@ -229,5 +231,77 @@ describe('SheetRenderer — table field (T105)', () => {
       { skill: 'Climb', keyAbility: 'strMod', ranks: 8 },
       {},
     ])
+  })
+})
+
+/** A table with a catalog-backed select column (T113): the `spell` picker's options come from the
+ *  catalog endpoint, filtered by the sheet-level `casterClass`. */
+const catalogDefinition: SheetDefinition = {
+  ruleSetId: 'dnd35',
+  version: '1.0.0',
+  sections: [
+    {
+      id: 'spellcasting',
+      labelKey: 'secSpellcasting',
+      fields: [
+        { id: 'casterClass', labelKey: 'colCasterClass', type: 'text' },
+        {
+          id: 'spells',
+          labelKey: 'tblSpells',
+          type: 'table',
+          columns: [
+            {
+              id: 'spell',
+              labelKey: 'colSpell',
+              type: 'select',
+              optionsFrom: { catalog: 'spells', filterBy: 'casterClass' },
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+describe('SheetRenderer — catalog-backed select (T113)', () => {
+  test('fetches the class-filtered options and reports the picked spell id', async () => {
+    server.use(
+      http.get('/api/rule-sets/dnd35/catalogs/spells', ({ request }) => {
+        const filter = new URL(request.url).searchParams.get('filter')
+        return HttpResponse.json(
+          filter === 'wizard'
+            ? [
+                { value: 'fireball', label: 'Fireball', meta: { level: 3 } },
+                {
+                  value: 'magicMissile',
+                  label: 'Magic Missile',
+                  meta: { level: 1 },
+                },
+              ]
+            : [],
+        )
+      }),
+    )
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider>
+        <SheetRenderer
+          definition={catalogDefinition}
+          values={{ casterClass: 'wizard', spells: [{}] }}
+          onChange={onChange}
+          readOnly={false}
+        />
+      </ThemeProvider>,
+    )
+
+    // Open the spell picker and pick a catalog option fetched for the wizard class.
+    await userEvent.click(
+      screen.getByRole('button', { name: /toggle options/i }),
+    )
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'Fireball' }),
+    )
+
+    expect(onChange).toHaveBeenLastCalledWith('spells', [{ spell: 'fireball' }])
   })
 })

@@ -7,9 +7,15 @@ import {
   Input,
   SegmentedControl,
 } from '@rauboti/ui'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { SheetColumn, SheetDefinition, SheetField } from '@/api/schemas'
+import { getCatalogOptions, type CatalogOption } from '@/api/catalogs'
+import type {
+  OptionsFrom,
+  SheetColumn,
+  SheetDefinition,
+  SheetField,
+} from '@/api/schemas'
 import { deriveRow, deriveValues } from './derive'
 
 /**
@@ -69,6 +75,7 @@ export const SheetRenderer = ({
                         onChange={(next) => onChange(field.id, next)}
                         readOnly={readOnly}
                         sheetScope={displayValues}
+                        ruleSetId={definition.ruleSetId}
                         t={t}
                       />
                     </Grid.Item>
@@ -91,6 +98,8 @@ type WidgetProps = {
   readOnly: boolean
   /** Sheet-level values + top-level derived — the scope a table row's per-row formulas resolve against. */
   sheetScope: Record<string, unknown>
+  /** The rule set id — used to fetch a catalog-backed select's options (`optionsFrom`). */
+  ruleSetId: string
   t: (key: string) => string
 }
 
@@ -101,6 +110,7 @@ const FieldWidget = ({
   onChange,
   readOnly,
   sheetScope,
+  ruleSetId,
   t,
 }: WidgetProps) => {
   // Derived values are computed server-side (T017) — always display-only.
@@ -119,6 +129,7 @@ const FieldWidget = ({
         onChange={onChange}
         readOnly={readOnly}
         sheetScope={sheetScope}
+        ruleSetId={ruleSetId}
         t={t}
       />
     )
@@ -284,6 +295,7 @@ const TableWidget = ({
   onChange,
   readOnly,
   sheetScope,
+  ruleSetId,
   t,
 }: WidgetProps) => {
   const columns = field.columns ?? []
@@ -330,6 +342,13 @@ const TableWidget = ({
                         isPresetCell(rowIndex, column.id)
                       }
                       onChange={(cell) => updateCell(rowIndex, column.id, cell)}
+                      ruleSetId={ruleSetId}
+                      // A catalog-backed column filters by another field's value (sheet-level).
+                      filterValue={
+                        column.optionsFrom
+                          ? sheetScope[column.optionsFrom.filterBy]
+                          : undefined
+                      }
                       t={t}
                     />
                   </Grid.Item>
@@ -361,15 +380,63 @@ const TableWidget = ({
   )
 }
 
+/**
+ * Options for a catalog-backed select (T113): fetches from the catalog endpoint keyed off the current
+ * `filterValue` (e.g. the caster class); a blank filter or no `optionsFrom` yields none. Results are
+ * cached per (ruleSet, catalog, filter) so the many rows of a table don't each re-fetch.
+ */
+const catalogCache = new Map<string, CatalogOption[]>()
+
+const useCatalogOptions = (
+  ruleSetId: string,
+  optionsFrom: OptionsFrom | null | undefined,
+  filterValue: unknown,
+): CatalogOption[] => {
+  const filter =
+    typeof filterValue === 'string'
+      ? filterValue
+      : filterValue === null || filterValue === undefined
+        ? ''
+        : String(filterValue)
+  const key = optionsFrom ? `${ruleSetId}/${optionsFrom.catalog}/${filter}` : ''
+  // The async fetch result, tagged with the key it was fetched for (so a stale result from a previous
+  // filter is ignored). The empty and cached cases are derived during render, not set in the effect.
+  const [fetched, setFetched] = useState<{
+    key: string
+    options: CatalogOption[]
+  } | null>(null)
+
+  useEffect(() => {
+    if (!optionsFrom || filter === '' || catalogCache.has(key)) return
+    const controller = new AbortController()
+    getCatalogOptions(ruleSetId, optionsFrom.catalog, filter, controller.signal)
+      .then((opts) => {
+        if (controller.signal.aborted) return
+        catalogCache.set(key, opts)
+        setFetched({ key, options: opts })
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setFetched({ key, options: [] })
+      })
+    return () => controller.abort()
+  }, [ruleSetId, optionsFrom, key, filter])
+
+  if (!optionsFrom || filter === '') return []
+  return catalogCache.get(key) ?? (fetched?.key === key ? fetched.options : [])
+}
+
 /** One table cell, rendered by its column type. Any read-only cell — a `derived` column, a preset
  *  (definition-pinned) cell, or a read-only sheet — renders as a uniform disabled value, mirroring how
- *  scalar derived fields display; editable cells use the type's input widget. */
+ *  scalar derived fields display; editable cells use the type's input widget. A `select` column may
+ *  draw its choices from a catalog (`optionsFrom`, fetched + filtered) instead of static `options`. */
 const CellInput = ({
   column,
   label,
   value,
   readOnly,
   onChange,
+  ruleSetId,
+  filterValue,
   t,
 }: {
   column: SheetColumn
@@ -377,18 +444,33 @@ const CellInput = ({
   value: unknown
   readOnly: boolean
   onChange: (value: unknown) => void
+  ruleSetId: string
+  filterValue: unknown
   t: (key: string) => string
 }) => {
+  const catalogOptions = useCatalogOptions(
+    ruleSetId,
+    column.optionsFrom,
+    filterValue,
+  )
+  // A select's items: literal labels from the catalog, or i18n labels from static options.
+  const selectItems = column.optionsFrom
+    ? catalogOptions.map((o) => ({ value: o.value, label: o.label }))
+    : (column.options ?? []).map((o) => ({
+        value: o.value,
+        label: t(o.labelKey),
+      }))
+
   if (readOnly || column.type === 'derived') {
     const selected =
       column.type === 'select'
-        ? column.options?.find((option) => option.value === value)
+        ? selectItems.find((item) => item.value === value)
         : undefined
     return (
       <Input
         label={label}
         required
-        value={selected ? t(selected.labelKey) : asText(value)}
+        value={selected ? selected.label : asText(value)}
         readOnly
         disabled
       />
@@ -425,10 +507,7 @@ const CellInput = ({
         <Combobox
           label={label}
           required
-          items={(column.options ?? []).map((option) => ({
-            value: option.value,
-            label: t(option.labelKey),
-          }))}
+          items={selectItems}
           value={
             value === null || value === undefined || value === ''
               ? []
