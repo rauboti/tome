@@ -55,6 +55,7 @@
       "abilities": "Abilities",
       "combat": "Combat",
       "saves": "Saving Throws",
+      "attacks": "Attacks",
       "skills": "Skills",
       "feats": "Feats",
       "gear": "Gear"
@@ -92,6 +93,7 @@
       "reflex": "Reflex",
       "willBase": "Will (base)",
       "will": "Will",
+      "attacks": "Attacks",
       "skills": "Skills",
       "feats": "Feats",
       "equipment": "Equipment",
@@ -129,6 +131,16 @@
       "intMod": "Int",
       "wisMod": "Wis",
       "chaMod": "Cha"
+    },
+    "attack": {
+      "weapon": "Weapon",
+      "ability": "Ability",
+      "misc": "Misc",
+      "bonus": "Attack Bonus",
+      "damage": "Damage",
+      "critical": "Critical",
+      "range": "Range",
+      "notes": "Notes"
     }
   }
 }
