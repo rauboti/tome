@@ -59,7 +59,8 @@
       "attacks": "Attacks",
       "skills": "Skills",
       "feats": "Feats",
-      "gear": "Gear"
+      "gear": "Gear",
+      "spellcasting": "Spellcasting"
     },
     "field": {
       "name": "Name",
@@ -169,6 +170,12 @@
       "quantity": "Quantity",
       "weight": "Weight",
       "notes": "Notes"
+    },
+    "spell": {
+      "casterClass": "Caster Class",
+      "casterLevel": "Caster Level",
+      "keyAbility": "Key Ability",
+      "saveDcBase": "Spell Save DC (base)"
     }
   }
 }

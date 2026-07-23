@@ -247,4 +247,16 @@ class DnD35RuleSetTest {
             )
         assertEquals(63, out["totalWeight"]) // 8 + 50 + 5 (sum of the weight column)
     }
+
+    @Test
+    fun `computes the spell save DC base from the casting ability modifier (T110)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "intelligence" to 18, // intMod +4
+                    "spellKeyAbility" to "intMod",
+                ),
+            )
+        assertEquals(14, out["spellSaveDcBase"]) // 10 + intMod 4 (a level-N spell's DC = this + N)
+    }
 }
