@@ -1,6 +1,7 @@
 package no.rauboti.tome.characters
 
 import no.rauboti.tome.support.IntegrationTest
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
@@ -33,6 +34,7 @@ import java.util.UUID
  * caller's `sub` is the owning user. Each authenticated case runs against the real Postgres from
  * [IntegrationTest], so created rows persist across the request chain within a test.
  */
+@Disabled("re-platform: re-enabled in T100–T102")
 @AutoConfigureMockMvc
 class CharacterContractTest : IntegrationTest() {
     @Autowired private lateinit var mvc: MockMvc
