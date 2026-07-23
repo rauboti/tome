@@ -1,8 +1,23 @@
 # Implementation Plan: Campaign & Character Management
 
-**Branch**: `001-campaign-management` | **Date**: 2026-07-20 (amended 2026-07-22) | **Spec**: [spec.md](spec.md)
+**Branch**: `001-campaign-management` | **Date**: 2026-07-20 (amended 2026-07-22, 2026-07-24) | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/001-campaign-management/spec.md`
+
+> **Amendment 2026-07-24 (post-Phase 3C / T114) — see [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).**
+> The rule-set engine pivots from **data-driven** to **strongly-typed, code-first**. The opaque
+> `SheetData = Map<String, Any?>` is replaced as the domain/wire model by a **sealed hierarchy of typed,
+> per-rule-set sheets** (base-inputs vs. resolved split; derived values become computed properties).
+> This **retires** `FormulaEvaluator`, `SheetCompute`, the definition's `derivedFrom` formulas, the web
+> `derive.ts`, and the write-time strip step; **compute-on-read (D8) survives as plain Kotlin
+> properties** (derived can't be stored or drift, by construction). Storage binds polymorphically on the
+> existing `ruleSetId` discriminator (validated at the deserialization boundary); the wire contract
+> becomes a `oneOf` + discriminator the web codegens from. Shared code (combat/SSE/roster) depends on
+> **projection interfaces** the sheets implement, not on the union — so most of the rule-set-agnostic
+> property is kept; the softened part is **FR-023/SC-009** (adding a rule set now touches typed Kotlin +
+> exhaustive `when`s, not a JSON file — the compiler enumerates every site). Supersedes research.md
+> **D3/D8** in part. Landing as a bounded DnD35 vertical slice (DS a stub variant); US1 and the Phase
+> 3C/T112–T114 content are re-typed. Rationale, alternatives, and propagation list in ADR-001.
 
 > **Amendment 2026-07-22 (post-US1).** Persistence switched from **PostgreSQL/JSONB/Flyway/JdbcTemplate
 > to MongoDB** (Spring Data MongoDB + `MongoTemplate`, Spring Data-native index/ledger migrations,
@@ -187,8 +202,8 @@ sheet renderer are written lift-ready in case they become shared `@rauboti/*` bu
 |-----------|------------|-------------------------------------|
 | **Server-Sent Events real-time layer** (`realtime/`, SSE emitter registry, per-event authorization) | FR-019/FR-021/SC-007: during a session, authorized participants see revealed updates live without refreshing | Poll-and-refresh — rejected: laggy and chatty for a live table. WebSocket/STOMP + broker — rejected as heavier than needed: updates are server→client fan-out; client actions already use REST; a handful of users per campaign fit an in-process emitter registry (research D2) |
 | **MongoDB persistence** instead of the Postgres/`JdbcTemplate`/Flyway platform baseline (avec/pulse/taskmaster) | The domain is document-shaped (sheets, notes, campaign aggregates); BSON stores it natively and lets the campaign aggregate embed its owned children in one document; the maintainer also wants non-Postgres competence kept alive on the platform (owned, accepted divergence) | Stay on Postgres `JSONB` (the prior v1 baseline) — technically sound but superseded 2026-07-22: JSONB is a document store bolted onto a relational engine, and the relational strengths (FK/CHECK) are not what this domain leans on. Trade accepted: cross-document invariants become index + app rules (data-model.md Invariants); the platform now runs two DB technologies (research D3/D5) |
-| **MongoDB documents + `RuleSet` strategy engine** (Hybrid) instead of typed per-rule-set collections | FR-001/FR-023/SC-009: one shared engine so dice/combat/sync/permissions are written once and a 2nd/3rd rule set is just definition + logic | Bespoke typed collections per rule set — rejected (spec clarification 2026-07-20): would duplicate every cross-cutting feature per rule set or force a shared abstraction anyway. Fully data-driven rules (no code) — rejected: a generic engine expressive enough for 3.5's mechanics is a large upfront build (research D3) |
-| **Derived values computed on read, never stored** (server-authoritative; web echoes for feedback) | FR-005 / Clarification 2026-07-22: single source of truth = base inputs; a stored derived value cannot drift from its inputs because none is stored; less stored state = fewer error points | Persist derived on write (prior v1 behavior) — rejected: redundant state that can drift, doubled by the client also computing. Client-only derivation — rejected: server dice/combat would lose derived values and 3.5's rules would be duplicated in TypeScript (research D8) |
+| ⚠ **Superseded 2026-07-24 by [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md)** — ~~**MongoDB documents + `RuleSet` strategy engine** (Hybrid) instead of typed per-rule-set collections~~ | ~~FR-001/FR-023/SC-009: one shared engine so dice/combat/sync/permissions are written once and a 2nd/3rd rule set is just definition + logic~~ | The engine is now **strongly-typed, code-first** (ADR-001): a sealed hierarchy of typed per-rule-set sheets, not an opaque `SheetData` map. Cross-cutting code depends on **projection interfaces** the sheets implement, so dice/combat/sync/permissions are still written once against those; adding a rule set now touches typed Kotlin + exhaustive `when`s rather than a JSON definition (FR-023/SC-009 softened). The "fully data-driven rules" rejection stands and is now moot |
+| ⚠ **Mechanism superseded 2026-07-24 by [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md)** — **Derived values computed on read, never stored** (server-authoritative) | FR-005 / Clarification 2026-07-22: single source of truth = base inputs; a stored derived value cannot drift because none is stored; less stored state = fewer error points | The **principle survives**; the mechanism changes from formula strings (`FormulaEvaluator`/`SheetCompute`/`derive.ts`) to **computed Kotlin properties** on the resolved sheet type. Derived values become unstoreable by construction (stronger than the formula approach). Persist-derived-on-write and client-only derivation stay rejected for the same reasons |
 | **In-house dice-expression evaluator** (`dice/`), server-authoritative | FR-020: in-app rolls whose outcomes are recorded and applied to sheets | A client-side roller — rejected: not auditable and can diverge across viewers; a third-party dice library — rejected: the grammar (`NdM±K`, keep/drop) is tiny and dependency-free (research D4) |
 | **Optimistic concurrency** (Spring Data `@Version`, 409 on stale write) | SC-006: concurrent edits (DM + player on a shared sheet) must not silently overwrite | Last-write-wins — rejected: silent data loss; field-level CRDT merge — rejected as overkill for a handful of editors (research D5) |
 | **MongoDB single-node replica set** (compose + Testcontainers) | Multi-document transactions require it (research D5); `MongoDBContainer` auto-provides it under test | Standalone `mongod` — rejected: no transactions at all, so any future atomic multi-doc write would be impossible; a full multi-node RS — rejected: unjustified ops overhead at this scale |

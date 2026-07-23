@@ -24,6 +24,20 @@ are written first and must FAIL before implementation.
 > stable; **execution order is by phase position, not by ID** — Phase 3B runs immediately after US1
 > and before US2. See research.md (D3/D5/D8), data-model.md, plan.md.
 
+> **⚠ Amendment 2026-07-24 (post-3C): data-driven engine → strongly-typed, code-first — see
+> [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).** The opaque `SheetData = Map<String, Any?>`
+> engine (definition JSON + `derivedFrom` formulas evaluated by `FormulaEvaluator`/`SheetCompute`/web
+> `derive.ts`) is replaced by a **sealed hierarchy of typed per-rule-set sheets**; derived values become
+> **computed Kotlin properties** (compute-on-read survives; the formula engines and the write-time strip
+> retire). Storage binds polymorphically via `_class` + `@TypeAlias` on the existing `ruleSetId`; the
+> wire becomes a `oneOf` + discriminator the web codegens from. **New Phase 3D (T118+)** carries the
+> pivot as a bounded DnD35 vertical slice (DarkSouls a stub variant), sequenced **after Phase 3C, before
+> US2** so US2/US3 (NPCs) are authored typed from the start. This **supersedes the compute mechanism of
+> T105/T108/T110/T111 and the generic renderer of T023/T105** (left `[X]` as historical record, as the
+> Postgres US1 tasks are). A **persistence spike** (throwaway `api/.../spike/TypedSheetPersistenceSpike.kt`,
+> 3/3 green) de-risked the Mongo binding first — findings in ADR-001. Supersedes research.md D3/D8 in
+> part; softens spec FR-023/SC-009.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies on incomplete tasks)
@@ -219,11 +233,89 @@ depth), but is sequenced first by preference.
 
 **Checkpoint**: the 3.5 sheet is as rich as v1 wants — **Phase 3C complete (T105–T114)**: canonical skills, weapons, defense/AC + grapple, feats/gear, full spellcasting (stats + slots + class-filtered SRD spell picker). US1 still green; US2 can begin.
 
+> **⚠ Superseded in part by Phase 3D (ADR-001, 2026-07-24).** Phase 3C reached the target *sheet
+> content*, but expressed it as data (`definition.json`) + `derivedFrom` formulas over an opaque
+> `SheetData` map. **Phase 3D re-expresses this same 3.5 content as a typed Kotlin sheet** (computed
+> properties instead of formulas; typed row classes for the skills/attacks/gear/spells tables). The
+> *content decisions* from 3C stand and are the spec for the typed model; the *mechanism* (formula
+> engine + generic renderer) is retired. Treat T105–T114 as the authoritative description of **what**
+> the 3.5 sheet contains when porting it to types in Phase 3D.
+
 ### Phase 3C follow-ups (UX polish, non-blocking — deferred, do not gate US2)
+
+> **⚠ Reconsider after Phase 3D (ADR-001).** T115/T116 target the generic `SheetRenderer`, which Phase
+> 3D may **retire** in favor of typed per-rule-set components. Do **not** start them before 3D lands;
+> then re-scope against whatever renders the sheet (likely typed DnD35 components), or fold the layout
+> work into 3D's frontend task. T117 (spell `school` enrichment) is data-only and 3D-independent.
 
 - [ ] T115 **Sheet table layout — compare & choose** (spawned chip `task_20475fb5`). The `table` widget (`web/src/components/sheet/SheetRenderer.tsx`) renders each row as a Card with a label on every cell — verbose for the ~31-row skills table and the wide attacks table. Prototype a condensed **column-headers-once** layout (optionally a 2nd alternative), screenshot each, and let Gaute pick by eye (he wants to compare visually). **Hard constraint:** preserve each cell's accessible name (`${columnLabel} ${rowIndex+1}`) so `SheetRenderer.test.tsx` table queries stay green.
 - [ ] T116 **Collapsible sheet sections** (spawned chip `task_52234a22`). Add a reusable Chakra-based collapsible/accordion wrapper to the **`@rauboti/ui`** package (design-system home, not inline in tome), then consume it in `SheetRenderer.tsx` to wrap each section by its heading. **Default expanded** (the field-by-role tests hide otherwise); **independent per-section collapse** (not single-open); preserve a11y. Note: the `@rauboti/ui` change likely lives in that package's own repo → flag what needs publishing/version-bumping for tome to consume.
 - [ ] T117 [P] **Spell catalog `school` metadata** (optional enrichment, deferred in T112). `spells.json` omits `school` (the divine SRD list pages have no `<h4>` school subheaders; only arcane spells expose it). If wanted, enrich by fetching each spell's own SRD page (`tools/build-spells.mjs`) and add `school` to each entry (+ surface it in the picker label). ~600 extra fetches — weigh the value.
+
+---
+
+## Phase 3D: Typed rule-set engine — data-driven → strongly-typed, code-first (AMENDMENT 2026-07-24, ADR-001)
+
+**Runs after Phase 3C is green and before US2 (Phase 4)** — so US2/US3 (campaigns, and especially NPCs
+at T050) are authored against the typed sheet from the start rather than re-typed later. Pivots the
+Hybrid engine from an opaque `SheetData` map + `definition.json` + `derivedFrom` formulas to a **sealed
+hierarchy of typed per-rule-set sheets** with **computed-property** derived values. Design, alternatives,
+consequences, and the persistence-spike findings: [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).
+
+> **De-risked first.** A throwaway spike (`api/src/test/kotlin/no/rauboti/tome/spike/TypedSheetPersistenceSpike.kt`,
+> 3/3 green on a real Mongo Testcontainer) proved: (A) a sealed sheet field round-trips through
+> `MongoTemplate` with no custom converter; (B) the storage discriminator is `_class` + `@TypeAlias`
+> (**not** Jackson `@JsonTypeInfo`, which is wire-only), so storage decouples from class FQNs; (C) a
+> getter-only computed `val` is **never persisted** — so "derived can't be stored" holds by construction
+> and the write-time `stripDerived` step is **deleted**, and the base-inputs/resolved split is *optional*
+> (default to a single typed class with computed derived). Delete the spike at T128.
+
+**Scope pinned by 3C.** T105–T114 defined **what** the 3.5 sheet contains (canonical skills, attacks,
+defense/AC + grapple, feats/gear, full spellcasting incl. the class-filtered SRD spell picker). Phase 3D
+re-expresses that exact content as types — no new sheet content, no new rules. The class-filtered spell
+**catalog** (server-side, T112–T113: `spells.json` + `CatalogController`) **survives**; only the
+`definition.json`-driven `optionsFrom` descriptor is replaced by the typed component calling the catalog.
+
+**Independent Test**: `./mvnw clean verify` + web tests green against the typed engine; a created DnD35
+character reloads as the typed sheet; the raw stored doc holds base inputs only with `_class: "dnd35"`
+(no derived); GET/PUT responses carry computed derived values; an unknown/mismatched `ruleSetId` is
+rejected at the wire boundary; the DnD35 typed sheet screen renders and edits end to end.
+
+**Preflight (Constitution III)**: fresh branch off `main` before any code; leave work uncommitted for
+Gaute to review/commit. **Branching**: recommend the **backend slice (T118–T125) as one increment** and
+the **frontend slice (T126–T127) as a second**, T128 closing — but the split is Gaute's call (Phase 3B
+precedent: a whole re-platform as one increment of small, line-by-line-reviewable tasks).
+
+### Spec-first propagation (SDD Principle I — amend the contract before code)
+
+- [ ] T118 Propagate ADR-001 into the spec artifacts **before** engine code. **`spec.md`** — soften **FR-023/SC-009** from "add a rule set with no shared-engine change (definition + logic only)" to the ADR reality (a new rule set is a typed sealed variant + its computed derived + components + filling exhaustive `when`s; the compiler enumerates the sites) — **maintainer-owned edit, flag for Gaute**. **`data-model.md`** — describe `characters.data` (and NPC `data`) as a **typed, discriminated base-inputs sub-document** (`_class` = `@TypeAlias`, e.g. `"dnd35"`; derived never stored, now by construction), not a free-form map. **`contracts/openapi.yaml`** — change `Character.data` / `Npc.data` from free-form `object` to **`oneOf` the per-rule-set sheet schemas with a `ruleSetId` discriminator**; remove `SheetDefinition`/`SheetField`/`optionsFrom` schemas that no longer describe the wire (the `GET /api/rule-sets/{id}` definition payload — see T123 — and the catalog endpoint stay). Note that `web/` **codegens** its TS sheet types from this schema (T126). No code yet; this task is the contract the rest of 3D implements against.
+
+### Tests for Phase 3D (write first, must FAIL) ⚠️
+
+- [ ] T119 [US1] Backend typed round-trip + wire tests — rewrite `CharacterIntegrationTest` for the typed engine: a created DnD35 character reloads as `DnD35CharacterData`; the **raw stored doc holds base inputs only + `_class: "dnd35"`, no derived** (port the existing raw-BSON assertion); GET/PUT echo carries computed derived; a **stale `@Version` → 409** still holds; an **unknown/mismatched `ruleSetId` on POST/PUT is rejected** (wire `oneOf` bind failure → 400). Update `CharacterContractTest` for the `oneOf` request/response shape. These replace the spike's coverage. In `api/src/test/kotlin/no/rauboti/tome/characters/`.
+- [ ] T120 [US1] DnD35 typed-sheet unit tests — assert the **computed derived properties** (ability mods, saves, BAB, AC/touch/flat-footed + grapple, per-row skill/attack totals, gear `totalWeight`, spell-slot bonus/total incl. level-0 zeroing) reproduce the outputs the retired formulas produced. **Port the expectations from `DnD35RuleSetTest`/`SheetComputeTest`/`FormulaEvaluatorTest`** onto the typed model, so parity with 3C is proven, then those old tests retire with their subjects (T125). In `api/src/test/kotlin/no/rauboti/tome/rulesets/DnD35CharacterDataTest.kt`.
+- [ ] T121 [P] [US1] Web tests (must FAIL) for the typed DnD35 sheet components replacing the generic-renderer tests — render/edit/derived-display/warning/version-conflict against the typed component tree; class-filtered spell picker still fetches from the catalog. In `web/src/components/characters/` (and retire/replace `SheetRenderer.test.tsx`, `derive.test.ts` at T126).
+
+### Backend — typed sheet + engine
+
+- [ ] T122 [US1] Sealed **`CharacterData`** hierarchy — finish the maintainer's started files in `api/src/main/kotlin/no/rauboti/tome/characters/data/`: add the missing `package no.rauboti.tome.characters.data`; make `DSCharacterData.kt` declare its **own** `DarkSoulsCharacterData` (currently a duplicate of the DnD35 class — a redeclaration error); model **`DnD35CharacterData`** with base-input constructor properties + **derived computed `val`s** (the 3C content), and **typed row data classes** for the tables (skills/attacks/feats/gear/spell-slots/spells). Add `@TypeAlias("dnd35")`/`@TypeAlias("darksouls")` (storage discriminator value) and Jackson `@JsonTypeInfo(use = NAME, property = "ruleSetId")` + `@JsonSubTypes` (wire polymorphism). `DarkSoulsCharacterData` stays a **minimal stub variant** so `when`s compile (US5 fleshes it, T072–T075). Depends on T118.
+- [ ] T123 Reshape the **`RuleSet`** strategy for the typed world in `api/src/main/kotlin/no/rauboti/tome/rulesets/` — drop `computeDerived(SheetData)` and `definition(): SheetDefinition` (compute is now the sheet's own properties); keep `id()`/`name()` and `validate(...)` **retyped to read the typed sheet** (soft warnings, FR-005, unchanged behavior). Decide the fate of **`GET /api/rule-sets/{id}`**: the web no longer renders from a definition, so this shrinks to serving **id + name** for the create-character picker (drop the `SheetDefinition` body); `RuleSetRegistry` unchanged. Retire `SheetData`/`SheetDefinition`/`SheetField`/`SheetChange`/`OptionsFrom`/`FieldType` from `RuleSet.kt` (what survives moves with the type). Depends on T122.
+- [ ] T124 [US1] Retype the character slice — `Character.data: CharacterData` (was `SheetData`) in `Character.kt`; `CharacterRepository` is largely unchanged (the spike proved the round-trip); **rewrite `CharacterService`**: **delete `stripDerived`** (finding C — computed props never persist) and **delete `CharacterDataResolver`** (the "resolved sheet" is just the typed object; its computed props serialize as derived on the wire), `validate` on the typed sheet; `CharacterController` returns the typed sheet directly (HP read from typed fields, not `data["hpCurrent"]`). Delete `CharacterDataResolver.kt` + `CharacterDataResolverTest.kt`. Depends on T122/T123; makes T119 pass.
+
+### Backend — retire the data-driven machinery
+
+- [ ] T125 Retire the formula engine + definition structure — delete `FormulaEvaluator.kt`, `SheetCompute.kt` and their tests (`FormulaEvaluatorTest`, `SheetComputeTest`), and the now-superseded assertions in `DnD35RuleSetTest` (parity now lives in T120's typed test). Remove `api/src/main/resources/rulesets/dnd35/definition.json` (structure/`derivedFrom` are now code) — **keep `spells.json`** (the T112 catalog data, now read by the typed catalog). Confirm nothing references the deleted types (`./mvnw clean compile`). Depends on T124.
+
+### Frontend — typed sheet
+
+- [ ] T126 [US1] Typed web sheet — **codegen the discriminated-union TS sheet types from `openapi.yaml`** (T118) so web types can't drift from the wire; build **typed DnD35 sheet components** (sections/tables/derived display) replacing the generic definition-driven `SheetRenderer` for dnd35; **retire `web/src/components/sheet/derive.ts`** (client formula mirror) and the generic renderer + widgets (or reduce to shared primitives the typed components reuse — decide here). The **class-filtered spell picker keeps fetching** from the catalog endpoint (`web/src/api/catalogs.ts` unchanged); the `optionsFrom` descriptor is replaced by the typed component calling it. Update `web/src/api/characters.ts` (typed `data`, send base inputs only — now inherent to the typed shape). Depends on T118; makes T121 pass.
+- [ ] T127 [P] [US1] Web green — finish/adjust the typed component tests (T121) and the characters page/edit flow; `tsc -b` / ESLint / Prettier / `vitest run` all green. Reconcile the deferred UX follow-ups T115/T116 against the typed components (re-scope or fold in). Depends on T126.
+
+### Green + cleanup
+
+- [ ] T128 **Delete the spike** (`api/src/test/kotlin/no/rauboti/tome/spike/TypedSheetPersistenceSpike.kt` + the empty `spike/` dir) and run the full gate — `./mvnw clean verify` (unit + Mongo integration + Spotless) and web `vitest run` green; grep for residual `SheetData`/`definition.json`/`derive.ts`/`FormulaEvaluator`/`computeDerived` references and clear stragglers (mirror the T104 sweep discipline); confirm the DnD35 typed sheet works end to end (api + DB tier; full browser flow needs Hive, as at T104). Update the Phase 3C follow-up notes (T115/T116) to their re-scoped form. Depends on T125/T127.
+
+**Checkpoint**: the engine is strongly-typed end to end; US1's 3.5 sheet is a typed `DnD35CharacterData` with computed derived; storage holds typed base inputs only (`_class` discriminator); the wire is a discriminated union the web codegens from; the formula engines and generic renderer are retired. US2/US3 build (and author NPCs) against the typed engine.
 
 ---
 
@@ -272,7 +364,7 @@ own PC; session goes planned → completed.
 ### Implementation for User Story 3
 
 - [ ] T049 [US3] Extend the `Campaign` aggregate with embedded `npcs[]` / `content[]` and campaign-level `rolls[]` (models + serialization) — these stay **embedded in the campaign document** (`sessions` are a separate collection — T052); **guard writes against the 16 MB document limit** (clear error before the driver does — residual growth candidates are `content`/campaign `rolls`, data-model.md "Document-size bound") in `api/src/main/kotlin/no/rauboti/tome/campaigns/`
-- [ ] T050 [US3] `Npc` embedded model + service/controller (reuses the sheet engine + an NPC-side resolver analogous to `CharacterDataResolver` — compute-on-read, base inputs only; extract a shared core if it duplicates the character one) operating on `campaign.npcs[]` via `CampaignRepository` array updates — no separate repo/collection — in `api/src/main/kotlin/no/rauboti/tome/npcs/`
+- [ ] T050 [US3] `Npc` embedded model + service/controller (reuses the sheet engine — **authored against the Phase 3D typed sheet** (ADR-001): the NPC's `data` is the same sealed `CharacterData`/`NpcData`-style typed sheet, derived as computed properties, base inputs only; **no formula-based resolver** — the "NPC-side `CharacterDataResolver`" this task originally described is obsolete once 3D lands) operating on `campaign.npcs[]` via `CampaignRepository` array updates — no separate repo/collection — in `api/src/main/kotlin/no/rauboti/tome/npcs/`
 - [ ] T051 [US3] `Content` embedded model + service/controller (visibility private/shared) operating on `campaign.content[]` via `CampaignRepository` array updates in `api/src/main/kotlin/no/rauboti/tome/content/`
 - [ ] T052 [US3] `Session` as its **own `sessions` collection** (`@Document`, `@Id`, `@Version`, `campaignId` reference, embedded session-level `rolls[]`) + `SessionRepository` (MongoTemplate, list by `campaignId`) + service/controller (nested under `/campaigns/{id}/sessions`) in `api/src/main/kotlin/no/rauboti/tome/sessions/`
 - [ ] T053 [US3] Extend `PermissionService` with `npc.isPrivate` and `content.visibility` rules in `api/src/main/kotlin/no/rauboti/tome/campaigns/PermissionService.kt`
@@ -360,6 +452,9 @@ engine or cross-cutting code (SC-009).
   Spring Data-native migrations, `CharacterDataResolver`). This is the amendment's pivot point.
 - **Phase 3C 3.5 sheet expansion (T105)** → after Phase 3B is green; sequenced before US2 by preference
   (verify the migration, then enrich the sheet). Its own increment; does not technically block US2.
+- **Phase 3D typed rule-set engine (T118+, ADR-001)** → after Phase 3C green; sequenced **before US2** so
+  US2/US3 (NPCs, T050) are authored against the typed sheet. Re-expresses 3C content as types; retires the
+  formula engine + generic renderer. Spec-first (T118) before code; persistence de-risked by the spike.
 - **User stories (Phases 4–7 / US2–US5)** → each depends on Foundational **and Phase 3B**. Recommended
   order is priority order because later stories build on earlier data:
   - US2 needs US1's `character`; US3 needs US2's `campaign` (embeds NPCs/content/sessions); US4 needs
@@ -393,10 +488,11 @@ engine or cross-cutting code (SC-009).
 ### Incremental delivery
 
 US1 (MVP, built on Postgres) → **Phase 3B re-platform to MongoDB + compute-on-read** → **Phase 3C 3.5
-sheet expansion (T105)** → US2 (shared table) → US3 (DM tools) → US4 (live combat) → US5 (2nd rule set,
-after a spec amendment). Each story — and Phases 3B/3C — is an independently testable, demoable increment. Per the constitution, start a fresh
-feature branch before each increment's code (Phase 3B is one increment; its tasks are kept small for
-line-by-line review).
+sheet expansion (T105–T114)** → **Phase 3D typed rule-set engine (T118+, ADR-001)** → US2 (shared table)
+→ US3 (DM tools) → US4 (live combat) → US5 (2nd rule set, after a spec amendment). Each story — and Phases
+3B/3C/3D — is an independently testable, demoable increment. Per the constitution, start a fresh feature
+branch before each increment's code (Phases 3B and 3D are re-platforms kept as small, line-by-line-reviewable
+tasks; 3D recommends a backend increment + a frontend increment).
 
 ---
 
