@@ -175,7 +175,16 @@
       "casterClass": "Caster Class",
       "casterLevel": "Caster Level",
       "keyAbility": "Key Ability",
-      "saveDcBase": "Spell Save DC (base)"
+      "saveDcBase": "Spell Save DC (base)",
+      "slotsTable": "Spells per Day",
+      "slots": {
+        "level": "Spell Level",
+        "perDay": "Base Slots",
+        "bonus": "Bonus Spells",
+        "total": "Total / Day",
+        "known": "Known",
+        "prepared": "Prepared"
+      }
     }
   }
 }
