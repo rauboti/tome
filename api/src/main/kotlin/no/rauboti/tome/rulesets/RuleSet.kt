@@ -12,11 +12,11 @@ package no.rauboti.tome.rulesets
  */
 
 /**
- * A character's/NPC's sheet values: a flat JSON object keyed by field id (matching the field ids in
- * the [SheetDefinition]). Stored as Postgres `JSONB` and (de)serialized by Jackson via the JdbcTemplate
- * conversion in JsonbSupport (T014). Values are the natural JSON types — Int/String/Boolean/List/Map —
- * so the engine and rule-set logic read them dynamically. Derived fields are written back into the same
- * map by [RuleSet.computeDerived].
+ * A character's/NPC's sheet values: a flat map keyed by field id (matching the field ids in the
+ * [SheetDefinition]). Persisted natively as a BSON sub-document on the character document (no JSON-string
+ * glue). Values are the natural JSON/BSON types — Int/String/Boolean/List/Map — so the engine and
+ * rule-set logic read them dynamically. Only base inputs are stored; derived fields are recomputed on
+ * read into the resolved map by [RuleSet.computeDerived] (compute-on-read, D8), never persisted.
  */
 typealias SheetData = Map<String, Any?>
 

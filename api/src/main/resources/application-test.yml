@@ -1,6 +1,6 @@
 # Test profile: integration tests get their MongoDB from a throwaway Testcontainers
 # MongoDBContainer (single-node replica set) wired via @ServiceConnection (harness
-# lands with T090), which supplies spring.data.mongodb.uri automatically — so none is
+# lands with T090), which supplies the Mongo connection details automatically — so none is
 # set here (mirrors how the old Postgres harness left the datasource to @ServiceConnection).
 # Migrations run Spring Data-natively on context start (T089/T091); no demo seed.
 spring:

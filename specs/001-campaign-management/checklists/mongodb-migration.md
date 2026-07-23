@@ -19,10 +19,10 @@ not whether code works.
 
 ## Requirement Clarity & Ambiguity
 
-- [ ] CHK008 - Is "the server response is authoritative" for derived values precise about whether the client ever persists its locally-derived values (feedback-only)? [Clarity, D8]
+- [x] CHK008 - Is "the server response is authoritative" for derived values precise about whether the client ever persists its locally-derived values (feedback-only)? [Clarity, D8] → **Resolved 2026-07-23** (T099/T102): the client re-derives locally for display only and sends **base inputs only** on save; `CharacterSheet.test.tsx` asserts the PUT body carries no derived field (`strMod`), and `CharacterSheet.tsx` KDoc states derived are "never persisted and never sent on a write (D8)".
 - [ ] CHK009 - Is the tome-db port/replica-set configuration stated unambiguously and identically across compose, quickstart, and env docs (host 5436 → 27017, replica set `rs0`)? [Clarity/Consistency, quickstart §Ports / tasks §T085]
 - [ ] CHK010 - Is the replica-set initiation mechanism pinned (init container vs. healthcheck-gated `rs.initiate()`) or explicitly left as an implementer choice? [Ambiguity, tasks §T085]
-- [ ] CHK011 - Is "no observable REST change / behavioral parity" defined with a verifiable criterion (e.g., the openapi contract tests pass unchanged)? [Measurability, plan §Amendment]
+- [x] CHK011 - Is "no observable REST change / behavioral parity" defined with a verifiable criterion (e.g., the openapi contract tests pass unchanged)? [Measurability, plan §Amendment] → **Resolved 2026-07-23** (T101/T103): the criterion is "`CharacterContractTest` passes unchanged" — its body was untouched by the re-platform (only `@Disabled` + a KDoc dropped) and it is **10/10 green** against the Mongo-backed context in `./mvnw clean verify`.
 - [ ] CHK012 - Are the terms "aggregate", "embedded", and "referenced" used consistently and defined once, so US2–US5 authors apply them the same way? [Clarity, data-model §Aggregate boundaries]
 
 ## Requirement Consistency (cross-artifact)
@@ -30,23 +30,23 @@ not whether code works.
 - [ ] CHK013 - Does the openapi `Character.data` description (resolved on read; derived not persisted; ignored on write) agree with D8 and data-model? [Consistency, contracts §Character / D8]
 - [ ] CHK014 - Do plan.md and data-model.md agree on the exact collection set — **characters, campaigns, sessions, encounters** (rolls embedded, not a collection) — and on what is embedded vs. referenced? [Consistency, plan §Post-design / data-model]
 - [ ] CHK015 - Is the "one active campaign per character" guard described consistently after the D6 correction — enforced by a unique partial multikey index **plus** an app pre-check — across research D6, data-model, and tasks (T038/T041)? [Consistency, research §D6 / data-model §Invariants]
-- [ ] CHK016 - Is optimistic concurrency described consistently as Spring Data `@Version` → 409 across research D5, data-model, plan, and the mapping task (T098)? [Consistency]
+- [x] CHK016 - Is optimistic concurrency described consistently as Spring Data `@Version` → 409 across research D5, data-model, plan, and the mapping task (T098)? [Consistency] → **Resolved 2026-07-23** (T098/T103): verified the `@Version` → `OptimisticLockingFailureException` → `409` chain reads consistently in research §D5 (l.175-177, 298), data-model (l.14-15, 246-247), plan (l.193), and is implemented + net-mapped by T098; exercised by the `CharacterIntegrationTest` stale-write 409 case (green).
 - [ ] CHK017 - Do the migration changes named in tasks (C001–C004, now Spring Data-native ledger-guarded units) match the migrations list and index definitions in data-model? [Consistency, tasks §T091/T038/T062 / data-model §Migrations]
-- [ ] CHK018 - Are all Postgres/Flyway/JdbcTemplate mentions that remain in the artifacts clearly historical/comparative rather than active requirements? [Consistency, Gap]
+- [x] CHK018 - Are all Postgres/Flyway/JdbcTemplate mentions that remain in the artifacts clearly historical/comparative rather than active requirements? [Consistency, Gap] → **Resolved 2026-07-23** (T104): the two stale *active* mentions were fixed — `RuleSet.kt` KDoc (claimed data is "Stored as Postgres `JSONB` … via JdbcTemplate/JsonbSupport") and `pom.xml` ("Jackson … SheetData <-> JSONB"). All remaining mentions are unambiguously historical/comparative: the "old Postgres harness" notes in `IntegrationTest`/`application-*.yml`, and `C001`'s "mirrors Flyway/Flamingock" naming analogy. Grep of `api/` (excl. `target/`) confirms no active Postgres/Flyway/JdbcTemplate/JSONB requirement remains.
 - [ ] CHK019 - Do the embedded-vs-referenced boundaries in tasks (T039/T049–T052/T067) match data-model's aggregate table exactly? [Consistency]
 
 ## Acceptance Criteria Quality
 
 - [ ] CHK020 - Do the performance success criteria (SC-001 sheet save <300 ms; SC-007 live update <3 s) remain valid and technology-agnostic under MongoDB, with no lingering Postgres-specific assumptions? [Measurability, spec §Success Criteria]
-- [ ] CHK021 - Is there a measurable criterion that the stored character document contains **no** derived fields (so D8 can be objectively verified)? [Measurability, tasks §T100]
-- [ ] CHK022 - Is SC-006 (no data loss on concurrent edits) expressed so it is verifiable against the `@Version`/409 mechanism? [Measurability, research §D5]
+- [x] CHK021 - Is there a measurable criterion that the stored character document contains **no** derived fields (so D8 can be objectively verified)? [Measurability, tasks §T100] → **Resolved 2026-07-23** (T100/T103): `CharacterIntegrationTest` reads the raw BSON (`mongo.getCollection("characters")`, `Filters.eq("_id", uuid)`) and asserts no derived keys (`strMod`/`dexMod`/…) are stored — objective, green in `./mvnw clean verify`.
+- [x] CHK022 - Is SC-006 (no data loss on concurrent edits) expressed so it is verifiable against the `@Version`/409 mechanism? [Measurability, research §D5] → **Resolved 2026-07-23** (T098/T100/T103): SC-006 is verifiable as "a stale-version write is rejected with 409, not silently overwritten" — covered by the `CharacterIntegrationTest` 409 case and the `CharacterSheet.test.tsx` client-side conflict-surfacing case (both green).
 
 ## Scenario & Edge-Case Coverage
 
 - [ ] CHK023 - Are requirements defined for a **dangling reference** (a `members[]` or `combatants[]` entry pointing at a deleted character), with expected read behavior — not left as an unstated "tolerated"? [Edge Case, data-model §Invariants]
 - [ ] CHK024 - Is the interaction between archiving a campaign and the active-only partial unique index specified (an archived campaign frees its characters to rejoin)? [Edge Case, data-model §State transitions]
 - [ ] CHK025 - Is the non-atomic apply-roll-to-sheet path (log-then-update, no transaction) explicitly accepted and its failure/partial-write behavior specified? [Exception Flow, research §D5 / tasks §T063]
-- [ ] CHK026 - Are requirements defined for the test **quarantine window** — what guarantees every `@Disabled` US1 test is restored (a gate before US2 begins)? [Coverage, tasks §T088/T103]
+- [x] CHK026 - Are requirements defined for the test **quarantine window** — what guarantees every `@Disabled` US1 test is restored (a gate before US2 begins)? [Coverage, tasks §T088/T103] → **Resolved 2026-07-23** (T103 is the gate): grep of `api/src` finds **zero** `@Disabled` annotations (the T088 quarantines were dropped in T100/T101), and `./mvnw clean verify` runs all US1 tests (36 green) — a `clean` build was required to unmask a stale phantom `JsonbSupportTest.class` lingering in `target/` (source already deleted in T092; see T103 notes / CHK018).
 - [ ] CHK027 - Is behavior specified when a required multi-document transaction cannot run because the replica set is unavailable/misconfigured? [Gap, research §D5]
 
 ## Non-Functional / Scaling Requirements

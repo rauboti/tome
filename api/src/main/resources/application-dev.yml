@@ -1,6 +1,6 @@
 # Dev profile (SPRING_PROFILES_ACTIVE=dev — docker-compose sets this for the api
 # service): verbose app logging + the local-dev Hive client secret. No datasource
-# block — the base application.yml's spring.data.mongodb.uri default already targets
+# block — the base application.yml's spring.mongodb.uri default already targets
 # local dev, migrations are Spring Data-native (T089/T091), and v1 has no demo seed
 # (rule-set definitions are bundled resources — research §Migrations).
 logging:

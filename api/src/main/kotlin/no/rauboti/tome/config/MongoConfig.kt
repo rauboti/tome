@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.MongoTransactionManager
 
 /**
  * MongoDB wiring. The Mongo client and [org.springframework.data.mongodb.core.MongoTemplate] are
- * auto-configured by Spring Boot from `spring.data.mongodb.uri` (application.yml, T087) — mirroring
+ * auto-configured by Spring Boot from `spring.mongodb.uri` (application.yml, T087) — mirroring
  * the platform's low-level, no-JPA template convention — so this class only adds the two pieces Boot
  * does not provide on its own:
  *
