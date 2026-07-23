@@ -167,4 +167,34 @@ class DnD35RuleSetTest {
             )
         assertTrue(warnings.isEmpty())
     }
+
+    @Test
+    fun `the attacks section is a user-row table with a derived attack bonus (T107)`() {
+        val attacks =
+            ruleSet
+                .definition()
+                .sections
+                .first { it.id == "attacks" }
+                .fields
+                .first()
+        assertEquals(FieldType.TABLE, attacks.type)
+        assertTrue(attacks.presetRows.isNullOrEmpty()) // user-added rows, no canonical presets
+        assertTrue(attacks.columns!!.any { it.id == "attackBonus" && it.type == FieldType.DERIVED })
+    }
+
+    @Test
+    fun `computes a weapon attack bonus from BAB plus its ability modifier and misc (T107)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "strength" to 18, // strMod +4
+                    "baseAttackBonus" to 6,
+                    "attacks" to listOf(mapOf("weapon" to "Greatsword", "ability" to "strMod", "misc" to 1)),
+                ),
+            )
+
+        @Suppress("UNCHECKED_CAST")
+        val attacks = out["attacks"] as List<Map<String, Any?>>
+        assertEquals(11, attacks[0]["attackBonus"]) // 6 + strMod 4 + 1
+    }
 }
