@@ -12,7 +12,6 @@ import no.rauboti.tome.rulesets.SheetChange
 import no.rauboti.tome.rulesets.SheetData
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
 
@@ -51,7 +50,6 @@ class CharacterService(
      * promoted [name] is seeded into the sheet's `name` field when the caller didn't supply one, so the
      * rendered "Name" field isn't blank; derived fields are stripped before the insert (base inputs only).
      */
-    @Transactional
     fun create(
         ownerId: UUID,
         ruleSetId: String,
@@ -78,7 +76,6 @@ class CharacterService(
     }
 
     /** Get a character owned by [callerId] (404 if absent, 403 if owned by someone else). */
-    @Transactional(readOnly = true)
     fun get(
         id: UUID,
         callerId: UUID,
@@ -89,7 +86,6 @@ class CharacterService(
     }
 
     /** The caller's own characters, for the list endpoint (summaries — no sheet resolution needed). */
-    @Transactional(readOnly = true)
     fun list(ownerId: UUID): List<Character> = repository.findByUserId(ownerId)
 
     /**
@@ -97,7 +93,6 @@ class CharacterService(
      * concurrency. Derived fields are stripped before persisting; a stale [expectedVersion] (a concurrent
      * edit already landed) becomes a `409` via [StaleVersionException].
      */
-    @Transactional
     fun update(
         id: UUID,
         callerId: UUID,
@@ -128,7 +123,6 @@ class CharacterService(
     }
 
     /** Delete a character owned by [callerId] (404 if absent, 403 if owned by someone else). */
-    @Transactional
     fun delete(
         id: UUID,
         callerId: UUID,
