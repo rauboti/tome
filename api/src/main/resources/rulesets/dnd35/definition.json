@@ -91,7 +91,69 @@
       "id": "skills",
       "labelKey": "dnd35.section.skills",
       "fields": [
-        { "id": "skills", "labelKey": "dnd35.field.skills", "type": "list" }
+        {
+          "id": "skills",
+          "labelKey": "dnd35.field.skills",
+          "type": "table",
+          "columns": [
+            { "id": "skill", "labelKey": "dnd35.skill.name", "type": "text" },
+            {
+              "id": "keyAbility",
+              "labelKey": "dnd35.skill.ability",
+              "type": "select",
+              "options": [
+                { "value": "strMod", "labelKey": "dnd35.ability.strMod" },
+                { "value": "dexMod", "labelKey": "dnd35.ability.dexMod" },
+                { "value": "conMod", "labelKey": "dnd35.ability.conMod" },
+                { "value": "intMod", "labelKey": "dnd35.ability.intMod" },
+                { "value": "wisMod", "labelKey": "dnd35.ability.wisMod" },
+                { "value": "chaMod", "labelKey": "dnd35.ability.chaMod" }
+              ]
+            },
+            { "id": "ranks", "labelKey": "dnd35.skill.ranks", "type": "int" },
+            { "id": "classSkill", "labelKey": "dnd35.skill.classSkill", "type": "bool" },
+            { "id": "misc", "labelKey": "dnd35.skill.misc", "type": "int" },
+            {
+              "id": "total",
+              "labelKey": "dnd35.skill.total",
+              "type": "derived",
+              "derivedFrom": "ranks + ref(keyAbility) + misc"
+            }
+          ],
+          "presetRows": [
+            { "skill": "Appraise", "keyAbility": "intMod" },
+            { "skill": "Balance", "keyAbility": "dexMod" },
+            { "skill": "Bluff", "keyAbility": "chaMod" },
+            { "skill": "Climb", "keyAbility": "strMod" },
+            { "skill": "Concentration", "keyAbility": "conMod" },
+            { "skill": "Decipher Script", "keyAbility": "intMod" },
+            { "skill": "Diplomacy", "keyAbility": "chaMod" },
+            { "skill": "Disable Device", "keyAbility": "intMod" },
+            { "skill": "Disguise", "keyAbility": "chaMod" },
+            { "skill": "Escape Artist", "keyAbility": "dexMod" },
+            { "skill": "Forgery", "keyAbility": "intMod" },
+            { "skill": "Gather Information", "keyAbility": "chaMod" },
+            { "skill": "Handle Animal", "keyAbility": "chaMod" },
+            { "skill": "Heal", "keyAbility": "wisMod" },
+            { "skill": "Hide", "keyAbility": "dexMod" },
+            { "skill": "Intimidate", "keyAbility": "chaMod" },
+            { "skill": "Jump", "keyAbility": "strMod" },
+            { "skill": "Listen", "keyAbility": "wisMod" },
+            { "skill": "Move Silently", "keyAbility": "dexMod" },
+            { "skill": "Open Lock", "keyAbility": "dexMod" },
+            { "skill": "Ride", "keyAbility": "dexMod" },
+            { "skill": "Search", "keyAbility": "intMod" },
+            { "skill": "Sense Motive", "keyAbility": "wisMod" },
+            { "skill": "Sleight of Hand", "keyAbility": "dexMod" },
+            { "skill": "Spellcraft", "keyAbility": "intMod" },
+            { "skill": "Spot", "keyAbility": "wisMod" },
+            { "skill": "Survival", "keyAbility": "wisMod" },
+            { "skill": "Swim", "keyAbility": "strMod" },
+            { "skill": "Tumble", "keyAbility": "dexMod" },
+            { "skill": "Use Magic Device", "keyAbility": "chaMod" },
+            { "skill": "Use Rope", "keyAbility": "dexMod" }
+          ]
+        }
       ]
     },
     {
