@@ -1,3 +1,0 @@
-# Flyway migration location (classpath:db/migration). Kept empty until the first
-# migration V1__create_character.sql (T028); Flyway ignores non-migration files
-# like this one and simply finds nothing to apply until then.
