@@ -83,6 +83,20 @@ data class SheetField(
     // content, e.g. the 3.5 skill list). A table row's value in the sheet is a map keyed by column id.
     val columns: List<SheetField>? = null,
     val presetRows: List<Map<String, Any?>>? = null,
+    // For a `select` field/column whose choices come from a named catalog filtered by another field's
+    // value (e.g. spells on the caster's class list, T113/T114). Mutually exclusive with static [options];
+    // the web fetches the choices from the catalog endpoint. Rule-set-agnostic mechanism.
+    val optionsFrom: OptionsFrom? = null,
+)
+
+/**
+ * Points a `select` at a named [no.rauboti.tome.catalogs.Catalog] filtered by another field's value:
+ * the picker shows `catalog` options for the current value of the `filterBy` field (e.g.
+ * `{ catalog: "spells", filterBy: "casterClass" }`). Openapi `SheetField.optionsFrom`.
+ */
+data class OptionsFrom(
+    val catalog: String,
+    val filterBy: String,
 )
 
 /** A choice for a `select` field: the stored [value] plus its i18n [labelKey]. */
