@@ -1,10 +1,15 @@
 package no.rauboti.tome.characters
 
+import com.mongodb.client.model.Filters
 import no.rauboti.tome.support.IntegrationTest
-import org.junit.jupiter.api.Disabled
+import org.bson.Document
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.http.MediaType
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
@@ -18,26 +23,26 @@ import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 
 /**
- * Behavioural integration test for the character write path (T026, written **before** the
- * model/service/controller in T029–T031 — every case fails until they exist). Where the contract
- * test (T025) pins the API *shape*, this pins the *behaviour* end-to-end against the real Postgres
- * from [IntegrationTest] (Flyway-migrated Testcontainer), driving the wired HTTP stack via MockMvc:
- *  - a created sheet **persists** and reloads exactly (US1 independent test);
- *  - `RuleSet.computeDerived` runs **on every write** so derived values (ability mods, saves,
- *    initiative) are recomputed and returned/stored (FR-004);
+ * Behavioural integration test for the character write path (US1), driving the wired HTTP stack via
+ * MockMvc against the real MongoDB from [IntegrationTest] (a single-node replica-set Testcontainer).
+ * Pins the **compute-on-read** behaviour (D8):
+ *  - a created sheet's **base inputs persist** and reload exactly (US1 independent test);
+ *  - derived values (ability mods, saves, initiative) are **recomputed on read** and returned in the
+ *    response, but the **raw stored document holds base inputs only — no derived fields** (D8/SC-021);
  *  - a soft rule violation returns a **warning without blocking** the save (FR-005);
- *  - optimistic concurrency: a stale `version` write is refused with **409** and does **not**
+ *  - optimistic concurrency: a stale `@Version` write is refused with **409** and does **not**
  *    overwrite the winning edit (SC-006).
  *
  * All routes require a Tome role, so callers authenticate with a `jwt()` carrying `ROLE_User`; the
  * caller's `sub` owns the character.
  */
-@Disabled("re-platform: re-enabled in T100–T102")
 @AutoConfigureMockMvc
 class CharacterIntegrationTest : IntegrationTest() {
     @Autowired private lateinit var mvc: MockMvc
 
     @Autowired private lateinit var objectMapper: ObjectMapper
+
+    @Autowired private lateinit var mongo: MongoTemplate
 
     private fun user(
         sub: UUID = UUID.randomUUID(),
@@ -66,6 +71,13 @@ class CharacterIntegrationTest : IntegrationTest() {
 
     private fun Map<String, Any?>.int(key: String): Int = (this[key] as Number).toInt()
 
+    /** The raw stored `data` sub-document for [id], read straight from MongoDB (bypassing the resolver). */
+    private fun storedData(id: String): Document {
+        val doc = mongo.getCollection("characters").find(Filters.eq("_id", UUID.fromString(id))).first()
+        assertNotNull(doc, "character '$id' should be persisted")
+        return doc!!["data"] as Document
+    }
+
     @Test
     fun `a created character persists and reloads exactly`() {
         val owner = UUID.randomUUID()
@@ -86,16 +98,16 @@ class CharacterIntegrationTest : IntegrationTest() {
     }
 
     @Test
-    fun `derived values are recomputed and stored on create`() {
+    fun `derived values are computed on read and returned, but never stored`() {
         val owner = UUID.randomUUID()
         val id =
             postCharacter(
                 owner,
                 "Bardo",
                 """{"strength":16,"dexterity":14,"constitution":13,"wisdom":8,"fortBase":2,"willBase":1}""",
-            )["id"]
+            )["id"] as String
 
-        // GET proves the derived values were computed on write and round-trip through storage.
+        // The GET response carries the resolved derived values (computed on read).
         mvc
             .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {
@@ -107,13 +119,20 @@ class CharacterIntegrationTest : IntegrationTest() {
                 jsonPath("$.data.fortitude") { value(3) } // fortBase 2 + conMod 1
                 jsonPath("$.data.will") { value(0) } // willBase 1 + wisMod -1
             }
+
+        // …but the raw stored document holds base inputs only — no derived fields (D8/SC-021).
+        val stored = storedData(id)
+        assertTrue(stored.containsKey("strength"), "base inputs must be stored")
+        for (derived in listOf("strMod", "dexMod", "conMod", "wisMod", "fortitude", "reflex", "will", "initiative")) {
+            assertFalse(stored.containsKey(derived), "derived '$derived' must not be stored")
+        }
     }
 
     @Test
-    fun `editing recomputes derived values and persists across a reload`() {
+    fun `editing recomputes derived on read and persists the base inputs across a reload`() {
         val owner = UUID.randomUUID()
         val created = postCharacter(owner, "Corvus", """{"strength":10}""")
-        val id = created["id"]
+        val id = created["id"] as String
 
         mvc
             .put("/api/characters/$id") {
@@ -133,6 +152,11 @@ class CharacterIntegrationTest : IntegrationTest() {
                 jsonPath("$.data.strength") { value(18) }
                 jsonPath("$.data.strMod") { value(4) }
             }
+
+        // The edit persisted the base input; the recomputed derived is still not stored.
+        val stored = storedData(id)
+        assertTrue(stored.containsKey("strength"), "edited base input persists")
+        assertFalse(stored.containsKey("strMod"), "derived must not be stored after an edit")
     }
 
     @Test
@@ -156,7 +180,7 @@ class CharacterIntegrationTest : IntegrationTest() {
     fun `a stale version write is refused with 409 and does not overwrite the winning edit`() {
         val owner = UUID.randomUUID()
         val created = postCharacter(owner, "Dahlia", """{"strength":10}""")
-        val id = created["id"]
+        val id = created["id"] as String
         val stale = created.int("version")
 
         // First edit wins, bumping the version.
