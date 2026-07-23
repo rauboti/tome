@@ -65,7 +65,13 @@ export const SheetRenderer = ({
               <Heading size="md">{t(section.labelKey)}</Heading>
               <Grid columns={{ base: 1, md: columns }} gap="4">
                 {section.fields.map((field) => {
-                  const span = Math.min(field.colSpan ?? 1, columns)
+                  // A table is a full-width widget (its own inner grid of rows), so it always spans
+                  // the whole section — otherwise it'd be squeezed into one cell of a multi-column
+                  // section (e.g. the 4-column spellcasting section) and look cramped.
+                  const span =
+                    field.type === 'table'
+                      ? columns
+                      : Math.min(field.colSpan ?? 1, columns)
                   return (
                     <Grid.Item key={field.id} colSpan={{ base: 1, md: span }}>
                       <FieldWidget
@@ -166,7 +172,8 @@ const FieldWidget = ({
       return (
         <SegmentedControl
           label={label}
-          value={value === true ? 'true' : value === false ? 'false' : ''}
+          required
+          value={value === true ? 'true' : 'false'}
           items={[
             { value: 'true', label: t('common.yes') },
             { value: 'false', label: t('common.no') },
@@ -508,7 +515,8 @@ const CellInput = ({
       return (
         <SegmentedControl
           label={label}
-          value={value === true ? 'true' : value === false ? 'false' : ''}
+          required
+          value={value === true ? 'true' : 'false'}
           items={[
             { value: 'true', label: t('common.yes') },
             { value: 'false', label: t('common.no') },
