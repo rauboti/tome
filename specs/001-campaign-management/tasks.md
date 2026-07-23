@@ -163,7 +163,7 @@ before T085** (one-off, out of scope for the migrations). See research.md §D3 "
 
 ### Frontend alignment (compute-on-read)
 
-- [ ] T099 [P] [US1] Align the web sheet with compute-on-read in `web/src/components/characters/CharacterSheet.tsx` + `web/src/api/characters.ts` — derive locally on change for instant feedback, treat the server's resolved response as authoritative on load/save, don't send derived fields, don't assume stored data carries them
+- [X] T099 [P] [US1] Align the web sheet with compute-on-read in `web/src/components/characters/CharacterSheet.tsx` + `web/src/api/characters.ts` — derive locally on change for instant feedback, treat the server's resolved response as authoritative on load/save, don't send derived fields, don't assume stored data carries them. **Impl notes:** local live-derivation + authoritative-response were **already** in place (`SheetRenderer` overlays `deriveValues(...)`; `CharacterSheet` re-derives regardless of stored data, so it never *assumes* derived are present). The one gap — save still sent server-derived fields — fixed by a new `baseInputs(definition, values)` strip helper in `components/sheet/derive.ts` (DRY with the derived-field detection, mirrors the server-side strip in `CharacterService`), applied in `handleSave` (`data: baseInputs(definition, values)`, guarded on non-null definition). Doc contracts aligned in `characters.ts` (`UpdateCharacterInput.data` = base inputs) + the component KDoc. Touched a 3rd file (`derive.ts`) for the shared helper. **Verified:** `tsc -b`, ESLint, Prettier all clean; **26/26 web tests pass** (incl. `CharacterSheet.test.tsx`, `derive.test.ts`) — nothing broken, so T102 is a confirm/augment rather than a fix.
 
 ### Re-enable / rewrite tests incrementally
 

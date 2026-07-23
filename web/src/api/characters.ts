@@ -51,8 +51,9 @@ export type CreateCharacterInput = {
   data?: SheetValues
 }
 
-/** `PUT /api/characters/{id}` body — the full sheet `data` + the read `version`; `name` optional
- *  (omit to keep the current name). */
+/** `PUT /api/characters/{id}` body — the sheet `data` (**base inputs only**; derived fields are
+ *  stripped client-side and recomputed on read, D8) + the read `version`; `name` optional (omit to
+ *  keep the current name). */
 export type UpdateCharacterInput = {
   name?: string
   data: SheetValues
