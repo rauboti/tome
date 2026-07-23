@@ -297,6 +297,41 @@
           "labelKey": "dnd35.spell.saveDcBase",
           "type": "derived",
           "derivedFrom": "10 + ref(spellKeyAbility)"
+        },
+        {
+          "id": "spellSlots",
+          "labelKey": "dnd35.spell.slotsTable",
+          "type": "table",
+          "columns": [
+            { "id": "spellLevel", "labelKey": "dnd35.spell.slots.level", "type": "int" },
+            { "id": "slotsPerDay", "labelKey": "dnd35.spell.slots.perDay", "type": "int" },
+            {
+              "id": "bonusSpells",
+              "labelKey": "dnd35.spell.slots.bonus",
+              "type": "derived",
+              "derivedFrom": "min(spellLevel, 1) * max(0, floor((ref(spellKeyAbility) - spellLevel) / 4) + 1)"
+            },
+            {
+              "id": "total",
+              "labelKey": "dnd35.spell.slots.total",
+              "type": "derived",
+              "derivedFrom": "slotsPerDay + bonusSpells"
+            },
+            { "id": "known", "labelKey": "dnd35.spell.slots.known", "type": "int" },
+            { "id": "prepared", "labelKey": "dnd35.spell.slots.prepared", "type": "int" }
+          ],
+          "presetRows": [
+            { "spellLevel": 0 },
+            { "spellLevel": 1 },
+            { "spellLevel": 2 },
+            { "spellLevel": 3 },
+            { "spellLevel": 4 },
+            { "spellLevel": 5 },
+            { "spellLevel": 6 },
+            { "spellLevel": 7 },
+            { "spellLevel": 8 },
+            { "spellLevel": 9 }
+          ]
         }
       ]
     }

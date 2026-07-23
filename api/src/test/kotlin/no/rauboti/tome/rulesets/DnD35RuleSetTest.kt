@@ -259,4 +259,39 @@ class DnD35RuleSetTest {
             )
         assertEquals(14, out["spellSaveDcBase"]) // 10 + intMod 4 (a level-N spell's DC = this + N)
     }
+
+    @Test
+    fun `the spell-slots table is seeded with spell levels 0 through 9 (T111)`() {
+        val spellcasting = ruleSet.definition().sections.first { it.id == "spellcasting" }
+        val slots = spellcasting.fields.first { it.id == "spellSlots" }
+        assertEquals(FieldType.TABLE, slots.type)
+        assertEquals(10, slots.presetRows?.size) // levels 0..9
+        assertTrue(slots.columns!!.any { it.id == "bonusSpells" && it.type == FieldType.DERIVED })
+    }
+
+    @Test
+    fun `computes per-level bonus spells (zero at level 0) and total slots from the casting ability (T111)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "intelligence" to 18, // intMod +4
+                    "spellKeyAbility" to "intMod",
+                    "spellSlots" to
+                        listOf(
+                            mapOf("spellLevel" to 0, "slotsPerDay" to 4), // cantrips: never get bonus spells
+                            mapOf("spellLevel" to 1, "slotsPerDay" to 3), // bonus = floor((4-1)/4)+1 = 1
+                            mapOf("spellLevel" to 5, "slotsPerDay" to 1), // mod +4 too low for level 5 → 0
+                        ),
+                ),
+            )
+
+        @Suppress("UNCHECKED_CAST")
+        val slots = out["spellSlots"] as List<Map<String, Any?>>
+        assertEquals(0, slots[0]["bonusSpells"]) // level 0 → no bonus (min(0,1) factor)
+        assertEquals(4, slots[0]["total"]) // 4 + 0
+        assertEquals(1, slots[1]["bonusSpells"])
+        assertEquals(4, slots[1]["total"]) // 3 + 1
+        assertEquals(0, slots[2]["bonusSpells"])
+        assertEquals(1, slots[2]["total"]) // 1 + 0
+    }
 }
