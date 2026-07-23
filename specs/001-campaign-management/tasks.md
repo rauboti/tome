@@ -154,7 +154,7 @@ before T085** (one-off, out of scope for the migrations). See research.md §D3 "
 
 ### Character slice on MongoDB + compute-on-read
 
-- [ ] T093 [US1] Rewrite `Character` as a Mongo document — `@Document("characters")`, `@Id` UUID, `@Version` int, `data` = base inputs only (drop the promoted-column shape) in `api/src/main/kotlin/no/rauboti/tome/characters/Character.kt`
+- [X] T093 [US1] Rewrite `Character` as a Mongo document — `@Document("characters")`, `@Id` UUID, `@Version` int, `data` = base inputs only (drop the promoted-column shape) in `api/src/main/kotlin/no/rauboti/tome/characters/Character.kt`. **Impl notes:** kept top-level `id/userId/ruleSetId/name/data/version/createdAt/updatedAt` (data-model §characters). `@Version` typed **`Int?` (nullable)** — spec says "int", nullable so the T094 repo can distinguish a new doc (`null`) from an existing one (Spring assigns `0` on insert, increments on save). `createdAt`/`updatedAt` stay plain service-set `Instant`s (no Spring auditing added — matches the prior manual approach; revisit if desired). **Verified:** annotation packages `javap`-checked (`org.springframework.data.annotation.Id`/`Version`, `@Document.collection`), Spotless/ktlint clean; module still red until the repo/service/controller are rewritten (T094–T098).
 - [ ] T094 [US1] Rewrite `CharacterRepository` — `MongoTemplate` insert/findById/findByUserId/save/delete; optimistic concurrency via `@Version` (no hand-rolled `WHERE version = ?`) in `.../characters/CharacterRepository.kt`
 - [ ] T095 [P] [US1] Add the character resolve-on-read helper — `CharacterDataResolver.resolve(data, ruleSet)` = base inputs + `RuleSet.computeDerived`, the single home of character compute-on-read (D8), in `api/src/main/kotlin/no/rauboti/tome/characters/CharacterDataResolver.kt`. **Entity-scoped by design** — NPC and other entities get analogous resolvers later; extract a shared core only if duplication warrants. **Lands with a focused unit test** `api/src/test/kotlin/no/rauboti/tome/characters/CharacterDataResolverTest.kt` (pure, no container) asserting resolve = base inputs + `RuleSet.computeDerived`, inputs preserved, derived recomputed — new code + its test together
 - [ ] T096 [US1] Rewrite `CharacterService` — on write: `validate` + **strip fields the definition marks `derived`** before persisting; on read/echo: return the resolved sheet via `CharacterDataResolver`; map `OptimisticLockingFailureException` → 409 in `.../characters/CharacterService.kt`
@@ -178,6 +178,21 @@ before T085** (one-off, out of scope for the migrations). See research.md §D3 "
 
 **Checkpoint**: US1 runs on MongoDB with compute-on-read; build green; the shared engine + resolve helper
 are ready for US2–US5 to build on.
+
+---
+
+## Phase 3C: D&D 3.5 sheet expansion (after 3B green, before US2)
+
+**Runs after Phase 3B is verified green (T104) and before US2 (Phase 4)** — Gaute's chosen gate: prove
+the migration out, then flesh the sheet to taste before layering campaigns on top. This is its **own
+increment** (fresh branch), deliberately **outside** the parity-protected 3B tasks, so Phase 3B keeps its
+"no observable REST change" contract (T100/T101) — the sheet expansion is an *intentional* behavior change
+with its own tests. Does **not** technically block US2 (campaigns reference a character, not its sheet
+depth), but is sequenced first by preference.
+
+- [ ] T105 Expand the **D&D 3.5 sheet** to a fuller character sheet — deepen `api/src/main/resources/rulesets/dnd35/definition.json` + `DnD35RuleSet.computeDerived`/`validate` (and the web `SheetRenderer` input widgets) beyond the current skeleton (identity, 6 abilities+mods, combat, 3 saves, freeform skills/feats/gear/languages/notes). Candidates: **structured skills** (ranks / class-skill / ability / misc → total), **structured feats**, a **weapons/attacks** table, an **AC breakdown** (armor+shield+dex+size+natural+deflection+dodge → total), **encumbrance/grapple/CMB**, and **spellcasting** if in v1 scope. Keep the base-inputs-only + derived-on-read split (D8): entered values live in `data`, computed values are added by `computeDerived` on read, **never stored**. **No change to `Character`/storage/`CharacterRepository`** — the data-driven Hybrid design (research D3) means this is a definition + rule-set + renderer change only. **Spec first:** run `/speckit-clarify` on sheet depth (structured vs freeform per section; how far the derived AC/attack/spell math goes for v1) before implementing; any base-input value promoted to a top-level document field cross-refs **T083** + `contracts/openapi.yaml`. Captured 2026-07-23 during T093 (the untyped `data` map made clear the sheet lives here, not on the document).
+
+**Checkpoint**: the 3.5 sheet is as rich as v1 wants; US1 still green; US2 can begin.
 
 ---
 
@@ -298,7 +313,7 @@ engine or cross-cutting code (SC-009).
 - [ ] T080 Performance sanity — sheet save p95 < 300 ms; live update within 3 s (SC-007); a full combat round for ≤6 PCs + NPCs (SC-008)
 - [ ] T081 [P] Ensure Spotless + ESLint/Prettier gates pass in `mvn verify` / web `lint`
 - [ ] T082 [P] i18n coverage — nb/en for all chrome/labels with English fallback
-- [ ] T083 (AFTER US5) Top-level-field/index review — with a second rule set (Dark Souls) in hand, decide which cross-cutting **base-input** sheet values (e.g. HP `hpCurrent`/`hpMax`) genuinely earn a top-level document field and/or index for combat/roster queries vs. staying inside `data`, and lift them out via a Mongock changelog + model/repo update. **The decision MUST also be reflected in `contracts/openapi.yaml`** — promoting the field to a top-level property on the `Character`/`Npc` schemas (v1 keeps HP inside `data`, so the schemas expose no top-level `hp*`). Note: **derived** values are never stored (surfaced by `CharacterDataResolver` on read), so only base inputs are candidates. See plan.md "Deferred Decisions".
+- [ ] T083 (AFTER US5) Top-level-field/index review — with a second rule set (Dark Souls) in hand, decide which cross-cutting **base-input** sheet values (e.g. HP `hpCurrent`/`hpMax`) genuinely earn a top-level document field and/or index for combat/roster queries vs. staying inside `data`, and lift them out via a migration change (C-series, ledger-guarded — see T089/T091) + model/repo update. **The decision MUST also be reflected in `contracts/openapi.yaml`** — promoting the field to a top-level property on the `Character`/`Npc` schemas (v1 keeps HP inside `data`, so the schemas expose no top-level `hp*`). Note: **derived** values are never stored (surfaced by `CharacterDataResolver` on read), so only base inputs are candidates. See plan.md "Deferred Decisions".
 
 ---
 
@@ -312,6 +327,8 @@ engine or cross-cutting code (SC-009).
 - **Phase 3B re-platform (MongoDB + compute-on-read)** → depends on US1 being built; **must complete
   before US2–US5**, since those are authored against MongoDB (`MongoTemplate`, embedded aggregates,
   Spring Data-native migrations, `CharacterDataResolver`). This is the amendment's pivot point.
+- **Phase 3C 3.5 sheet expansion (T105)** → after Phase 3B is green; sequenced before US2 by preference
+  (verify the migration, then enrich the sheet). Its own increment; does not technically block US2.
 - **User stories (Phases 4–7 / US2–US5)** → each depends on Foundational **and Phase 3B**. Recommended
   order is priority order because later stories build on earlier data:
   - US2 needs US1's `character`; US3 needs US2's `campaign` (embeds NPCs/content/sessions); US4 needs
@@ -344,9 +361,9 @@ engine or cross-cutting code (SC-009).
 
 ### Incremental delivery
 
-US1 (MVP, built on Postgres) → **Phase 3B re-platform to MongoDB + compute-on-read** → US2 (shared
-table) → US3 (DM tools) → US4 (live combat) → US5 (2nd rule set, after a spec amendment). Each story —
-and Phase 3B — is an independently testable, demoable increment. Per the constitution, start a fresh
+US1 (MVP, built on Postgres) → **Phase 3B re-platform to MongoDB + compute-on-read** → **Phase 3C 3.5
+sheet expansion (T105)** → US2 (shared table) → US3 (DM tools) → US4 (live combat) → US5 (2nd rule set,
+after a spec amendment). Each story — and Phases 3B/3C — is an independently testable, demoable increment. Per the constitution, start a fresh
 feature branch before each increment's code (Phase 3B is one increment; its tasks are kept small for
 line-by-line review).
 
