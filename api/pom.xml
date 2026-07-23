@@ -34,8 +34,8 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <!-- Jackson 3 Kotlin module (Boot 4 uses Jackson 3 / tools.jackson): lets
-             @RequestBody deserialize Kotlin data classes (constructor params,
-             defaults, nullability). Also used for SheetData <-> JSONB (T014). -->
+             @RequestBody/@ResponseBody (de)serialize Kotlin data classes and the
+             SheetData map over REST (constructor params, defaults, nullability). -->
         <dependency>
             <groupId>tools.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>

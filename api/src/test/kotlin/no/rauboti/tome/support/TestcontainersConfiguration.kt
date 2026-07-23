@@ -15,8 +15,10 @@ import org.testcontainers.mongodb.MongoDBContainer
  *
  * [MongoDBContainer] initiates a single-node replica set automatically, so multi-document
  * transactions and `@Version` optimistic concurrency work (research §D5). Exposed to Spring via
- * [@ServiceConnection][ServiceConnection], which wires `spring.data.mongodb.uri` from the container's
- * replica-set URL — no `@DynamicPropertySource` plumbing — overriding the placeholder in application.yml.
+ * [@ServiceConnection][ServiceConnection], which supplies a `MongoConnectionDetails` bean from the
+ * container's replica-set URL — no `@DynamicPropertySource` plumbing — so tests bypass the
+ * `spring.mongodb.uri` property entirely (which is why they can't catch a misconfigured URI property;
+ * that path is covered by the compose boot check in T104).
  */
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {

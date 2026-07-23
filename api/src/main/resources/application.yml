@@ -1,15 +1,20 @@
 spring:
   application:
     name: tome
+  # Connection settings live under `spring.mongodb.*` in Boot 4. `spring.data.mongodb.uri`
+  # is deprecated at level=error since 4.0 (Boot no longer binds it — a value set there is
+  # silently ignored and the driver falls back to localhost:27017), so it must NOT be used.
+  mongodb:
+    # Default mirrors docker-compose.yml / .env for api-on-host dev (DB in Docker on the
+    # mapped port); the compose overrides it via SPRING_MONGODB_URI in the container.
+    # A replica set is required for multi-document transactions + @Version concurrency
+    # (research §D5). From the host we use directConnection=true because the set advertises
+    # the in-network host name `tome-db` that the host can't resolve; in-network the compose
+    # URI uses replicaSet=rs0 instead.
+    uri: ${SPRING_MONGODB_URI:mongodb://tome:tome_local_dev@localhost:5436/tome?authSource=admin&directConnection=true}
   data:
     mongodb:
-      # Default mirrors docker-compose.yml / .env for api-on-host dev (DB in Docker on the
-      # mapped port); the compose overrides it via SPRING_DATA_MONGODB_URI in the container.
-      # A replica set is required for multi-document transactions + @Version concurrency
-      # (research §D5). From the host we use directConnection=true because the set advertises
-      # the in-network host name `tome-db` that the host can't resolve; in-network the compose
-      # URI uses replicaSet=rs0 instead.
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://tome:tome_local_dev@localhost:5436/tome?authSource=admin&directConnection=true}
+      # Spring Data behaviour stays under `spring.data.mongodb.*` (not deprecated).
       # Migrations/indexes are Spring Data-native — an index catalog + a _migrations ledger
       # applied on boot (T089/T091), NOT a framework. Turn off Spring Data's implicit index
       # creation so index shape is owned explicitly rather than derived from mapping annotations.

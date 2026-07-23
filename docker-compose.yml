@@ -86,9 +86,10 @@ services:
       HIVE_CLIENT_SECRET: ${HIVE_CLIENT_SECRET:-tome-local-dev}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       # MongoDB connection for the api container (in-network — reaches the db by service
-      # name). Spring relaxed-binding: SPRING_DATA_MONGODB_URI → spring.data.mongodb.uri
+      # name). Spring relaxed-binding: SPRING_MONGODB_URI → spring.mongodb.uri (Boot 4's
+      # canonical prefix; spring.data.mongodb.uri is deprecated=error and silently unbound).
       # (T087 formalizes per-profile config; the host-dev URI differs — see .env.example).
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-tome}:${MONGO_PASSWORD:-tome_local_dev}@tome-db:27017/${MONGO_DB:-tome}?authSource=admin&replicaSet=${MONGO_REPLICA_SET:-rs0}
+      SPRING_MONGODB_URI: mongodb://${MONGO_USER:-tome}:${MONGO_PASSWORD:-tome_local_dev}@tome-db:27017/${MONGO_DB:-tome}?authSource=admin&replicaSet=${MONGO_REPLICA_SET:-rs0}
       # Public web origin (the nginx service, published on 3040). The BFF redirects here after login
       # and derives its OAuth redirect URI from it ({WEB_BASE_URL}/auth/callback). nginx forwards
       # /auth to the api, so the browser only ever talks to this origin.
