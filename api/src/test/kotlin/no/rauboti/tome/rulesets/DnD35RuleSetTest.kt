@@ -197,4 +197,27 @@ class DnD35RuleSetTest {
         val attacks = out["attacks"] as List<Map<String, Any?>>
         assertEquals(11, attacks[0]["attackBonus"]) // 6 + strMod 4 + 1
     }
+
+    @Test
+    fun `computes the AC breakdown, touch and flat-footed AC, and grapple (T108)`() {
+        val out =
+            ruleSet.computeDerived(
+                mapOf(
+                    "strength" to 14, // strMod +2
+                    "dexterity" to 16, // dexMod +3
+                    "baseAttackBonus" to 5,
+                    "armorBonus" to 8,
+                    "shieldBonus" to 2,
+                    "naturalArmor" to 1,
+                    "deflection" to 1,
+                    "dodge" to 1,
+                    "sizeMod" to 0, // AC/attack size scale (Small +1, Large −1)
+                    "grappleSizeMod" to 4, // grapple special-size scale (Large +4) — distinct from sizeMod
+                ),
+            )
+        assertEquals(26, out["armorClass"]) // 10 + 8 + 2 + dex 3 + 0 + 1 + 1 + 1
+        assertEquals(15, out["touchAC"]) // 10 + dex 3 + 0 + deflection 1 + dodge 1
+        assertEquals(22, out["flatFootedAC"]) // 10 + 8 + 2 + 0 + natural 1 + deflection 1
+        assertEquals(11, out["grapple"]) // BAB 5 + strMod 2 + grappleSizeMod 4 (its own scale, not sizeMod)
+    }
 }
