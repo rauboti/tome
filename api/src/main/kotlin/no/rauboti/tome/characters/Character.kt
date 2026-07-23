@@ -1,29 +1,37 @@
 package no.rauboti.tome.characters
 
 import no.rauboti.tome.rulesets.SheetData
+import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
+import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 import java.util.UUID
 
 /**
- * A player character — the persisted `characters` row (US1, data-model.md / migration `V1`). The
- * sheet values live in [data] (a [SheetData] map, stored as `jsonb`, shaped by the rule set's
- * definition and carrying the derived values the engine recomputes on every write); a few
- * cross-cutting values ([name]/[ruleSetId]/[userId]) are promoted to columns for lists and rosters.
+ * A player character — the `characters` MongoDB document (US1, data-model.md §characters).
  *
- * This is the raw storage model as read by [CharacterRepository]. The rule-set logic
- * (`RuleSet.computeDerived`/`validate`) and optimistic-concurrency orchestration live in the service
- * (T030); the REST projection (owner, HP, soft warnings) is assembled in the controller (T031).
+ * [data] holds the sheet's **base inputs only**, shaped by the rule set's definition (incl. entered HP
+ * `hpCurrent`/`hpMax`); derived values — ability modifiers, saves, BAB, initiative, … — are computed on
+ * read by `CharacterDataResolver` and **never stored** (D8). The cross-cutting values
+ * [name]/[ruleSetId]/[userId] are ordinary top-level document fields for list/roster queries, with
+ * `{ userId: 1 }` indexed (migration `C001`).
  *
- * [userId] is the owner's Hive subject (there is no local user table — identity is Hive's, research
- * D1). [version] backs optimistic concurrency (research D5): a write must carry the version it read.
+ * [userId] is the owner's Hive subject — identity is Hive's, there is no local user table (research D1).
+ * [version] backs optimistic concurrency via Spring Data `@Version` (research D5): `null` on a
+ * not-yet-persisted document, assigned `0` on insert and incremented on each save; a write carrying a
+ * stale version fails with `OptimisticLockingFailureException` (mapped to `409` in the service, T096/T098).
+ *
+ * This is the storage model only — rule-set logic (`RuleSet.computeDerived`/`validate`), the
+ * resolve-on-read projection, and concurrency orchestration live in the service/resolver (T094–T098).
  */
+@Document(collection = "characters")
 data class Character(
-    val id: UUID,
+    @Id val id: UUID,
     val userId: UUID,
     val ruleSetId: String,
     val name: String,
     val data: SheetData,
-    val version: Int,
+    @Version val version: Int?,
     val createdAt: Instant,
     val updatedAt: Instant,
 )
