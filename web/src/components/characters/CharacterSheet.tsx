@@ -11,14 +11,16 @@ import {
   type SheetValues,
 } from '@/api/characters'
 import { getRuleSetDefinition, type SheetDefinition } from '@/api/schemas'
+import { baseInputs } from '@/components/sheet/derive'
 import { SheetRenderer } from '@/components/sheet/SheetRenderer'
 
 /**
  * The character sheet edit screen (US1, T034). Loads the character and its rule-set definition over
  * the BFF, renders the definition-driven {@link SheetRenderer}, and saves the whole sheet with
  * optimistic concurrency:
- *  - derived values are owned by the engine, so the sheet shows the server's computed values and
- *    only re-derives on save (the response carries the recomputed `data`);
+ *  - derived values are computed on read (D8): the sheet re-derives them locally for instant feedback
+ *    ({@link SheetRenderer}) and sends **base inputs only** on save; the server's resolved response
+ *    (base + recomputed derived) is authoritative on load and after save;
  *  - soft `warnings` from a write are surfaced (never blocking, FR-005);
  *  - a 409 means someone else saved first (SC-006) — shown as a conflict notice rather than
  *    silently dropping the edit.
@@ -67,6 +69,7 @@ export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
   }
 
   const handleSave = async () => {
+    if (definition === null) return
     setSaving(true)
     setConflict(null)
     setSaveFailed(false)
@@ -78,7 +81,8 @@ export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
           : undefined
       const updated = await updateCharacter(characterId, {
         name: sheetName,
-        data: values,
+        // Send base inputs only — derived fields are recomputed on read (D8), never persisted.
+        data: baseInputs(definition, values),
         version,
       })
       setCharacter(updated)

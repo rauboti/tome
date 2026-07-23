@@ -168,3 +168,24 @@ export const deriveValues = (
   }
   return result
 }
+
+/**
+ * The base inputs of `values`: the sheet with every field the `definition` marks `derived` removed.
+ * Derived values are recomputed on read — locally for display ({@link deriveValues}) and on the server
+ * (`RuleSet.computeDerived`) — so they are never persisted and never sent on a write (D8); the client
+ * sends base inputs only. Mirrors the server-side strip in `CharacterService`.
+ */
+export const baseInputs = (
+  definition: SheetDefinition,
+  values: Record<string, unknown>,
+): Record<string, unknown> => {
+  const derivedIds = new Set(
+    definition.sections
+      .flatMap((section) => section.fields)
+      .filter((field) => field.type === 'derived')
+      .map((field) => field.id),
+  )
+  return Object.fromEntries(
+    Object.entries(values).filter(([key]) => !derivedIds.has(key)),
+  )
+}
