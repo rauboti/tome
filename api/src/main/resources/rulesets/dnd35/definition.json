@@ -271,6 +271,34 @@
         { "id": "languages", "labelKey": "dnd35.field.languages", "type": "list" },
         { "id": "notes", "labelKey": "dnd35.field.notes", "type": "text" }
       ]
+    },
+    {
+      "id": "spellcasting",
+      "labelKey": "dnd35.section.spellcasting",
+      "columns": 4,
+      "fields": [
+        { "id": "casterClass", "labelKey": "dnd35.spell.casterClass", "type": "text" },
+        { "id": "casterLevel", "labelKey": "dnd35.spell.casterLevel", "type": "int" },
+        {
+          "id": "spellKeyAbility",
+          "labelKey": "dnd35.spell.keyAbility",
+          "type": "select",
+          "options": [
+            { "value": "strMod", "labelKey": "dnd35.ability.strMod" },
+            { "value": "dexMod", "labelKey": "dnd35.ability.dexMod" },
+            { "value": "conMod", "labelKey": "dnd35.ability.conMod" },
+            { "value": "intMod", "labelKey": "dnd35.ability.intMod" },
+            { "value": "wisMod", "labelKey": "dnd35.ability.wisMod" },
+            { "value": "chaMod", "labelKey": "dnd35.ability.chaMod" }
+          ]
+        },
+        {
+          "id": "spellSaveDcBase",
+          "labelKey": "dnd35.spell.saveDcBase",
+          "type": "derived",
+          "derivedFrom": "10 + ref(spellKeyAbility)"
+        }
+      ]
     }
   ]
 }
