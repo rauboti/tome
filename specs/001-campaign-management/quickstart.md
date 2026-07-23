@@ -108,5 +108,5 @@ the dice/combat/sync/permissions code (SC-009). Expect a spec amendment for the 
 ## Key references
 
 - Endpoints & schemas: [contracts/openapi.yaml](contracts/openapi.yaml)
-- Collections/aggregates, authorization model, indexes & invariants, Mongock migrations: [data-model.md](data-model.md)
+- Collections/aggregates, authorization model, indexes & invariants, Spring Data-native migrations: [data-model.md](data-model.md)
 - Decisions (SSE, MongoDB document engine, compute-on-read derived values, dice, concurrency, roles): [research.md](research.md)

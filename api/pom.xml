@@ -62,26 +62,16 @@
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
 
-        <!-- Persistence: Postgres via Flyway. Boot 4 modularized auto-config, so
-             Flyway only auto-runs when its dedicated starter is present (a bare
-             flyway-core dependency is no longer enough). Sheets are stored as JSONB. -->
+        <!-- Persistence: MongoDB via Spring Data (MongoTemplate — no JPA). Sheets
+             are stored as native BSON documents holding base inputs only; derived
+             values are computed on read (data-model.md, research D3/D5/D8).
+             Migrations/indexes are handled Spring Data-natively (index ensure on
+             boot + a small applied-changes ledger) — NO migration framework: Mongock
+             is deprecated and Flamingock (its successor) is Gradle-plugin-only with
+             no Maven support (research §Migrations decision, 2026-07-23). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-flyway</artifactId>
-        </dependency>
-        <dependency>
-            <!-- Flyway 10+ splits DB support into modules; Postgres needs this. -->
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
         <!-- Baseline test support. -->
@@ -113,9 +103,9 @@
             <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Integration tests run against a real Postgres (Testcontainers, per
-             research — Boot manages the version). Wired to Spring via
-             @ServiceConnection. -->
+        <!-- Integration tests run against a real MongoDB (Testcontainers
+             MongoDBContainer, single-node replica set — Boot manages the version).
+             Wired to Spring via @ServiceConnection. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
@@ -123,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-postgresql</artifactId>
+            <artifactId>testcontainers-mongodb</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
