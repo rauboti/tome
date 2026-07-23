@@ -415,3 +415,19 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
 - Note: this clarifies sheet *richness* only; it does not change any cross-cutting capability (FR-001)
   or the "one bundled rule set" scope (FR-023). Implementation is decomposed into tasks T105–T111
   (engine `table` field-type foundation + per-section content) — see plan.md and tasks.md Phase 3C.
+
+### Session 2026-07-23 (Phase 3C — spell catalog, post-T111)
+
+- Q: For the spellcasting spell list, how much of the SRD spell *catalog* does v1 bake, and how is it
+  sourced? → A: **Baked, full SRD, core caster classes, sourced.** The `dnd35` rule set ships the full
+  3.5 SRD spell list mapped for the core casting classes (Wizard/Sorcerer, Cleric, Druid, Bard,
+  Paladin, Ranger) with per-class spell levels, so the sheet's spell picker chooses from real spells.
+  The data MUST be **sourced from an authoritative OGL 3.5 SRD source** (fetched/parsed), never
+  hand-authored, and lives in a **companion resource** (not inline in the definition). This is the
+  deferred second half of T111, planned as its own increment set (**T112–T114**, see plan.md
+  "T112 design" and tasks.md Phase 3C).
+- Q: Should the spell picker show all spells or only the caster's class spells? → A: **Class-filtered.**
+  The spell select shows only spells on the chosen `casterClass`'s list (with that class's level). This
+  needs a new **catalog-backed, field-filtered select** engine capability (a field's options come from a
+  named catalog filtered by another field's value) — the first sheet feature that fetches data beyond
+  the single definition call. Rule-set-agnostic: the mechanism is generic; the *catalog data* is dnd35's.

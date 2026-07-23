@@ -294,3 +294,47 @@ rulesets/dnd35/` (in `definition.json` or split companion files the rule set loa
 Strength→load table lookup — not expressible as a shared formula, so it would break live-preview
 parity). Iterative attacks from BAB stays the existing deferred-decision item, now naturally at home
 in the T107 weapons table if picked up.
+
+## T112 design: baked SRD spell catalog (class-filtered)
+
+> Added 2026-07-23 after the spell-catalog clarification (spec §Clarifications 2026-07-23, post-T111).
+> T111 shipped the spellcasting *mechanics* (slots + bonus spells); this is the deferred **spell list**
+> half. Decisions: **baked** SRD catalog, **sourced** (fetch/parse OGL, never hand-authored),
+> **class-filtered** picker (engine work), **full SRD for the core caster classes** (Wizard/Sorcerer,
+> Cleric, Druid, Bard, Paladin, Ranger) with per-class spell levels. Its own mini-phase (T112–T114),
+> engine-enabler-first like T105.
+
+**Data — a companion catalog resource.** `api/src/main/resources/rulesets/dnd35/spells.json` (NOT
+inline in `definition.json` — it's ~600 entries): each spell `{ id, name, school, classLevels: {
+wizard: 3, cleric: 2, … } }`. Sourced by fetching/parsing an authoritative **OGL 3.5 SRD** source;
+anything unverifiable is flagged, not guessed.
+
+**New engine capability — catalog-backed, field-filtered select.** The definition's static `options`
+can't express "spells on the chosen class's list", so add a generic mechanism (rule-set-agnostic; the
+*data* is dnd35's):
+- **Definition:** a column may declare `optionsFrom: { catalog: "spells", filterBy: "casterClass" }`
+  instead of inline `options`. Generic — any rule set can point a select at a named catalog filtered by
+  another field.
+- **Server:** a catalog service + endpoint `GET /api/rule-sets/{id}/catalogs/{catalog}?filter={value}`
+  returns the filtered option slice (spell name + the level for that class) from `spells.json`.
+- **Web:** the renderer's select widget, when a column has `optionsFrom`, **fetches** its options from
+  that endpoint keyed off the current `casterClass`, instead of reading static options (the first sheet
+  feature that fetches data beyond the single definition call).
+- **Contract:** `SheetField.optionsFrom` + the catalog endpoint added to `contracts/openapi.yaml`.
+
+**Spells table** (definition, spellcasting section): `spell` (class-filtered select via `optionsFrom`),
+`level` (from the catalog for that class), `prepared`, `notes`.
+
+**Decomposition** (T112 → three increments; engine-enabler-first):
+
+| Task | Scope |
+|------|-------|
+| T112 | **SRD spell dataset** — fetch/parse an OGL source → `rulesets/dnd35/spells.json` (name, school, per-class levels for the 7 core casters); verification notes flagging anything unconfirmed; a load + spot-check test (e.g. *Fireball* = Sor/Wiz 3). The large, must-be-sourced piece; data only, no wiring. |
+| T113 | **Engine: catalog-backed filtered select** — `optionsFrom` descriptor (`RuleSet` types + openapi + web Zod), a catalog service + `GET …/catalogs/{catalog}?filter=` endpoint, and the web select widget's fetched-options behavior + tests. The enabler (as T105 was for tables). No dnd35 content change. |
+| T114 | **Spells table + wiring** — add the `spells` table to `definition.json` via `optionsFrom`, wire the catalog endpoint into the spellcasting UI, i18n, tests. Closes the catalog and the Phase 3C checkpoint. Depends on T112 + T113. |
+
+**Risks / notes.** (1) T112's fetch/parse is the real risk — use WebFetch against an OGL source and
+surface unverifiable spells/levels rather than inventing them. (2) T113 is a genuine engine + client +
+contract extension (async-fetched options); keep the mechanism generic so a future rule set (Dark
+Souls, US5) can reuse it. (3) Per-class spell level comes from the catalog on selection, not a formula
+(it's a data lookup) — so `level` is catalog-supplied/echoed, not a `derived` field.

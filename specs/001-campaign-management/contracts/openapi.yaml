@@ -62,6 +62,33 @@ paths:
               schema: { $ref: "#/components/schemas/SheetDefinition" }
         "404": { $ref: "#/components/responses/NotFound" }
 
+  /rule-sets/{ruleSetId}/catalogs/{catalog}:
+    get:
+      summary: >-
+        Filtered option slice for a catalog-backed select (T112–T114) — e.g. the spells on a given
+        class's list. Backs a `SheetField.optionsFrom` picker; the web fetches this per filter value.
+      parameters:
+        - { $ref: "#/components/parameters/RuleSetId" }
+        - { name: catalog, in: path, required: true, schema: { type: string }, description: "catalog name, e.g. 'spells'" }
+        - { name: filter, in: query, required: false, schema: { type: string }, description: "filter value (e.g. the casterClass) applied to the catalog" }
+      responses:
+        "200":
+          description: The filtered options
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value: { type: string, description: "stored value, e.g. the spell id" }
+                    labelKey: { type: string, description: "display label (or literal name for SRD content)" }
+                    meta:
+                      type: object
+                      nullable: true
+                      description: "optional per-option data, e.g. the spell's level for the filtered class"
+        "404": { $ref: "#/components/responses/NotFound" }
+
   /characters:
     get:
       summary: List the caller's characters
@@ -505,12 +532,24 @@ components:
                           options:
                             type: array
                             nullable: true
-                            description: "choices for a select column; null otherwise"
+                            description: "static choices for a select column; null otherwise"
                             items:
                               type: object
                               properties:
                                 value: { type: string }
                                 labelKey: { type: string }
+                          optionsFrom:
+                            type: object
+                            nullable: true
+                            description: >-
+                              For a select column whose choices come from a named catalog filtered by
+                              another field's value (e.g. spells on the caster's class list, T112–T114).
+                              The web fetches options from
+                              `GET /rule-sets/{id}/catalogs/{catalog}?filter={value of filterBy}`.
+                              Mutually exclusive with static `options`.
+                            properties:
+                              catalog: { type: string, description: "catalog name, e.g. 'spells'" }
+                              filterBy: { type: string, description: "field/column id whose value filters the catalog, e.g. 'casterClass'" }
                     presetRows:
                       type: array
                       nullable: true
