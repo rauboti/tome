@@ -14,7 +14,7 @@ not whether code works.
 - [x] CHK003 - Is the disposition of existing US1 **Postgres data** stated — clean cutover (dev data discarded) vs. a one-time data migration to MongoDB — rather than left implicit? [Gap, Phase 3B] → **Resolved 2026-07-22**: clean cutover, no migration script (research §D3 "Data disposition"; tasks Phase 3B preflight); export-first safeguard if any data matters.
 - [ ] CHK004 - Are the MongoDB **replica-set** requirement and its rationale (multi-document transactions) recorded as a deployment constraint in an authoritative artifact, not only research prose? [Completeness, research §D5]
 - [ ] CHK005 - Is each cross-document invariant (one-active-campaign-per-character, rule-set match on join, combatant PC-XOR-NPC, no duplicate member) assigned a single defined enforcement mechanism (index vs. app rule)? [Completeness, data-model §Invariants]
-- [ ] CHK006 - Are Mongock changelog expectations (ordering, idempotency, run-on-boot, failure behavior) specified rather than assumed? [Gap, tasks §T091/T038/T062]
+- [ ] CHK006 - Are the Spring Data-native migration expectations (ordering, idempotency, run-on-boot, `_migrations` ledger guard, failure behavior) specified rather than assumed? [Gap, tasks §T089/T091/T038/T062] → **Note 2026-07-23**: migration framework dropped (Mongock deprecated, Flamingock Gradle-only); native index-ensure + ledger (research §Migrations).
 - [ ] CHK007 - Are requirements defined for the resolve-on-read helper's role as the *single* source of derived values for every consumer (REST, player view, combat, dice, SSE)? [Completeness, D8 / data-model §Derived values]
 
 ## Requirement Clarity & Ambiguity
@@ -31,7 +31,7 @@ not whether code works.
 - [ ] CHK014 - Do plan.md and data-model.md agree on the exact collection set — **characters, campaigns, sessions, encounters** (rolls embedded, not a collection) — and on what is embedded vs. referenced? [Consistency, plan §Post-design / data-model]
 - [ ] CHK015 - Is the "one active campaign per character" guard described consistently after the D6 correction — enforced by a unique partial multikey index **plus** an app pre-check — across research D6, data-model, and tasks (T038/T041)? [Consistency, research §D6 / data-model §Invariants]
 - [ ] CHK016 - Is optimistic concurrency described consistently as Spring Data `@Version` → 409 across research D5, data-model, plan, and the mapping task (T098)? [Consistency]
-- [ ] CHK017 - Do the Mongock changelogs named in tasks (C001–C004) match the migrations list and index definitions in data-model? [Consistency, tasks §T091/T038/T062 / data-model §Migrations]
+- [ ] CHK017 - Do the migration changes named in tasks (C001–C004, now Spring Data-native ledger-guarded units) match the migrations list and index definitions in data-model? [Consistency, tasks §T091/T038/T062 / data-model §Migrations]
 - [ ] CHK018 - Are all Postgres/Flyway/JdbcTemplate mentions that remain in the artifacts clearly historical/comparative rather than active requirements? [Consistency, Gap]
 - [ ] CHK019 - Do the embedded-vs-referenced boundaries in tasks (T039/T049–T052/T067) match data-model's aggregate table exactly? [Consistency]
 
@@ -58,7 +58,7 @@ not whether code works.
 ## Dependencies & Assumptions
 
 - [x] CHK031 - Is the assumption that no production/irreplaceable US1 data exists (making a clean cutover safe) documented and validated? [Assumption, Phase 3B] → **Resolved 2026-07-22**: documented as an assumption in research §D3 + Phase 3B preflight (validate at preflight; export-first if untrue).
-- [ ] CHK032 - Is version compatibility among Spring Boot 4.1, Spring Data MongoDB, the Mongock driver, and the MongoDB server version documented or flagged for validation? [Assumption/Dependency, plan §Technical Context]
+- [x] CHK032 - Is version compatibility among Spring Boot 4.1, Spring Data MongoDB, and the MongoDB server version documented or flagged for validation? [Assumption/Dependency, plan §Technical Context] → **Resolved 2026-07-23**: the Mongock driver dependency is gone (framework dropped). Remaining stack is Boot 4.1 → Spring Data MongoDB 5.1.0 → `mongodb-driver-sync` 5.8.0 (Boot-BOM-managed) against `mongo:8`; no third-party migration lib to version-match (research §Migrations).
 - [ ] CHK033 - Is it stated that the Hive auth/session/cookie layer is unaffected by the storage switch (no coupling to the database)? [Assumption, research §D1]
 
 ## US2–US5 Requirement Quality (authored on MongoDB)
@@ -86,5 +86,6 @@ not whether code works.
   research/data-model/tasks — not by writing code.
 - High-signal gaps to weigh first: ~~CHK003/CHK031~~ (existing-data disposition — **resolved
   2026-07-22**), ~~CHK028~~ (16 MB document limit — **resolved 2026-07-22**), **CHK005/CHK015**
-  (invariant enforcement clarity), **CHK006** (Mongock discipline) — the latter two remain open for a
-  reviewer pass.
+  (invariant enforcement clarity), **CHK006** (native migration/ledger discipline) — the latter two
+  remain open for a reviewer pass. *(CHK032 version-compat resolved 2026-07-23: migration framework
+  dropped — Mongock deprecated, Flamingock Gradle-only; see research §Migrations.)*

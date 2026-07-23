@@ -7,8 +7,8 @@
 > embedded. The `RuleSet` engine and REST contract are unchanged; only persistence shape changed.
 
 Persistence is **MongoDB** via Spring Data MongoDB (`MongoTemplate` — the low-level template, no JPA,
-mirroring the platform's `JdbcTemplate` convention). Migrations/indexes via **Mongock** (Kotlin
-changelog units, run on boot). Sheet values live in a native BSON sub-document and hold **base inputs
+mirroring the platform's `JdbcTemplate` convention). Migrations/indexes are **Spring Data-native** (index
+ensure on boot + a small applied-changes ledger — no migration framework; see §Migrations). Sheet values live in a native BSON sub-document and hold **base inputs
 only** — derived values are computed on read, never stored (D8). All ids are UUIDs (`_id`). Identity
 is Hive's — `userId` / `dmId` / `playerId` / `initiatorId` hold the **Hive subject**; there is no local
 user collection (research D1). Every mutable aggregate carries a Spring Data **`@Version`** field for
@@ -288,13 +288,17 @@ responses, the player view, combat/dice, and SSE payloads. Each resolver central
 compute-on-read; consumers depend only on `SheetData` + `RuleSet` (FR-023/SC-009). The web additionally
 derives on change for instant feedback but always reconciles to the server's resolved response.
 
-## Migrations (Mongock, indicative order)
+## Migrations (Spring Data-native, indicative order)
 
-Kotlin changelog units run on boot (Flyway replacement). Indicative order:
+No migration framework (Mongock deprecated; Flamingock is Gradle-only — see research §Migrations).
+On boot the app **ensures indexes idempotently** from a code-owned index catalog, and records ordered
+structural changes in a small **applied-changes ledger** (`_migrations`: `{_id: changeId, appliedAt}`)
+so each runs at most once. Indicative order (`changeId`s):
 
 `C001` create `characters` + index `{userId:1}` · `C002` create `campaigns` + indexes
 (`{dmId:1}`, `{"members.playerId":1}`, unique-partial `{"members.characterId":1}`) · `C003` create
 `sessions` + index `{campaignId:1}` · `C004` create `encounters` + indexes `{sessionId:1}`,
-`{campaignId:1}`. **No `rolls` changelog** — rolls are embedded in their container
+`{campaignId:1}`. **No `rolls` change** — rolls are embedded in their container
 (`campaign`/`session`/`encounter`), not a collection. Rule-set definitions stay bundled JSON resources
-— no seed changelog needed in v1.
+— no seed data needed in v1. (`C00x` ids are retained as stable change identifiers, now ledger keys
+rather than Mongock changelog classes.)

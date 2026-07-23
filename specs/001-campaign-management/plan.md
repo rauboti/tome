@@ -5,8 +5,8 @@
 **Input**: Feature specification from `/specs/001-campaign-management/spec.md`
 
 > **Amendment 2026-07-22 (post-US1).** Persistence switched from **PostgreSQL/JSONB/Flyway/JdbcTemplate
-> to MongoDB** (Spring Data MongoDB + `MongoTemplate`, Mongock migrations, Testcontainers
-> `MongoDBContainer` replica-set), and derived sheet values are now **computed on read, never stored**
+> to MongoDB** (Spring Data MongoDB + `MongoTemplate`, Spring Data-native index/ledger migrations,
+> Testcontainers `MongoDBContainer` replica-set), and derived sheet values are now **computed on read, never stored**
 > (server-authoritative; the web echoes for instant feedback). See research.md D3/D5/D8 and
 > data-model.md. This landed while only US1 was built — US1 is re-platformed and US2–US5 are authored
 > against MongoDB from the start. Everything below reflects the amended stack.
@@ -33,16 +33,16 @@ sheet renderer, combat/dice UI, and an SSE subscription. Full decisions in [rese
 **Language/Version**: Kotlin (Spring Boot BOM-managed) on JDK 25 (api); TypeScript ~6.0 (web)
 
 **Primary Dependencies**: Spring Boot 4.1 (web, actuator, security, oauth2-client,
-oauth2-resource-server, **data-mongodb** starters), **Mongock** (`mongock-springboot` +
-`mongodb-springdata-v4-driver`), `jackson-module-kotlin` (Jackson 3), Maven `mvnw`, Spotless/ktlint;
+oauth2-resource-server, **data-mongodb** starters), `jackson-module-kotlin` (Jackson 3), Maven `mvnw`, Spotless/ktlint;
 Vite 8 + React 19 + Chakra UI v3 + `@rauboti/ui` ^0.3.5 + React Router 7 + Zod + react-i18next
 (bilingual nb/en). No JPA — persistence via **`MongoTemplate`** (low-level template, mirroring the
 platform's `JdbcTemplate` convention). *(Dropped from the Postgres baseline: `jdbc`/`flyway` starters,
 `flyway-database-postgresql`, `postgresql` driver.)*
 
 **Storage**: **MongoDB** (`tome-db`), run as a **single-node replica set** (required for multi-document
-transactions; research D5). Migrations/indexes via **Mongock** Kotlin changelog units (Flyway
-replacement). Sheets stored as native BSON sub-documents holding **base inputs only**; cross-cutting
+transactions; research D5). Migrations/indexes are **Spring Data-native** — indexes ensured on boot from
+a code-owned catalog + a small applied-changes ledger (`_migrations`), **no migration framework** (Mongock
+deprecated, Flamingock Gradle-only — research §Migrations). Sheets stored as native BSON sub-documents holding **base inputs only**; cross-cutting
 values (name, rule set, owner) are top-level document fields, indexed as needed. Owned children are
 embedded (memberships/NPCs/content in the campaign; combatants in the encounter; **rolls** in whichever
 of campaign/session/encounter they belong to — no `rolls` collection). **`characters`, `campaigns`,
@@ -138,9 +138,10 @@ api/
 │   ├── dice/            # Dice-expression evaluator, Roll recording + apply-to-sheet, controller
 │   └── realtime/        # SSE emitter registry, authorized event publisher, controller (GET /api/campaigns/{id}/stream)
 ├── src/main/resources/
-│   ├── application.yml / application-dev.yml / application-test.yml  # MongoDB URI, Hive URLs, CORS, Mongock scan package
+│   ├── application.yml / application-dev.yml / application-test.yml  # MongoDB URI, Hive URLs, CORS
 │   └── rulesets/dnd35/definition.json     # 3.5 sheet definition (data; authored from the SRD)
-│   # Mongock changelogs live in Kotlin: src/main/kotlin/no/rauboti/tome/config/migration/ (C001…), not resources/db/migration
+│   # Migrations are Spring Data-native: index catalog + ordered changes (C001…) applied on boot via a
+│   # ledger collection, in Kotlin under src/main/kotlin/no/rauboti/tome/config/migration/ — no framework
 ├── src/test/kotlin/no/rauboti/tome/       # contract + integration + unit tests
 ├── Dockerfile
 └── mvnw / mvnw.cmd / pom.xml

@@ -17,7 +17,7 @@ are written first and must FAIL before implementation.
 > **⚠ Amendment 2026-07-22 (post-US1): Postgres → MongoDB + compute-on-read derived values.**
 > US1 (T001–T034) was built and completed on **Postgres/JSONB/Flyway/JdbcTemplate** and is left below
 > as historical record (still `[X]`). **Phase 3B (T084–T104)** re-platforms that built slice onto
-> **MongoDB** (Spring Data + `MongoTemplate`, Mongock, Testcontainers `MongoDBContainer` replica set)
+> **MongoDB** (Spring Data + `MongoTemplate`, Spring Data-native migrations, Testcontainers `MongoDBContainer` replica set)
 > and switches derived sheet values to **computed-on-read, never stored** — using a
 > disable-then-re-enable test strategy. The pending **US2–US5 tasks (T035–T083) have been rewritten in
 > place** to target MongoDB. New task IDs (T084+) continue the existing number space so prior IDs stay
@@ -111,6 +111,13 @@ position, not ID). Re-platforms the built US1 slice from Postgres to MongoDB and
 values to **computed-on-read, never stored** — with **no change to observable REST behavior**
 (SC-001/SC-006 still hold; openapi shapes unchanged). Design: research.md D3/D5/D8, data-model.md.
 
+> **⚠ Sub-amendment 2026-07-23: no migration framework.** The 2026-07-22 amendment named **Mongock**;
+> during T084 we found Mongock is **deprecated** (last release targets Spring Boot 3 / Spring Data Mongo
+> 4 — no fit for our Boot 4.1 / Spring Data 5.1) and its successor **Flamingock**, while Boot-4 capable, is
+> **Gradle-plugin-only with no Maven support** (Tome is Maven + Kotlin). Decision: **drop the framework** —
+> migrations are **Spring Data-native** (idempotent index ensure from a code-owned catalog + a small
+> `_migrations` applied-changes ledger). Flamingock revisit triggers recorded in research.md §Migrations.
+
 **Strategy**: quarantine the Postgres-bound tests → swap infra → rebuild the character slice → re-enable
 and rewrite the tests incrementally as each piece lands. Tasks are deliberately small for line-by-line
 review.
@@ -125,14 +132,14 @@ Gaute to review/commit. This whole phase is one increment's worth of small tasks
 **Data disposition**: **clean cutover** — US1's data is disposable local dev data, so there is **no
 data-migration script** (drop the Postgres stack, start fresh on MongoDB). ⚠ Confirm at preflight that
 no irreplaceable character data exists in the running Postgres volume; **if any must be kept, export it
-before T085** (one-off, out of scope for the changelogs). See research.md §D3 "Data disposition".
+before T085** (one-off, out of scope for the migrations). See research.md §D3 "Data disposition".
 
 ### Infra swap (build + stack)
 
-- [ ] T084 [P] Swap api dependencies in `api/pom.xml` — remove `spring-boot-starter-jdbc`, the Flyway starters, `flyway-database-postgresql`, `postgresql`, `testcontainers-postgresql`; add `spring-boot-starter-data-mongodb`, Mongock (`mongock-springboot-v3` + `mongodb-springdata-v4-driver`), `testcontainers-mongodb`
+- [X] T084 [P] Swap api dependencies in `api/pom.xml` — remove `spring-boot-starter-jdbc`, the Flyway starters, `flyway-database-postgresql`, `postgresql`, `testcontainers-postgresql`; add `spring-boot-starter-data-mongodb` and `testcontainers-mongodb`. **No migration framework** (decision 2026-07-23): Mongock is deprecated and its successor Flamingock is Gradle-plugin-only (no Maven support) — migrations are Spring Data-native (index catalog + ledger, see T091). See research.md §Migrations.
 - [ ] T085 Replace the `tome-db` service in `docker-compose.yml` — `mongo:8` on host `5436`→`27017`, single-node replica set (`--replSet rs0`) with a one-time `rs.initiate()` (init container or healthcheck-gated), local dev credentials; update `tome-api` env (`MONGODB_URI`) and the `depends_on` healthcheck
 - [ ] T086 [P] Replace `POSTGRES_*` with Mongo settings in `tome/.env.example` and platform-root `tome.env` (`MONGODB_URI`, `MONGO_DB`, credentials, replica-set name)
-- [ ] T087 [P] Rewrite datasource config in `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` — drop `spring.datasource`/Flyway; add `spring.data.mongodb.uri` + Mongock changelog-scan package
+- [ ] T087 [P] Rewrite datasource config in `api/src/main/resources/application.yml` + `application-dev.yml` + `application-test.yml` — drop `spring.datasource`/Flyway; add `spring.data.mongodb.uri`. Disable Spring Data's auto index creation (`spring.data.mongodb.auto-index-creation: false`) — indexes are ensured explicitly on boot (T091)
 
 ### Test quarantine (keep the build green while infra churns)
 
@@ -140,9 +147,9 @@ before T085** (one-off, out of scope for the changelogs). See research.md §D3 "
 
 ### MongoDB foundation
 
-- [ ] T089 Mongo config — `MongoConfig` (Mongo client, `MongoTemplate`, `MongoTransactionManager`) + Mongock runner wiring in `api/src/main/kotlin/no/rauboti/tome/config/MongoConfig.kt`
+- [ ] T089 Mongo config — `MongoConfig` (Mongo client, `MongoTemplate`, `MongoTransactionManager`) in `api/src/main/kotlin/no/rauboti/tome/config/MongoConfig.kt`. Add a `MigrationRunner` (`ApplicationRunner`/`@EventListener(ApplicationReadyEvent)`) that applies the ordered changes (T091) once each, guarded by the `_migrations` ledger, in `.../config/migration/MigrationRunner.kt`
 - [ ] T090 [P] Testcontainers base — `MongoDBContainer` (single-node replica set) via `@ServiceConnection` in an abstract integration base `api/src/test/kotlin/no/rauboti/tome/support/MongoIntegrationTest.kt`
-- [ ] T091 Mongock changelog `C001` — create `characters` collection + index `{ userId: 1 }` in `api/src/main/kotlin/no/rauboti/tome/config/migration/C001_CreateCharacters.kt`
+- [ ] T091 Migration change `C001` (Spring Data-native) — create `characters` collection + ensure index `{ userId: 1 }` via `MongoTemplate`/`IndexOperations`, idempotent and recorded in the `_migrations` ledger, in `api/src/main/kotlin/no/rauboti/tome/config/migration/C001_CreateCharacters.kt` (a plain change unit invoked by the T089 `MigrationRunner`, not a framework changelog)
 - [ ] T092 Retire JSONB glue — delete `api/src/main/kotlin/no/rauboti/tome/common/JsonbSupport.kt` (BSON is native) and remove `api/src/main/resources/db/migration/V1__create_character.sql` + the now-empty `db/migration/` dir
 
 ### Character slice on MongoDB + compute-on-read
@@ -190,7 +197,7 @@ DM full view vs limited player view and access denial for non-members.
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Mongock changelog `C002` — create `campaigns` collection + indexes (`{dmId:1}`, `{"members.playerId":1}`, and **unique partial multikey** `{"members.characterId":1}` with `partialFilterExpression {status:"active"}` = "one active campaign per character", data-model.md Invariants) in `api/src/main/kotlin/no/rauboti/tome/config/migration/C002_CreateCampaigns.kt`
+- [ ] T038 [US2] Migration change `C002` (Spring Data-native, ledger-guarded — see T089/T091) — create `campaigns` collection + indexes (`{dmId:1}`, `{"members.playerId":1}`, and **unique partial multikey** `{"members.characterId":1}` with `partialFilterExpression {status:"active"}` = "one active campaign per character", data-model.md Invariants) in `api/src/main/kotlin/no/rauboti/tome/config/migration/C002_CreateCampaigns.kt`
 - [ ] T039 [US2] `Campaign` aggregate document (`@Document("campaigns")`, `@Id`, `@Version`, embedded `members[]` of `{characterId,playerId,addedAt}`) + `CampaignRepository` (MongoTemplate; `$push`/`$pull` for roster) in `api/src/main/kotlin/no/rauboti/tome/campaigns/` — membership is embedded, not a separate collection
 - [ ] T040 [US2] `PermissionService` — campaign-scoped visibility (DM full; player self + shared; deny others) in `api/src/main/kotlin/no/rauboti/tome/campaigns/PermissionService.kt`
 - [ ] T041 [US2] `CampaignService` — create, archive, roster add (enforce `character.ruleSet == campaign.ruleSet` FR-008, **and** reject a character already in an active campaign via an app pre-check backed by the unique partial index D6), remove (pull the member, keep the character); **a DM MAY add a self-owned character to their own campaign (FR-017) — this creates an ordinary membership and MUST NOT grant that player DM visibility nor let the DM hide content from themselves** in `api/src/main/kotlin/no/rauboti/tome/campaigns/CampaignService.kt`
@@ -252,7 +259,7 @@ blocking), advance turns → a watching player's view updates live; players neve
 ### Implementation for User Story 4
 
 - [ ] T061 [US4] Dice evaluator (pure Kotlin, `SecureRandom`) in `api/src/main/kotlin/no/rauboti/tome/dice/DiceEvaluator.kt`
-- [ ] T062 [US4] Mongock changelogs `C003` (create `sessions` + index `{campaignId:1}`) and `C004` (create `encounters` + indexes `{sessionId:1}`, `{campaignId:1}`) in `api/src/main/kotlin/no/rauboti/tome/config/migration/` — **no `rolls` changelog**: rolls are embedded in their container (campaign/session/encounter), not a collection
+- [ ] T062 [US4] Migration changes `C003` (create `sessions` + index `{campaignId:1}`) and `C004` (create `encounters` + indexes `{sessionId:1}`, `{campaignId:1}`) — Spring Data-native, ledger-guarded (see T089/T091) — in `api/src/main/kotlin/no/rauboti/tome/config/migration/` — **no `rolls` change**: rolls are embedded in their container (campaign/session/encounter), not a collection
 - [ ] T063 [US4] `Roll` as an **embedded sub-document** (`initiatorId`, expression, results, total, `appliedTo?`, `createdAt` — **no scope-id fields**) appended to its container's `rolls[]` via **nested endpoints** (`POST /campaigns/{id}/rolls`, `…/sessions/{sid}/rolls`, `…/encounters/{eid}/rolls`); optional apply-to-sheet through the `CharacterService`/NPC write path (warnings apply; response resolved-on-read) in `api/src/main/kotlin/no/rauboti/tome/dice/`
 - [ ] T064 [US4] SSE infrastructure — emitter registry + `AuthorizedEventPublisher` (reuses `PermissionService`) + async config in `api/src/main/kotlin/no/rauboti/tome/realtime/`
 - [ ] T065 [US4] `GET /api/campaigns/{id}/stream` (`SseEmitter`) controller in `api/src/main/kotlin/no/rauboti/tome/realtime/StreamController.kt`
@@ -304,7 +311,7 @@ engine or cross-cutting code (SC-009).
   JdbcTemplate/Flyway parts are superseded by Phase 3B.)*
 - **Phase 3B re-platform (MongoDB + compute-on-read)** → depends on US1 being built; **must complete
   before US2–US5**, since those are authored against MongoDB (`MongoTemplate`, embedded aggregates,
-  Mongock, `CharacterDataResolver`). This is the amendment's pivot point.
+  Spring Data-native migrations, `CharacterDataResolver`). This is the amendment's pivot point.
 - **User stories (Phases 4–7 / US2–US5)** → each depends on Foundational **and Phase 3B**. Recommended
   order is priority order because later stories build on earlier data:
   - US2 needs US1's `character`; US3 needs US2's `campaign` (embeds NPCs/content/sessions); US4 needs

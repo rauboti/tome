@@ -110,9 +110,26 @@ per-field migration. Top-level fields + indexes keep roster/lookup/combat querie
 derived/validation logic in code remains the pragmatic half of Hybrid (3.5's BAB/save progressions are
 painful as pure data). See D-model for the embedded-vs-referenced aggregate boundaries.
 
-**Migrations**: **Mongock** (the Flyway replacement) — versioned, ordered, idempotent changelog units
-authored in Kotlin, run on boot. v1 changelogs mainly **create collections + indexes** and seed any
-reference data; rule-set definitions stay as resources, so there is little bootstrap data to seed.
+**Migrations (decision 2026-07-23 — no framework; Spring Data-native)**: v1 handles schema evolution
+**Spring Data-natively** — no migration framework. On boot the app **ensures indexes** (idempotent
+`IndexOperations.ensureIndex`, driven from a code-owned index catalog) and records structural changes
+in a small **applied-changes ledger** collection (`_migrations`: `{_id: changeId, appliedAt}`), so each
+ordered change runs at most once. v1's needs are modest — **create collections + indexes**, no seed
+data (rule-set definitions stay bundled resources) — so a framework earns little.
+
+*Why not a migration framework:* **Mongock** (the original Flyway-for-Mongo, named in the 2026-07-22
+amendment) is **officially deprecated** — its last release (`io.mongock` 5.5.1, Jan 2025) targets Spring
+Boot 3 / Spring Data MongoDB 4.x, with **no Spring Data 5.x driver**, so it does not fit our Boot 4.1 /
+Spring Data 5.1 stack. Its maintained successor **Flamingock** *does* support Boot 4 + Spring Data 5
+(vendor's own example runs on Boot 4.0.1), but its only supported build integration is a **Gradle
+plugin** (compile-time annotation processor generating the change pipeline) — **no Maven plugin, example,
+or docs**, and Tome is Maven + Kotlin. Wiring Flamingock's processor through Maven + kapt is an
+unsupported path, so v1 avoids the dependency entirely.
+
+⚠ **Revisit trigger (Flamingock)**: reconsider adopting Flamingock if (a) it ships first-class **Maven**
+support, **or** (b) our migration needs outgrow the hand-rolled ledger — multi-environment coordination,
+audited/locked distributed execution, rollback orchestration, or many-system (Kafka/config/flags) changes
+Flamingock is built for. Until then the native approach is the low-dependency, Maven/Kotlin-native fit.
 
 **Data disposition (Postgres→MongoDB cutover)**: v1 is **pre-production** — US1's data lives only in a
 local dev Postgres volume and is **disposable**, so the switch is a **clean cutover** (drop the
@@ -276,7 +293,7 @@ derivation** — rejected: server-authoritative dice/combat would lose access to
 | Spring Boot SSE (`SseEmitter`) | Built into Spring MVC — no new dependency |
 | Dice evaluator | In-house, no dependency |
 | **MongoDB document storage** | **`spring-boot-starter-data-mongodb` (`MongoTemplate`); replaces Postgres/`JdbcTemplate`/Jackson-JSONB glue** |
-| **Schema/data migrations** | **Mongock (Kotlin changelog units); replaces Flyway (`flyway-*`, `postgresql` driver dropped)** |
+| **Schema/data migrations** | **Spring Data-native — no framework (index-ensure on boot + `_migrations` ledger); replaces Flyway (`flyway-*`, `postgresql` driver dropped). Mongock deprecated / Flamingock Gradle-only — see §Migrations** |
 | **Integration-test DB** | **Testcontainers `MongoDBContainer` (single-node replica set) via `@ServiceConnection`; replaces `testcontainers-postgresql`** |
 | Optimistic concurrency | Spring Data MongoDB `@Version` field per mutable aggregate (was a `version` column) |
 | Derived sheet values | Computed on read (D8) — no storage, no new dependency |
