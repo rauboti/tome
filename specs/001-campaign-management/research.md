@@ -71,6 +71,14 @@ SSE, guarded by a dedicated integration test (privacy is security-critical, SC-0
 
 ## D3 — Hybrid rule-set engine: sheet storage & definition (MongoDB)
 
+> **⚠ Superseded in part 2026-07-24 by [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).** The
+> data-driven Hybrid engine below (opaque `SheetData` map + `definition.json` + `derivedFrom` formulas)
+> is replaced by a **strongly-typed, code-first** engine: a sealed hierarchy of typed per-rule-set
+> sheets. What survives: `ruleSetId` as discriminator, MongoDB document storage, rule set as an
+> id-resolved strategy, the soft-validation posture. What retires: `SheetData` as the model,
+> `SheetDefinition`/`definition.json` as the structure source, `FormulaEvaluator`/`SheetCompute`. Read
+> D3 for the *history* of why data-driven was chosen; read ADR-001 for the current design.
+
 > **Rewritten 2026-07-22.** Previously Postgres `JSONB` + promoted columns; now MongoDB documents. The
 > `RuleSet` engine (interface, `SheetData`, definitions) is **unchanged** — only where and how a sheet
 > is persisted changed.
@@ -251,6 +259,13 @@ error-prone for rules text). No i18n — rejected (platform convention requires 
 ---
 
 ## D8 — Derived sheet values: computed on read, never stored
+
+> **⚠ Mechanism superseded 2026-07-24 by [ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).** The
+> **principle stands** — store base inputs only, derived never persisted — but the mechanism moves from
+> formula strings evaluated by `FormulaEvaluator`/`SheetCompute` (and mirrored in `derive.ts`) to
+> **computed Kotlin properties** on the typed resolved sheet. Derived values become unstoreable by
+> construction. The per-entity resolve-on-read helper (`CharacterDataResolver`) is subsumed by the
+> resolved-view type. Read ADR-001 for the current design.
 
 > **New decision 2026-07-22.** Resolves the "Stored vs. computed derived sheet values" item the
 > original plan deferred (plan.md Deferred Decisions). Refines spec FR-005 / Clarification 2026-07-22.
