@@ -123,3 +123,111 @@ describe('SheetRenderer', () => {
     expect(onChange).toHaveBeenLastCalledWith('feats', ['Cleave', ''])
   })
 })
+
+/** A table field with a canonical preset row and a per-row derived total via `ref` (T105). Label keys
+ *  are intentionally not in the i18n bundles, so they resolve to themselves — handy for querying. */
+const tableDefinition: SheetDefinition = {
+  ruleSetId: 'dnd35',
+  version: '1.0.0',
+  sections: [
+    {
+      id: 'abilities',
+      labelKey: 'secAbilities',
+      fields: [
+        { id: 'strength', labelKey: 'colStrength', type: 'int' },
+        {
+          id: 'strMod',
+          labelKey: 'colStrMod',
+          type: 'derived',
+          derivedFrom: 'floor((strength - 10) / 2)',
+        },
+      ],
+    },
+    {
+      id: 'skills',
+      labelKey: 'secSkills',
+      fields: [
+        {
+          id: 'skills',
+          labelKey: 'tblSkills',
+          type: 'table',
+          presetRows: [{ skill: 'Climb', keyAbility: 'strMod' }],
+          columns: [
+            { id: 'skill', labelKey: 'colSkill', type: 'text' },
+            { id: 'keyAbility', labelKey: 'colKeyAbility', type: 'text' },
+            { id: 'ranks', labelKey: 'colRanks', type: 'int' },
+            {
+              id: 'total',
+              labelKey: 'colTotal',
+              type: 'derived',
+              derivedFrom: 'ranks + ref(keyAbility)',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+const renderTable = (values: Record<string, unknown>, onChange = vi.fn()) => {
+  render(
+    <ThemeProvider>
+      <SheetRenderer
+        definition={tableDefinition}
+        values={values}
+        onChange={onChange}
+        readOnly={false}
+      />
+    </ThemeProvider>,
+  )
+  return onChange
+}
+
+describe('SheetRenderer — table field (T105)', () => {
+  test('seeds a preset row, locks preset cells, and computes the per-row total live via ref', () => {
+    // strength 18 → strMod 4 (sheet-level); the Climb row is seeded from presetRows.
+    renderTable({ strength: 18, skills: [] })
+
+    // Preset cells are read-only (disabled) and carry their pinned values.
+    const skill = screen.getByRole('textbox', { name: 'colSkill 1' })
+    expect(skill).toHaveValue('Climb')
+    expect(skill).toBeDisabled()
+    expect(
+      screen.getByRole('textbox', { name: 'colKeyAbility 1' }),
+    ).toBeDisabled()
+
+    // Ranks is editable; total = ranks(0) + ref(keyAbility→strMod=4) = 4, read-only.
+    expect(screen.getByRole('spinbutton', { name: 'colRanks 1' })).toBeEnabled()
+    const total = screen.getByRole('textbox', { name: 'colTotal 1' })
+    expect(total).toHaveValue('4')
+    expect(total).toBeDisabled()
+  })
+
+  test('editing a mutable cell materializes the row via onChange with base inputs only', async () => {
+    const onChange = renderTable({ strength: 18, skills: [] })
+
+    await userEvent.type(
+      screen.getByRole('spinbutton', { name: 'colRanks 1' }),
+      '5',
+    )
+
+    // The seeded preset row materializes with the edited rank; the derived `total` is never sent.
+    expect(onChange).toHaveBeenLastCalledWith('skills', [
+      { skill: 'Climb', keyAbility: 'strMod', ranks: 5 },
+    ])
+  })
+
+  test('appends a new (fully editable) row via onChange', async () => {
+    const onChange = renderTable({
+      strength: 18,
+      skills: [{ skill: 'Climb', keyAbility: 'strMod', ranks: 8 }],
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: /add/i }))
+
+    expect(onChange).toHaveBeenLastCalledWith('skills', [
+      { skill: 'Climb', keyAbility: 'strMod', ranks: 8 },
+      {},
+    ])
+  })
+})

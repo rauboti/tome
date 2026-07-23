@@ -9,9 +9,11 @@ import tools.jackson.databind.ObjectMapper
  * the bundled `rulesets/dnd35/definition.json`); this class is the *logic* half — it computes derived
  * values and raises soft validation warnings. Registered as the `dnd35` [RuleSet] by the registry (T019).
  *
- * [computeDerived] fills in the ability modifiers, the three saving throws, and initiative. Base
- * attack bonus is a plain player-entered field in v1 (T015 definition revision; see the
- * "Deferred Decisions" note in plan.md), so it is not derived here.
+ * [computeDerived] is **definition-driven** (T105): it delegates to the shared [SheetCompute], which
+ * evaluates every `derivedFrom` formula in the [definition] via [FormulaEvaluator] — ability modifiers,
+ * saves, initiative today, and any per-row table totals a later definition adds — identically to the
+ * web `derive.ts`. No derived value is hand-computed here (all v1 derived are formula-expressible).
+ * [validate] remains rule-set logic (soft warnings, FR-005).
  */
 @Component
 class DnD35RuleSet(
@@ -29,30 +31,9 @@ class DnD35RuleSet(
     /**
      * Recompute the derived values from the base inputs and return a **new** sheet (the input is never
      * mutated). Missing/blank inputs read as 0 so a partially-filled sheet still computes cleanly.
+     * The actual work is the shared, definition-driven [SheetCompute] over this rule set's formulas.
      */
-    override fun computeDerived(data: SheetData): SheetData {
-        val strMod = abilityModifier(intOf(data, "strength"))
-        val dexMod = abilityModifier(intOf(data, "dexterity"))
-        val conMod = abilityModifier(intOf(data, "constitution"))
-        val intMod = abilityModifier(intOf(data, "intelligence"))
-        val wisMod = abilityModifier(intOf(data, "wisdom"))
-        val chaMod = abilityModifier(intOf(data, "charisma"))
-
-        return data.toMutableMap().apply {
-            put("strMod", strMod)
-            put("dexMod", dexMod)
-            put("conMod", conMod)
-            put("intMod", intMod)
-            put("wisMod", wisMod)
-            put("chaMod", chaMod)
-            // Saves = class base (player-entered) + governing ability modifier.
-            put("fortitude", intOf(data, "fortBase") + conMod)
-            put("reflex", intOf(data, "refBase") + dexMod)
-            put("will", intOf(data, "willBase") + wisMod)
-            // Initiative = Dexterity modifier (no misc modifiers modelled in v1).
-            put("initiative", dexMod)
-        }
-    }
+    override fun computeDerived(data: SheetData): SheetData = SheetCompute.resolve(sheetDefinition, data)
 
     /**
      * Soft-validate the sheet (FR-005): guidance only, never blocks — always returns a list. [change]
@@ -85,9 +66,6 @@ class DnD35RuleSet(
         data: SheetData,
         key: String,
     ): Int = (data[key] as? Number)?.toInt() ?: 0
-
-    /** The 3.5 ability modifier: floor((score - 10) / 2). `floorDiv` gives correct rounding for negatives. */
-    private fun abilityModifier(score: Int): Int = Math.floorDiv(score - 10, 2)
 
     companion object {
         const val RULE_SET_ID = "dnd35"

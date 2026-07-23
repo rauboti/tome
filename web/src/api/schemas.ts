@@ -56,14 +56,30 @@ export const fieldOptionSchema = z.object({
  *  non-derived field arrives as `"derivedFrom":null` and a non-select field as `"options":null`
  *  (rather than omitted). `.optional()` rejects an explicit `null`, which made the whole rule-set
  *  definition fail to parse → the sheet screen couldn't load the character. */
+/** One column of a `table` field (openapi `SheetField.columns[]`). A column is itself a field —
+ *  base-input or per-row `derived` — but one level deep (no nested tables). */
+export const sheetColumnSchema = z.object({
+  id: z.string(),
+  labelKey: z.string(),
+  type: z.enum(['int', 'text', 'bool', 'select', 'derived']),
+  derivedFrom: z.string().nullish(),
+  options: z.array(fieldOptionSchema).nullish(),
+})
+export type SheetColumn = z.infer<typeof sheetColumnSchema>
+
 export const sheetFieldSchema = z.object({
   id: z.string(),
   labelKey: z.string(),
-  type: z.enum(['int', 'text', 'bool', 'select', 'list', 'derived']),
+  type: z.enum(['int', 'text', 'bool', 'select', 'list', 'derived', 'table']),
   derivedFrom: z.string().nullish(),
   options: z.array(fieldOptionSchema).nullish(),
   /** How many of the section's `columns` this field spans (null/absent → 1). */
   colSpan: z.number().int().nullish(),
+  /** For a `table` field: its per-row column definitions (null/absent otherwise). */
+  columns: z.array(sheetColumnSchema).nullish(),
+  /** For a `table` field: fixed rows the definition seeds (canonical content); each a row object
+   *  keyed by column id. Preset cells render read-only; users may still append rows. */
+  presetRows: z.array(z.record(z.string(), z.unknown())).nullish(),
 })
 export type SheetField = z.infer<typeof sheetFieldSchema>
 
