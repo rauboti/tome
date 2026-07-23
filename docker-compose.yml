@@ -1,24 +1,69 @@
 services:
   tome-db:
-    image: postgres:17-alpine
+    image: mongo:8
     restart: unless-stopped
+    # Single-node replica set (rs0) — required for multi-document transactions
+    # (research §D5) and for @Version optimistic concurrency. A replica set with
+    # auth requires an internal-auth keyFile even for one member; we generate an
+    # ephemeral one at startup (single member ⇒ its contents never need to persist
+    # or match peers) so no secret is committed. rs.initiate() is run once by the
+    # tome-db-init sidecar below.
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-tome}
-      POSTGRES_USER: ${POSTGRES_USER:-tome}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tome_local_dev}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-tome}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-tome_local_dev}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-tome}
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        KF=/tmp/mongo-keyfile
+        openssl rand -base64 756 > "$$KF"
+        chmod 400 "$$KF"
+        chown mongodb:mongodb "$$KF"
+        exec docker-entrypoint.sh mongod --replSet "${MONGO_REPLICA_SET:-rs0}" --keyFile "$$KF" --bind_ip_all
     ports:
-      - "${POSTGRES_PORT:-5436}:5432"
+      - "${MONGO_PORT:-5436}:27017"
     volumes:
-      - tome_pgdata:/var/lib/postgresql/data
+      - tome_mongodata:/data/db
     healthcheck:
+      # Healthy only once the replica set is initiated and this node is primary —
+      # so tome-api (depends_on: service_healthy) never connects to an un-initiated set.
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-tome} -d ${POSTGRES_DB:-tome}",
+          "mongosh --quiet -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'db.hello().isWritablePrimary' | grep -q true",
         ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
+
+  tome-db-init:
+    # One-shot: waits for mongod to accept authenticated connections, then runs
+    # rs.initiate() exactly once (idempotent — skips if already initiated). Exits 0.
+    image: mongo:8
+    restart: "no"
+    depends_on:
+      tome-db:
+        condition: service_started
+    environment:
+      MONGO_USER: ${MONGO_USER:-tome}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-tome_local_dev}
+      MONGO_REPLICA_SET: ${MONGO_REPLICA_SET:-rs0}
+    entrypoint:
+      - bash
+      - -c
+      - |
+        until mongosh --host tome-db:27017 -u "$$MONGO_USER" -p "$$MONGO_PASSWORD" --authenticationDatabase admin --quiet --eval 'db.adminCommand({ping:1})' >/dev/null 2>&1; do
+          echo "tome-db-init: waiting for mongod..."; sleep 1;
+        done
+        mongosh --host tome-db:27017 -u "$$MONGO_USER" -p "$$MONGO_PASSWORD" --authenticationDatabase admin --quiet --eval '
+          try { rs.status(); print("tome-db-init: replica set already initiated"); }
+          catch (e) {
+            rs.initiate({_id: "'"$$MONGO_REPLICA_SET"'", members: [{_id: 0, host: "tome-db:27017"}]});
+            print("tome-db-init: replica set initiated");
+          }'
 
   tome-api:
     build:
@@ -27,6 +72,8 @@ services:
     depends_on:
       tome-db:
         condition: service_healthy
+      tome-db-init:
+        condition: service_completed_successfully
     environment:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3040}
       # Hive (identity) consumer config. Placeholder-friendly so the container starts; set real
@@ -37,10 +84,11 @@ services:
       HIVE_INTERNAL_URL: ${HIVE_INTERNAL_URL:-http://localhost:5000}
       HIVE_CLIENT_ID: ${HIVE_CLIENT_ID:-tome}
       HIVE_CLIENT_SECRET: ${HIVE_CLIENT_SECRET:-tome-local-dev}
-      POSTGRES_USER: ${POSTGRES_USER:-tome}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tome_local_dev}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://tome-db:5432/${POSTGRES_DB:-tome}
+      # MongoDB connection for the api container (in-network — reaches the db by service
+      # name). Spring relaxed-binding: SPRING_DATA_MONGODB_URI → spring.data.mongodb.uri
+      # (T087 formalizes per-profile config; the host-dev URI differs — see .env.example).
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-tome}:${MONGO_PASSWORD:-tome_local_dev}@tome-db:27017/${MONGO_DB:-tome}?authSource=admin&replicaSet=${MONGO_REPLICA_SET:-rs0}
       # Public web origin (the nginx service, published on 3040). The BFF redirects here after login
       # and derives its OAuth redirect URI from it ({WEB_BASE_URL}/auth/callback). nginx forwards
       # /auth to the api, so the browser only ever talks to this origin.
@@ -69,7 +117,7 @@ services:
       - "3040:80"
 
 volumes:
-  tome_pgdata:
+  tome_mongodata:
 
 secrets:
   # @rauboti/ui registry token, consumed only at web build time (BuildKit secret;
