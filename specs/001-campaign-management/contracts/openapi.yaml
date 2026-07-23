@@ -476,7 +476,7 @@ components:
                   properties:
                     id: { type: string }
                     labelKey: { type: string }
-                    type: { type: string, enum: [int, text, bool, select, list, derived] }
+                    type: { type: string, enum: [int, text, bool, select, list, derived, table] }
                     colSpan: { type: integer, nullable: true, description: "columns this field spans within the section; null → 1" }
                     derivedFrom: { type: string, nullable: true, description: "formula for a derived field; null otherwise" }
                     options:
@@ -488,6 +488,40 @@ components:
                         properties:
                           value: { type: string }
                           labelKey: { type: string }
+                    columns:
+                      type: array
+                      nullable: true
+                      description: >-
+                        For a `table` field: the per-row column definitions (each a base-input or
+                        per-row `derived` cell); null for non-table fields. One level deep — no nested
+                        tables. A row's value in Character.data is an object keyed by column id.
+                      items:
+                        type: object
+                        properties:
+                          id: { type: string }
+                          labelKey: { type: string }
+                          type: { type: string, enum: [int, text, bool, select, derived] }
+                          derivedFrom: { type: string, nullable: true, description: "per-row formula for a derived column; evaluated with the row's columns overlaid on sheet-level values; null otherwise" }
+                          options:
+                            type: array
+                            nullable: true
+                            description: "choices for a select column; null otherwise"
+                            items:
+                              type: object
+                              properties:
+                                value: { type: string }
+                                labelKey: { type: string }
+                    presetRows:
+                      type: array
+                      nullable: true
+                      description: >-
+                        For a `table` field: fixed rows the definition seeds (e.g. the canonical 3.5
+                        skill list, each pinning its skill + key ability). Each entry is an object keyed
+                        by column id; preset cells render read-only, mutable cells stay editable, and
+                        users may append further rows. null for non-table fields or tables with no seed.
+                      items:
+                        type: object
+                        additionalProperties: true
     CharacterSummary:
       type: object
       properties:

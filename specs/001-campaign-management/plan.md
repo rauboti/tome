@@ -226,3 +226,71 @@ sheet renderer are written lift-ready in case they become shared `@rauboti/*` bu
   `campaignId`) behind the same service API, triggered by a soft ~2 MB guideline well under MongoDB's
   hard 16 MB/document cap (data-model.md "Document-size bound"). No REST-contract impact.
   Decide with real long-running-campaign data in hand; until then the service guards the hard limit.
+
+## Phase 3C design: structured 3.5 sheet (`table` field type)
+
+> Added 2026-07-23 after the sheet-depth clarification (spec §Clarifications 2026-07-23). Phase 3C
+> fleshes the D&D 3.5 sheet to **full structured** depth (skills, feats, weapons/attacks, gear as
+> tables) **plus full structured spellcasting**, with all derived values kept **formula-expressible**
+> for client/server parity. This is a shared-engine + definition + renderer change — **no `Character`,
+> storage, or `CharacterRepository` change** (research D3 Hybrid engine; sheet data still lives in the
+> untyped `data` map, now allowed to hold arrays-of-rows, which BSON stores natively).
+
+**New `table` (repeating-group) field type** — the enabling foundation (T105):
+
+- **Definition schema.** Add `FieldType.TABLE`. A table field carries `columns: List<SheetField>` —
+  each column is itself a `SheetField` (id/labelKey/type; a column may be `derived` with a per-row
+  `derivedFrom`). `SheetField` gains an optional `columns` property (null except for tables). Recursion
+  is one level deep (no tables-in-tables) for v1.
+- **Canonical content via `presetRows` (the "Canonical" decision, spec §Clarifications 2026-07-23).**
+  A table may also carry **`presetRows`** — fixed rows the definition seeds, e.g. the canonical 3.5
+  skill list where each row pins `skill` + its fixed `keyAbility`. Preset cells render read-only; the
+  mutable cells (ranks/misc) stay editable; the user may still append free rows (subtyped skills like
+  Craft/Knowledge). This is the whole trick that lets the sheet feel like a *real* 3.5 sheet while the
+  engine stays rule-set-agnostic — canonical 3.5/SRD content is **data in the definition**, never
+  engine logic. Preset rows are base-input scaffolding; per-row derived cells still recompute on read.
+- **Stored shape.** A table field's value in `data` is a `List<Map<String, Any?>>` (rows keyed by
+  column id). Consistent with D8, only **base-input** columns are stored; per-row derived columns are
+  stripped on write and recomputed on read — the existing `baseInputs`/strip logic extends to recurse
+  into table rows.
+- **Row-aware derived evaluation (the parity-critical part).** The formula evaluator (client
+  `derive.ts` **and** server `computeDerived`, kept in lockstep) gains: (a) **per-row scope** — a
+  table column's `derivedFrom` evaluates against the row's own columns overlaid on the sheet-level
+  scope, so a skill row's `ranks + <keyAbility>Mod + misc` reads row `ranks`/`misc` and sheet
+  `strMod`/`dexMod`/…; (b) a **`sum(tableId.columnId)`** aggregate so a sheet-level field can
+  total a table column (e.g. total gear weight); and (c) an **indirection primitive**
+  `abilityMod(keyAbility)` that resolves the modifier of the ability *named by a cell* — required for
+  per-row skill/attack totals whose key ability varies per row (a skill's `ranks + abilityMod(keyAbility)
+  + misc`). All three are formula-expressible and implemented identically on client and server, so live
+  preview == authoritative — no opaque server-only lookups (which is exactly why the Str→carrying-
+  capacity encumbrance table is **excluded** from v1). The confirmed requirement (spec §Clarifications
+  2026-07-23) is that even these per-row/indirect totals live-preview on the client, so `abilityMod`
+  and `sum` live in the shared `derive.ts` grammar too, not just server Kotlin.
+- **Renderer.** A table widget in `SheetRenderer` (add/remove rows; per-column widget by column type;
+  derived columns render read-only like scalar derived fields today).
+- **Contract.** `contracts/openapi.yaml` `SheetField` gains `columns`; the field-`type` enum gains
+  `table`. `Character.data` stays a free-form object (now may contain arrays of row objects) — no
+  tightening needed there, and **no top-level document field is promoted**, so T083/`Character` schema
+  are untouched (T105 cross-ref).
+
+**Decomposition** (each row = its own increment/branch; T105 is the prerequisite for the table-based
+content tasks, T108 is flat and independent):
+
+| Task | Scope |
+|------|-------|
+| T105 | Engine `table` field-type foundation — schema (`columns` + **`presetRows`**) + row-aware / `sum()` / **`abilityMod()` indirection** eval (client `derive.ts` + server, parity) + renderer table widget (preset rows read-only + append-free-row) + openapi + strip-recursion + tests |
+| T106 | Skills **table**, canonical — seed all standard 3.5 skills as `presetRows`, each with its fixed `keyAbility`; per-row `total = ranks + abilityMod(keyAbility) + misc`; user appends subtyped rows (Craft/Knowledge/Perform/Profession); soft max-ranks-vs-level warning in `validate` |
+| T107 | Weapons/attacks **table** (user rows; per-row attack = `baseAttackBonus + abilityMod(ability) + misc`; damage/crit/range/notes) |
+| T108 | Flat combat/defense derived — AC breakdown (10 + armor + shield + dex + size + natural + deflection + dodge), touch/flat-footed AC, grapple/CMB (formula-expressible; no engine dependency) |
+| T109 | Structured **feats** + **gear** tables (feats optionally seeded from the SRD feat list as an autocomplete catalog — depth TBD; gear total weight via `sum()`) |
+| T110 | Spellcasting stats — caster class/level, key ability, save DC base = `10 + abilityMod(spellKeyAbility)` (per-level DC = base + spell level), bonus spells/day, concentration |
+| T111 | Spellcasting spell lists — canonical per-class **slot progression** seeded as `presetRows` (slots/day by spell level for the class+level) + spells known/prepared; **open scope to pin at T111:** how much of the SRD spell *catalog* is baked (full per-class spell lists for selection vs. user-entered spell names) — the largest content undertaking, decide before starting |
+
+**Canonical content sourcing.** The seeded skill list, feat list, and spell/slot data come from the
+**3.5 SRD (OGL)** — open content, safe to bundle. It lives as data under `api/src/main/resources/
+rulesets/dnd35/` (in `definition.json` or split companion files the rule set loads), never as engine code.
+
+**Out of v1 (formula-expressible-only consequence):** encumbrance / carrying-capacity (nonlinear
+Strength→load table lookup — not expressible as a shared formula, so it would break live-preview
+parity). Iterative attacks from BAB stays the existing deferred-decision item, now naturally at home
+in the T107 weapons table if picked up.
