@@ -304,4 +304,67 @@ describe('SheetRenderer — catalog-backed select (T113)', () => {
 
     expect(onChange).toHaveBeenLastCalledWith('spells', [{ spell: 'fireball' }])
   })
+
+  test('picking a catalog spell fills the sibling level column from the option meta (T114)', async () => {
+    server.use(
+      http.get('/api/rule-sets/dnd35/catalogs/spells', ({ request }) => {
+        const filter = new URL(request.url).searchParams.get('filter')
+        return HttpResponse.json(
+          filter === 'wizard'
+            ? [{ value: 'fireball', label: 'Fireball', meta: { level: 3 } }]
+            : [],
+        )
+      }),
+    )
+    const onChange = vi.fn()
+    const withLevel: SheetDefinition = {
+      ruleSetId: 'dnd35',
+      version: '1.0.0',
+      sections: [
+        {
+          id: 'spellcasting',
+          labelKey: 'secSpellcasting',
+          fields: [
+            { id: 'casterClass', labelKey: 'colCasterClass', type: 'text' },
+            {
+              id: 'spells',
+              labelKey: 'tblSpells',
+              type: 'table',
+              columns: [
+                {
+                  id: 'spell',
+                  labelKey: 'colSpell',
+                  type: 'select',
+                  optionsFrom: { catalog: 'spells', filterBy: 'casterClass' },
+                },
+                { id: 'level', labelKey: 'colLevel', type: 'int' },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    render(
+      <ThemeProvider>
+        <SheetRenderer
+          definition={withLevel}
+          values={{ casterClass: 'wizard', spells: [{}] }}
+          onChange={onChange}
+          readOnly={false}
+        />
+      </ThemeProvider>,
+    )
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /toggle options/i }),
+    )
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'Fireball' }),
+    )
+
+    // The pick sets both the spell id and its catalog-supplied level (meta.level).
+    expect(onChange).toHaveBeenLastCalledWith('spells', [
+      { spell: 'fireball', level: 3 },
+    ])
+  })
 })

@@ -332,6 +332,22 @@
             { "spellLevel": 8 },
             { "spellLevel": 9 }
           ]
+        },
+        {
+          "id": "spells",
+          "labelKey": "dnd35.spell.listTable",
+          "type": "table",
+          "columns": [
+            {
+              "id": "spell",
+              "labelKey": "dnd35.spell.col.name",
+              "type": "select",
+              "optionsFrom": { "catalog": "spells", "filterBy": "casterClass" }
+            },
+            { "id": "level", "labelKey": "dnd35.spell.col.level", "type": "int" },
+            { "id": "prepared", "labelKey": "dnd35.spell.col.prepared", "type": "int" },
+            { "id": "notes", "labelKey": "dnd35.spell.col.notes", "type": "text" }
+          ]
         }
       ]
     }

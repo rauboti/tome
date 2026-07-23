@@ -314,6 +314,8 @@ const TableWidget = ({
     )
   const removeRow = (rowIndex: number) =>
     setRows(rows.filter((_, i) => i !== rowIndex))
+  const updateRow = (rowIndex: number, patch: Record<string, unknown>) =>
+    setRows(rows.map((row, i) => (i === rowIndex ? { ...row, ...patch } : row)))
 
   // A cell the definition pinned in a preset row (e.g. a skill's fixed key ability) is read-only.
   const isPresetCell = (rowIndex: number, columnId: string): boolean => {
@@ -342,6 +344,14 @@ const TableWidget = ({
                         isPresetCell(rowIndex, column.id)
                       }
                       onChange={(cell) => updateCell(rowIndex, column.id, cell)}
+                      // Picking a catalog option also fills sibling columns from its meta (e.g. a
+                      // spell's level → a `level` column), so the row captures more than the id.
+                      onPick={(value, meta) =>
+                        updateRow(rowIndex, {
+                          [column.id]: value,
+                          ...pickMeta(meta, columns, column.id),
+                        })
+                      }
                       ruleSetId={ruleSetId}
                       // A catalog-backed column filters by another field's value (sheet-level).
                       filterValue={
@@ -435,6 +445,7 @@ const CellInput = ({
   value,
   readOnly,
   onChange,
+  onPick,
   ruleSetId,
   filterValue,
   t,
@@ -444,6 +455,9 @@ const CellInput = ({
   value: unknown
   readOnly: boolean
   onChange: (value: unknown) => void
+  /** For a catalog-backed select: called with the picked value + the option's meta, so the row can
+   *  fill sibling columns (e.g. a spell's level). Falls back to [onChange] when absent. */
+  onPick?: (value: string | null, meta: Record<string, unknown> | null) => void
   ruleSetId: string
   filterValue: unknown
   t: (key: string) => string
@@ -513,7 +527,15 @@ const CellInput = ({
               ? []
               : [String(value)]
           }
-          onValueChange={(values) => onChange(values[0] ?? null)}
+          onValueChange={(values) => {
+            const picked = values[0] ?? null
+            if (column.optionsFrom && onPick) {
+              const option = catalogOptions.find((o) => o.value === picked)
+              onPick(picked, option?.meta ?? null)
+            } else {
+              onChange(picked)
+            }
+          }}
         />
       )
     default:
@@ -527,6 +549,21 @@ const CellInput = ({
       )
   }
 }
+
+/** From a picked catalog option's `meta`, keep only the entries whose key is another column of the
+ *  same table (excluding the picked column itself) — so e.g. a spell's `meta.level` fills a `level`
+ *  column, but unrelated meta is ignored. */
+const pickMeta = (
+  meta: Record<string, unknown> | null,
+  columns: SheetColumn[],
+  pickedColumnId: string,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(meta ?? {}).filter(
+      ([key]) =>
+        key !== pickedColumnId && columns.some((column) => column.id === key),
+    ),
+  )
 
 /** Render any scalar sheet value as input text; null/undefined → empty. */
 const asText = (value: unknown): string =>

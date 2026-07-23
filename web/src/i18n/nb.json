@@ -184,6 +184,13 @@
         "total": "Total / Day",
         "known": "Known",
         "prepared": "Prepared"
+      },
+      "listTable": "Spells",
+      "col": {
+        "name": "Spell",
+        "level": "Level",
+        "prepared": "Prepared",
+        "notes": "Notes"
       }
     }
   }
