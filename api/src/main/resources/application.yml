@@ -1,17 +1,19 @@
 spring:
   application:
     name: tome
-  datasource:
-    # Defaults mirror docker-compose.yml / .env; overridden via env in containers.
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/tome}
-    username: ${POSTGRES_USER:tome}
-    password: ${POSTGRES_PASSWORD:tome_local_dev}
-  flyway:
-    # Runs on startup; default location classpath:db/migration. Forward-only.
-    # The empty migration dir is created in T008; the first migration
-    # (V1__create_character.sql) arrives in T028. Until then there is nothing to
-    # apply and startup proceeds.
-    enabled: true
+  data:
+    mongodb:
+      # Default mirrors docker-compose.yml / .env for api-on-host dev (DB in Docker on the
+      # mapped port); the compose overrides it via SPRING_DATA_MONGODB_URI in the container.
+      # A replica set is required for multi-document transactions + @Version concurrency
+      # (research §D5). From the host we use directConnection=true because the set advertises
+      # the in-network host name `tome-db` that the host can't resolve; in-network the compose
+      # URI uses replicaSet=rs0 instead.
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://tome:tome_local_dev@localhost:5436/tome?authSource=admin&directConnection=true}
+      # Migrations/indexes are Spring Data-native — an index catalog + a _migrations ledger
+      # applied on boot (T089/T091), NOT a framework. Turn off Spring Data's implicit index
+      # creation so index shape is owned explicitly rather than derived from mapping annotations.
+      auto-index-creation: false
   mvc:
     problemdetails:
       # Render Spring's built-in MVC exceptions (400, 404, 405, …) as RFC-7807
