@@ -1,8 +1,11 @@
-# Test profile: integration tests get their datasource from a throwaway
-# Testcontainers Postgres wired via @ServiceConnection (the harness lands with the
-# first integration test, T026), so no datasource/URL is set here. Flyway applies
-# the schema migrations against that container; no demo seed — tests insert only
-# the rows they need.
+# Test profile: integration tests get their MongoDB from a throwaway Testcontainers
+# MongoDBContainer (single-node replica set) wired via @ServiceConnection (harness
+# lands with T090), which supplies spring.data.mongodb.uri automatically — so none is
+# set here (mirrors how the old Postgres harness left the datasource to @ServiceConnection).
+# Migrations run Spring Data-natively on context start (T089/T091); no demo seed.
 spring:
-  flyway:
-    enabled: true
+  data:
+    mongodb:
+      # Explicit (also inherited from application.yml): index shape is owned by the
+      # migration catalog, never auto-created from mapping annotations.
+      auto-index-creation: false
