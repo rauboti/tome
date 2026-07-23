@@ -383,3 +383,35 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
   are persisted; derived values are computed whenever the sheet is presented, so a reader always sees
   values consistent with the current inputs and no stored derived value can go stale (refines FR-005;
   the storage/computation mechanics are an implementation concern recorded in research.md/plan.md).
+
+### Session 2026-07-23 (Phase 3C — 3.5 sheet depth, post-US1)
+
+- Q: How deep/structured is the v1 D&D 3.5 sheet — freeform lists or structured tables? → A: **Full
+  structured** — skills, feats, weapons/attacks, and gear are **structured tables** (repeating rows of
+  typed fields, with per-row derived totals such as a skill's ranks + governing-ability modifier +
+  misc → total), not the current freeform string lists; identity/abilities/combat/saves stay as today
+  but gain the fuller field set. Expands the 3.5 sheet only (FR-002/FR-005); a definition + rule-set-
+  logic + renderer change with **no character storage change** (research D3 Hybrid engine).
+- Q: Is spellcasting part of the v1 3.5 sheet? → A: **Yes, full structured** — per-level spell
+  slots/day, spells known/prepared, and save DCs derived from the casting ability + spell level.
+- Q: How far do derived values go? → A: **Formula-expressible only** — every derived value (including
+  per-row table totals and spell DCs) MUST be expressible in the shared formula language so it computes
+  identically on the client (live preview) and the server (authoritative), preserving compute-on-read
+  parity. Derived values that would need an opaque table lookup (e.g. the Strength→carrying-capacity
+  encumbrance table) are **excluded from v1**.
+- Q: Does the 3.5 sheet bake in **canonical** content (the real skill list with fixed key abilities,
+  class spell progressions, …) or provide empty generic tables? → A: **Canonical** — the `dnd35`
+  definition ships the real 3.5 content as **data** (the standard skill list, each with its fixed
+  governing ability; class spell progressions), so the sheet reads like a true 3.5 sheet rather than a
+  blank spreadsheet. The shared engine stays rule-set-agnostic: canonical content is expressed as table
+  **preset rows** in the definition, not as engine logic (FR-001/FR-023 unchanged). Players may still
+  add rows for subtyped entries (Craft/Knowledge/Perform/Profession …). Content is sourced from the
+  OGL/3.5 SRD.
+- Q: Per-row derived totals (e.g. a skill's total from *its* key ability) need the formula to resolve
+  "the modifier of the ability this row names" — an indirection the flat formula language lacks. Keep
+  it computed **live** on the client too? → A: **Yes** — add a small indirection primitive (e.g.
+  `abilityMod(keyAbility)`) to the shared evaluator, implemented identically on client and server, so
+  per-row totals live-preview and stay compute-on-read parity-correct (never server-only).
+- Note: this clarifies sheet *richness* only; it does not change any cross-cutting capability (FR-001)
+  or the "one bundled rule set" scope (FR-023). Implementation is decomposed into tasks T105–T111
+  (engine `table` field-type foundation + per-section content) — see plan.md and tasks.md Phase 3C.
