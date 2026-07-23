@@ -80,8 +80,7 @@ class CharacterController(
     @GetMapping
     fun list(
         @AuthenticationPrincipal jwt: Jwt,
-    ): List<CharacterSummaryResponse> =
-        service.list(callerId(jwt)).map { CharacterSummaryResponse(it.id, it.name, it.ruleSetId) }
+    ): List<CharacterSummaryResponse> = service.list(callerId(jwt)).map { CharacterSummaryResponse(it.id, it.name, it.ruleSetId) }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -117,8 +116,7 @@ class CharacterController(
     ) = service.delete(characterId, callerId(jwt))
 
     /** The caller's Hive subject as a UUID (the `user_id`/owner of every character in v1). */
-    private fun callerId(jwt: Jwt): UUID =
-        UUID.fromString(requireNotNull(jwt.subject) { "Hive token is missing the subject claim." })
+    private fun callerId(jwt: Jwt): UUID = UUID.fromString(requireNotNull(jwt.subject) { "Hive token is missing the subject claim." })
 
     private fun CharacterWithWarnings.toResponse(): CharacterResponse =
         CharacterResponse(
@@ -126,12 +124,14 @@ class CharacterController(
             name = character.name,
             ruleSetId = character.ruleSetId,
             ownerId = character.userId,
-            // HP is not a promoted column in v1 (it lives in the sheet); read it back out for the API.
+            // HP is not a promoted field in v1 (it lives in the sheet as a base input); read it out for the API.
             hpCurrent = character.data.intField("hpCurrent"),
             hpMax = character.data.intField("hpMax"),
+            // `character.data` here is the resolved sheet (base inputs + derived) the service produced.
             data = character.data,
             warnings = warnings,
-            version = character.version,
+            // A persisted character always carries a @Version (0 on insert, bumped on save).
+            version = requireNotNull(character.version) { "a persisted character must have a version" },
         )
 
     private fun SheetData.intField(key: String): Int? = (this[key] as? Number)?.toInt()
