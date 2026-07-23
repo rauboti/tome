@@ -78,6 +78,11 @@ data class SheetField(
     val derivedFrom: String? = null,
     val options: List<FieldOption>? = null,
     val colSpan: Int? = null,
+    // For a [FieldType.TABLE] field only: the per-row column definitions (each itself a [SheetField];
+    // one level deep — no nested tables) and, optionally, fixed rows the definition seeds (canonical
+    // content, e.g. the 3.5 skill list). A table row's value in the sheet is a map keyed by column id.
+    val columns: List<SheetField>? = null,
+    val presetRows: List<Map<String, Any?>>? = null,
 )
 
 /** A choice for a `select` field: the stored [value] plus its i18n [labelKey]. */
@@ -98,6 +103,7 @@ object FieldType {
     const val SELECT = "select"
     const val LIST = "list"
     const val DERIVED = "derived"
+    const val TABLE = "table"
 }
 
 /**

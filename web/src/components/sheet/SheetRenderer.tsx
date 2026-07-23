@@ -9,8 +9,8 @@ import {
 } from '@rauboti/ui'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { SheetDefinition, SheetField } from '@/api/schemas'
-import { deriveValues } from './derive'
+import type { SheetColumn, SheetDefinition, SheetField } from '@/api/schemas'
+import { deriveRow, deriveValues } from './derive'
 
 /**
  * Definition-driven sheet renderer: given a rule set's [SheetDefinition] and the current sheet
@@ -68,6 +68,7 @@ export const SheetRenderer = ({
                         value={displayValues[field.id]}
                         onChange={(next) => onChange(field.id, next)}
                         readOnly={readOnly}
+                        sheetScope={displayValues}
                         t={t}
                       />
                     </Grid.Item>
@@ -88,6 +89,8 @@ type WidgetProps = {
   value: unknown
   onChange: (value: unknown) => void
   readOnly: boolean
+  /** Sheet-level values + top-level derived — the scope a table row's per-row formulas resolve against. */
+  sheetScope: Record<string, unknown>
   t: (key: string) => string
 }
 
@@ -97,12 +100,27 @@ const FieldWidget = ({
   value,
   onChange,
   readOnly,
+  sheetScope,
   t,
 }: WidgetProps) => {
   // Derived values are computed server-side (T017) — always display-only.
   if (field.type === 'derived') {
     return (
       <Input label={label} required value={asText(value)} readOnly disabled />
+    )
+  }
+
+  if (field.type === 'table') {
+    return (
+      <TableWidget
+        field={field}
+        label={label}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        sheetScope={sheetScope}
+        t={t}
+      />
     )
   }
 
@@ -250,6 +268,186 @@ const ListWidget = ({
       )}
     </Stack>
   )
+}
+
+/**
+ * A repeating-group `table` field (T105). Rows come from the sheet value, or are seeded from the
+ * definition's `presetRows` (canonical content) until the user first edits/materializes the table.
+ * Each cell renders by its column type; **derived** columns are read-only and recomputed live per row
+ * ([deriveRow]) against the row overlaid on the sheet scope; a **preset** cell (a value the definition
+ * pinned in a preset row) is read-only too. Preset rows can't be removed; appended rows can.
+ */
+const TableWidget = ({
+  field,
+  label,
+  value,
+  onChange,
+  readOnly,
+  sheetScope,
+  t,
+}: WidgetProps) => {
+  const columns = field.columns ?? []
+  const presetRows = (field.presetRows ?? []) as Array<Record<string, unknown>>
+  const stored = Array.isArray(value)
+    ? (value as Array<Record<string, unknown>>)
+    : []
+  const rows = stored.length > 0 ? stored : presetRows
+
+  const setRows = (next: Array<Record<string, unknown>>) => onChange(next)
+  const updateCell = (rowIndex: number, columnId: string, cell: unknown) =>
+    setRows(
+      rows.map((row, i) =>
+        i === rowIndex ? { ...row, [columnId]: cell } : row,
+      ),
+    )
+  const removeRow = (rowIndex: number) =>
+    setRows(rows.filter((_, i) => i !== rowIndex))
+
+  // A cell the definition pinned in a preset row (e.g. a skill's fixed key ability) is read-only.
+  const isPresetCell = (rowIndex: number, columnId: string): boolean => {
+    const pinned = presetRows[rowIndex]?.[columnId]
+    return pinned !== undefined && pinned !== null && pinned !== ''
+  }
+
+  return (
+    <Stack gap="3">
+      <Heading size="sm">{label}</Heading>
+      {rows.map((row, rowIndex) => {
+        const displayRow = { ...row, ...deriveRow(columns, row, sheetScope) }
+        const removable = !readOnly && rowIndex >= presetRows.length
+        return (
+          <Card key={rowIndex}>
+            <Stack gap="2">
+              <Grid columns={{ base: 1, md: columns.length }} gap="3">
+                {columns.map((column) => (
+                  <Grid.Item key={column.id}>
+                    <CellInput
+                      column={column}
+                      label={`${t(column.labelKey)} ${rowIndex + 1}`}
+                      value={displayRow[column.id]}
+                      readOnly={
+                        readOnly ||
+                        column.type === 'derived' ||
+                        isPresetCell(rowIndex, column.id)
+                      }
+                      onChange={(cell) => updateCell(rowIndex, column.id, cell)}
+                      t={t}
+                    />
+                  </Grid.Item>
+                ))}
+              </Grid>
+              {removable && (
+                <Button
+                  variant="outline"
+                  alignSelf="flex-start"
+                  onClick={() => removeRow(rowIndex)}
+                >
+                  {t('common.remove')}
+                </Button>
+              )}
+            </Stack>
+          </Card>
+        )
+      })}
+      {!readOnly && (
+        <Button
+          variant="outline"
+          alignSelf="flex-start"
+          onClick={() => setRows([...rows, {}])}
+        >
+          {`${t('common.add')} — ${label}`}
+        </Button>
+      )}
+    </Stack>
+  )
+}
+
+/** One table cell, rendered by its column type. Any read-only cell — a `derived` column, a preset
+ *  (definition-pinned) cell, or a read-only sheet — renders as a uniform disabled value, mirroring how
+ *  scalar derived fields display; editable cells use the type's input widget. */
+const CellInput = ({
+  column,
+  label,
+  value,
+  readOnly,
+  onChange,
+  t,
+}: {
+  column: SheetColumn
+  label: string
+  value: unknown
+  readOnly: boolean
+  onChange: (value: unknown) => void
+  t: (key: string) => string
+}) => {
+  if (readOnly || column.type === 'derived') {
+    const selected =
+      column.type === 'select'
+        ? column.options?.find((option) => option.value === value)
+        : undefined
+    return (
+      <Input
+        label={label}
+        required
+        value={selected ? t(selected.labelKey) : asText(value)}
+        readOnly
+        disabled
+      />
+    )
+  }
+  switch (column.type) {
+    case 'int':
+      return (
+        <Input
+          label={label}
+          required
+          type="number"
+          value={asText(value)}
+          onChange={(e) => {
+            const raw = e.currentTarget.value
+            onChange(raw === '' ? null : Number(raw))
+          }}
+        />
+      )
+    case 'bool':
+      return (
+        <SegmentedControl
+          label={label}
+          value={value === true ? 'true' : value === false ? 'false' : ''}
+          items={[
+            { value: 'true', label: t('common.yes') },
+            { value: 'false', label: t('common.no') },
+          ]}
+          onValueChange={(next) => onChange(next === 'true')}
+        />
+      )
+    case 'select':
+      return (
+        <Combobox
+          label={label}
+          required
+          items={(column.options ?? []).map((option) => ({
+            value: option.value,
+            label: t(option.labelKey),
+          }))}
+          value={
+            value === null || value === undefined || value === ''
+              ? []
+              : [String(value)]
+          }
+          onValueChange={(values) => onChange(values[0] ?? null)}
+        />
+      )
+    default:
+      return (
+        <Input
+          label={label}
+          required
+          value={asText(value)}
+          onChange={(e) => onChange(e.currentTarget.value)}
+        />
+      )
+  }
 }
 
 /** Render any scalar sheet value as input text; null/undefined → empty. */
