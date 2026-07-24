@@ -60,7 +60,7 @@ class CharacterContractTest : IntegrationTest() {
                 .post("/api/characters") {
                     with(user(owner, "user"))
                     contentType = MediaType.APPLICATION_JSON
-                    content = """{"ruleSetId":"dnd35","name":"$name","data":{"strength":16}}"""
+                    content = """{"name":"$name","data":{"ruleSetId":"dnd35","abilities":{"strength":16}}}"""
                 }.andReturn()
                 .response.contentAsString
         val created: Map<String, Any?> = objectMapper.readValue(body)
@@ -88,7 +88,7 @@ class CharacterContractTest : IntegrationTest() {
             .post("/api/characters") {
                 with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
-                content = """{"ruleSetId":"dnd35","name":"Alaric","data":{"strength":16}}"""
+                content = """{"name":"Alaric","data":{"ruleSetId":"dnd35","abilities":{"strength":16}}}"""
             }.andExpect {
                 status { isCreated() }
                 jsonPath("$.id") { isNotEmpty() }
@@ -106,6 +106,16 @@ class CharacterContractTest : IntegrationTest() {
                 with(user(roles = arrayOf("user")))
                 contentType = MediaType.APPLICATION_JSON
                 content = """{}"""
+            }.andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun `creating a character with an unknown rule set returns 400`() {
+        mvc
+            .post("/api/characters") {
+                with(user(roles = arrayOf("user")))
+                contentType = MediaType.APPLICATION_JSON
+                content = """{"name":"Alaric","data":{"ruleSetId":"pathfinder","abilities":{"strength":16}}}"""
             }.andExpect { status { isBadRequest() } }
     }
 
@@ -132,6 +142,7 @@ class CharacterContractTest : IntegrationTest() {
                 status { isOk() }
                 jsonPath("$.id") { value(id) }
                 jsonPath("$.data") { isMap() }
+                jsonPath("$.data.abilities.strMod") { value(3) } // enriched derived (str 16 → +3)
                 jsonPath("$.warnings") { isArray() }
                 jsonPath("$.version") { isNumber() }
             }
@@ -152,7 +163,7 @@ class CharacterContractTest : IntegrationTest() {
             .put("/api/characters/$id") {
                 with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
-                content = """{"name":"Alaric the Bold","data":{"strength":18},"version":0}"""
+                content = """{"name":"Alaric the Bold","data":{"ruleSetId":"dnd35","abilities":{"strength":18}},"version":0}"""
             }.andExpect {
                 status { isOk() }
                 jsonPath("$.name") { value("Alaric the Bold") }
@@ -168,7 +179,7 @@ class CharacterContractTest : IntegrationTest() {
             .put("/api/characters/$id") {
                 with(user(sub, "user"))
                 contentType = MediaType.APPLICATION_JSON
-                content = """{"data":{"strength":18},"version":99}"""
+                content = """{"data":{"ruleSetId":"dnd35","abilities":{"strength":18}},"version":99}"""
             }.andExpect { status { isConflict() } }
     }
 

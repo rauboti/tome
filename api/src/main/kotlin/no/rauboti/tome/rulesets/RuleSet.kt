@@ -1,14 +1,13 @@
 package no.rauboti.tome.rulesets
 
+import no.rauboti.tome.characters.data.CharacterBaseData
+
 /*
- * Core types of the Hybrid rule-set engine (research D3). A rule set is defined in two halves:
- *  - data  — a SheetDefinition (authored as JSON, e.g. resources/rulesets/dnd35/definition.json)
- *    that the web renders generically; and
- *  - logic — a RuleSet strategy that computes derived values and raises soft validation warnings.
- *
- * Cross-cutting services (characters, npcs, campaigns, combat, dice, realtime, permissions) depend
- * only on SheetData + RuleSet, never on a concrete rule set — so a second/third rule set is just a
- * new definition + logic, with no change to the shared engine (FR-023/SC-009).
+ * Core types of the rule-set engine. Post-ADR-001 (typed engine): the sheet is a typed
+ * `CharacterBaseData`/`CharacterData` (characters/data), not an untyped map + JSON definition. The
+ * `SheetData`/`SheetDefinition`/`SheetField`/`FieldType` types below are the **residual** data-driven
+ * shapes, now used only by the not-yet-retired `SheetCompute`/`FormulaEvaluator` (deleted in T125);
+ * the live `RuleSet` strategy no longer references them.
  */
 
 /**
@@ -19,17 +18,6 @@ package no.rauboti.tome.rulesets
  * read into the resolved map by [RuleSet.computeDerived] (compute-on-read, D8), never persisted.
  */
 typealias SheetData = Map<String, Any?>
-
-/**
- * The delta being written, passed to [RuleSet.validate] so it can scope warnings to what actually
- * changed (e.g. warn on a just-raised ability score, not the whole sheet). On create, [previous] is
- * empty and [changedFields] is every field present; on edit, [previous] is the stored sheet and
- * [changedFields] the ids whose value differs.
- */
-data class SheetChange(
-    val previous: SheetData,
-    val changedFields: Set<String>,
-)
 
 /**
  * A soft validation finding (FR-005): guidance, never a hard block — the DM can always override.
@@ -121,32 +109,25 @@ object FieldType {
 }
 
 /**
- * The per-rule-set logic strategy (research D3). Resolved by [id] from the registry (T019); unknown
- * ids are rejected. v1 ships only `DnD35RuleSet` (T017).
+ * The per-rule-set logic strategy (research D3, reshaped for the typed engine — ADR-001). Resolved by
+ * [id] from the registry; unknown ids are rejected. v1 ships only `DnD35RuleSet`.
+ *
+ * Derived-value computation has moved onto the typed sheet itself (`CharacterBaseData.enrich()` builds
+ * the enriched [no.rauboti.tome.characters.data.CharacterData] whose properties are the derived values),
+ * so this strategy no longer computes anything or exposes a data-driven definition. It carries only the
+ * rule set's identity and its soft validation.
  */
 interface RuleSet {
-    /** The rule-set id this strategy handles, e.g. `dnd35`. Matches `SheetDefinition.ruleSetId`. */
+    /** The rule-set id this strategy handles, e.g. `dnd35`. Matches `CharacterBaseData.ruleSetId`. */
     fun id(): String
 
     /** Human-readable name for pickers/summaries, e.g. `D&D 3.5`. */
     fun name(): String
 
-    /** The sheet definition (data) this rule set renders and validates against. */
-    fun definition(): SheetDefinition
-
     /**
-     * Recompute every derived value from the base inputs and return a new [SheetData] with those
-     * values filled in (e.g. 3.5 ability modifiers, saves, BAB). Pure: no I/O, no mutation of [data].
+     * Soft-validate a stored sheet's base inputs and return any [RuleWarning]s (FR-005). **Never**
+     * throws or blocks — an empty list means "no concerns". [sheet] is the typed base for this rule set
+     * (an implementation validates only the variant it handles; others yield no warnings).
      */
-    fun computeDerived(data: SheetData): SheetData
-
-    /**
-     * Soft-validate a write and return any [RuleWarning]s (FR-005). **Never** throws or blocks — an
-     * empty list means "no concerns". [change] describes what the write touched so validation can
-     * focus its warnings.
-     */
-    fun validate(
-        data: SheetData,
-        change: SheetChange,
-    ): List<RuleWarning>
+    fun validate(sheet: CharacterBaseData): List<RuleWarning>
 }
