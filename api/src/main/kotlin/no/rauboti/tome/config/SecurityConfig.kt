@@ -19,10 +19,10 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 /**
- * Security for the BFF (research D1/D6). Tome validates Hive-issued RS256 JWTs offline via Hive's
- * JWKS; the token lives server-side in the session (browser holds only a cookie), so requests are
- * authenticated by [SessionTokenAuthenticationFilter] and the `SecurityContext` is stateless. The URL
- * model and role gating are documented in api/README.md; the inline comments below mark the why.
+ * Security for the BFF. Tome validates Hive-issued RS256 JWTs offline via Hive's JWKS; the token
+ * lives server-side in the session (browser holds only a cookie), so requests are authenticated by
+ * [SessionTokenAuthenticationFilter] and the `SecurityContext` is stateless. The URL model and role
+ * gating are documented in api/README.md; the inline comments below mark the why.
  */
 @Configuration
 @EnableWebSecurity

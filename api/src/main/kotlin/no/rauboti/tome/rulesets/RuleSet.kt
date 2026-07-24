@@ -3,9 +3,9 @@ package no.rauboti.tome.rulesets
 import no.rauboti.tome.characters.data.CharacterBaseData
 
 /**
- * A soft validation finding (FR-005): guidance, never a hard block — the DM can always override.
- * [field] is the offending field id, or null for a sheet-wide warning. Serialized to the openapi
- * `RuleWarning` schema.
+ * A soft validation finding: guidance, never a hard block — the DM can always override. [field] is
+ * the offending field id, or null for a sheet-wide warning. Serialized to the openapi `RuleWarning`
+ * schema.
  */
 data class RuleWarning(
     val code: String,
@@ -14,9 +14,9 @@ data class RuleWarning(
 )
 
 /**
- * The per-rule-set logic strategy (ADR-001), carrying only identity + soft validation — derived values
- * live on the typed sheet itself (`CharacterBaseData.enrich()`). Resolved by [id] from the registry
- * (unknown ids rejected); v1 ships only `DnD35RuleSet`.
+ * The per-rule-set logic strategy, carrying only identity + soft validation — derived values live on
+ * the typed sheet itself (`CharacterBaseData.enrich()`). Resolved by [id] from the registry (unknown
+ * ids rejected); v1 ships only `DnD35RuleSet`.
  */
 interface RuleSet {
     /** The rule-set id this strategy handles, e.g. `dnd35`. Matches `CharacterBaseData.ruleSetId`. */
@@ -26,9 +26,9 @@ interface RuleSet {
     fun name(): String
 
     /**
-     * Soft-validate a stored sheet's base inputs and return any [RuleWarning]s (FR-005). **Never**
-     * throws or blocks — an empty list means "no concerns". [sheet] is the typed base for this rule set
-     * (an implementation validates only the variant it handles; others yield no warnings).
+     * Soft-validate a stored sheet's base inputs and return any [RuleWarning]s. **Never** throws or
+     * blocks — an empty list means "no concerns". [sheet] is the typed base for this rule set (an
+     * implementation validates only the variant it handles; others yield no warnings).
      */
     fun validate(sheet: CharacterBaseData): List<RuleWarning>
 }

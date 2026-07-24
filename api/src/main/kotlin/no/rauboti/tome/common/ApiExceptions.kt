@@ -16,7 +16,7 @@ class BadRequestException(
 ) : RuntimeException(message)
 
 /**
- * 409 — optimistic-concurrency conflict (SC-006). Thrown when a write carries a `version` that no
+ * 409 — optimistic-concurrency conflict. Thrown when a write carries a `version` that no
  * longer matches the stored aggregate (a concurrent edit landed first); the client re-reads and
  * retries, so no write is silently overwritten.
  */

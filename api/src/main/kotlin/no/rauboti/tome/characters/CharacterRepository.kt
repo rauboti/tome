@@ -8,11 +8,11 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 /**
- * `characters` collection access via [MongoTemplate] (no JPA — research D3/D5). Persistence only; the
- * rule-set logic and `409` mapping live in the service (T096). Optimistic concurrency is Spring Data
- * `@Version` (research D5): [save] issues a versioned update and throws
- * `OptimisticLockingFailureException` on a stale version (→ `409`, SC-006) rather than overwriting;
- * [insert] is for new documents (Spring assigns `version` `0`), the caller supplying id/timestamps.
+ * `characters` collection access via [MongoTemplate] (no JPA). Persistence only; the rule-set logic
+ *  and `409` mapping live in the service. Optimistic concurrency is Spring Data `@Version`: [save]
+ *  issues a versioned update and throws `OptimisticLockingFailureException` on a stale version (→ `409`)
+ *  rather than overwriting; [insert] is for new documents (Spring assigns `version` `0`), the caller
+ *  supplying id/timestamps.
  */
 @Repository
 class CharacterRepository(

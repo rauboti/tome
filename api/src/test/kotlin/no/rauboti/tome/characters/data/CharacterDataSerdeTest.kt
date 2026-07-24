@@ -1,5 +1,6 @@
 package no.rauboti.tome.characters.data
 
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -48,7 +49,7 @@ class CharacterDataSerdeTest {
     fun `base inputs survive a serialize-deserialize round-trip`() {
         val original: CharacterBaseData =
             DnD35CharacterBaseData(
-                abilities = DnD35AbilityScores(strength = 15, dexterity = 12),
+                abilities = DnD35BaseAbilityScores(strength = 15, dexterity = 12),
                 level = 4,
                 baseAttackBonus = 3,
             )
@@ -58,7 +59,7 @@ class CharacterDataSerdeTest {
 
     @Test
     fun `the enriched response carries the discriminator and the computed derived`() {
-        val json = mapper.writeValueAsString(DnD35CharacterBaseData(abilities = DnD35AbilityScores(strength = 16)).enrich())
+        val json = mapper.writeValueAsString(DnD35CharacterBaseData(abilities = DnD35BaseAbilityScores(strength = 16)).enrich())
         assertTrue(json.contains("\"ruleSetId\":\"dnd35\""), "discriminator on the wire: $json")
         assertTrue(json.contains("\"strMod\":3"), "readOnly derived (nested under abilities) present: $json")
     }

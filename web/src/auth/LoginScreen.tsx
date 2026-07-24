@@ -7,7 +7,7 @@ import { LOGIN_PATH } from '@/api/client'
 /**
  * Unauthenticated landing: a "Sign in with Hive" action linking to the BFF's `/auth/login` (a
  * full-page nav that 302s to Hive, so not a client route). A Hive-unreachable callback returns
- * `?error=signin_unavailable` (AuthController marker, T011), shown as a Callout. English until
+ * `?error=signin_unavailable` (AuthController marker), shown as a Callout. English until
  * sign-in — the user's locale is only known after.
  */
 export const LoginScreen = () => {

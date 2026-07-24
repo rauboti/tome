@@ -1,10 +1,9 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Callout, Combobox, Dialog, Input } from '@rauboti/ui'
-import { createCharacter, type Character } from '@/api/characters'
+import { createCharacter } from '@/api/characters'
+import type { Character, RuleSetSummary } from '@/types'
 import { defaultDnD35SheetInput } from '@/sheets/dnd35'
-import type { RuleSetSummary } from '@/api/schemas'
 
 /**
  * The "New character" dialog (US1). Pick a rule set (v1 offers only D&D 3.5, but the picker is driven

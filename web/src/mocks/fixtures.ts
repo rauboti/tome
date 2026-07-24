@@ -1,4 +1,5 @@
-import type { Me, RuleSetSummary } from '@/api/schemas'
+import type { Me } from '@/api/types'
+import type { RuleSetSummary } from '@/types'
 
 /**
  * Shared sample data for the MSW handlers (dev worker + test server), mirroring the openapi contract

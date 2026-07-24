@@ -1,5 +1,13 @@
 package no.rauboti.tome.characters.data
 
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseAttack
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseDefense
+import no.rauboti.tome.characters.data.dnd35.DnD35Gear
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSaves
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSkill
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSpellSlot
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSpellcasting
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
@@ -19,7 +27,7 @@ class DnD35CharacterDataTest {
             sheet(
                 DnD35CharacterBaseData(
                     abilities =
-                        DnD35AbilityScores(
+                        DnD35BaseAbilityScores(
                             strength = 18,
                             dexterity = 7,
                             constitution = 10,
@@ -42,8 +50,8 @@ class DnD35CharacterDataTest {
         val s =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(constitution = 14, dexterity = 16, wisdom = 9), // +2 / +3 / -1
-                    saves = DnD35SaveInputs(fortBase = 2, refBase = 0, willBase = 6),
+                    abilities = DnD35BaseAbilityScores(constitution = 14, dexterity = 16, wisdom = 9), // +2 / +3 / -1
+                    saves = DnD35BaseSaves(fortBase = 2, refBase = 0, willBase = 6),
                 ),
             )
         assertEquals(4, s.saves.fortitude) // 2 + 2
@@ -57,11 +65,11 @@ class DnD35CharacterDataTest {
         val s =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(strength = 14, dexterity = 16), // +2 / +3
+                    abilities = DnD35BaseAbilityScores(strength = 14, dexterity = 16), // +2 / +3
                     baseAttackBonus = 5,
                     grappleSizeMod = 4,
                     defense =
-                        DnD35DefenseInputs(
+                        DnD35BaseDefense(
                             armorBonus = 8,
                             shieldBonus = 2,
                             naturalArmor = 1,
@@ -82,8 +90,8 @@ class DnD35CharacterDataTest {
         val s =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(strength = 18), // strMod +4
-                    skills = listOf(DnD35SkillRowInput(skill = "Climb", keyAbility = "strMod", ranks = 8, misc = 1)),
+                    abilities = DnD35BaseAbilityScores(strength = 18), // strMod +4
+                    skills = listOf(DnD35BaseSkill(skill = "Climb", keyAbility = "strMod", ranks = 8, misc = 1)),
                 ),
             )
         assertEquals(13, s.skills[0].total) // 8 + 4 + 1
@@ -94,9 +102,9 @@ class DnD35CharacterDataTest {
         val s =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(strength = 18), // +4
+                    abilities = DnD35BaseAbilityScores(strength = 18), // +4
                     baseAttackBonus = 6,
-                    attacks = listOf(DnD35AttackRowInput(weapon = "Greatsword", ability = "strMod", misc = 1)),
+                    attacks = listOf(DnD35BaseAttack(weapon = "Greatsword", ability = "strMod", misc = 1)),
                 ),
             )
         assertEquals(11, s.attacks[0].attackBonus) // 6 + 4 + 1
@@ -109,9 +117,9 @@ class DnD35CharacterDataTest {
                 DnD35CharacterBaseData(
                     gear =
                         listOf(
-                            DnD35GearRow(item = "Greatsword", quantity = 1, weight = 8),
-                            DnD35GearRow(item = "Full plate", quantity = 1, weight = 50),
-                            DnD35GearRow(item = "Rations", quantity = 5, weight = 5),
+                            DnD35Gear(item = "Greatsword", quantity = 1, weight = 8),
+                            DnD35Gear(item = "Full plate", quantity = 1, weight = 50),
+                            DnD35Gear(item = "Rations", quantity = 5, weight = 5),
                         ),
                 ),
             )
@@ -123,8 +131,8 @@ class DnD35CharacterDataTest {
         val s =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(intelligence = 18),
-                    spellcasting = DnD35SpellcastingInputs(spellKeyAbility = "intMod"),
+                    abilities = DnD35BaseAbilityScores(intelligence = 18),
+                    spellcasting = DnD35BaseSpellcasting(spellKeyAbility = "intMod"),
                 ),
             )
         assertEquals(14, s.spellcasting.saveDcBase) // 10 + 4
@@ -135,15 +143,15 @@ class DnD35CharacterDataTest {
         val slots =
             sheet(
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(intelligence = 18), // intMod +4
+                    abilities = DnD35BaseAbilityScores(intelligence = 18), // intMod +4
                     spellcasting =
-                        DnD35SpellcastingInputs(
+                        DnD35BaseSpellcasting(
                             spellKeyAbility = "intMod",
                             spellSlots =
                                 listOf(
-                                    DnD35SpellSlotRowInput(spellLevel = 0, slotsPerDay = 4),
-                                    DnD35SpellSlotRowInput(spellLevel = 1, slotsPerDay = 3),
-                                    DnD35SpellSlotRowInput(spellLevel = 5, slotsPerDay = 1),
+                                    DnD35BaseSpellSlot(spellLevel = 0, slotsPerDay = 4),
+                                    DnD35BaseSpellSlot(spellLevel = 1, slotsPerDay = 3),
+                                    DnD35BaseSpellSlot(spellLevel = 5, slotsPerDay = 1),
                                 ),
                         ),
                 ),
@@ -166,7 +174,7 @@ class DnD35CharacterDataTest {
 
     @Test
     fun `derived reflect the inputs and a partial base enriches cleanly`() {
-        val s = sheet(DnD35CharacterBaseData(abilities = DnD35AbilityScores(strength = 16))) // partial
+        val s = sheet(DnD35CharacterBaseData(abilities = DnD35BaseAbilityScores(strength = 16))) // partial
         assertEquals(3, s.abilities.strMod) // floor((16-10)/2)
         assertEquals(0, s.abilities.conMod) // default constitution 10
     }

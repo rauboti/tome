@@ -1,8 +1,8 @@
 package no.rauboti.tome.rulesets
 
-import no.rauboti.tome.characters.data.DnD35AbilityScores
 import no.rauboti.tome.characters.data.DnD35CharacterBaseData
-import no.rauboti.tome.characters.data.DnD35SkillRowInput
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSkill
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -24,7 +24,7 @@ class DnD35RuleSetTest {
 
     @Test
     fun `validate flags an ability score below 1 against its field id`() {
-        val warnings = ruleSet.validate(DnD35CharacterBaseData(abilities = DnD35AbilityScores(strength = 0, dexterity = 12)))
+        val warnings = ruleSet.validate(DnD35CharacterBaseData(abilities = DnD35BaseAbilityScores(strength = 0, dexterity = 12)))
         assertEquals(1, warnings.size)
         assertEquals("ability.below-minimum", warnings.first().code)
         assertEquals("strength", warnings.first().field)
@@ -46,7 +46,7 @@ class DnD35RuleSetTest {
             ruleSet.validate(
                 DnD35CharacterBaseData(
                     level = 1, // class-skill max = level + 3 = 4
-                    skills = listOf(DnD35SkillRowInput(skill = "Climb", keyAbility = "strMod", ranks = 8, classSkill = true)),
+                    skills = listOf(DnD35BaseSkill(skill = "Climb", keyAbility = "strMod", ranks = 8, classSkill = true)),
                 ),
             )
         assertEquals(1, warnings.size)
@@ -60,7 +60,7 @@ class DnD35RuleSetTest {
             ruleSet.validate(
                 DnD35CharacterBaseData(
                     level = 5, // class-skill max = 8
-                    skills = listOf(DnD35SkillRowInput(skill = "Climb", keyAbility = "strMod", ranks = 8, classSkill = true)),
+                    skills = listOf(DnD35BaseSkill(skill = "Climb", keyAbility = "strMod", ranks = 8, classSkill = true)),
                 ),
             )
         assertTrue(warnings.isEmpty())

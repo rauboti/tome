@@ -32,7 +32,7 @@ data class CreateCharacterRequest(
 /**
  * Update a character sheet. `data` (full base sheet) and `version` are required; `name` is optional
  * (null keeps the current). `version` carries optimistic concurrency (stale → 409); `data.ruleSetId`
- * must match the character's or the service answers 400 (FR-002).
+ * must match the character's or the service answers 400.
  */
 data class UpdateCharacterRequest(
     val name: String? = null,

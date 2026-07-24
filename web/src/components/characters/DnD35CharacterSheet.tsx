@@ -12,14 +12,16 @@ import {
   DND35_ABILITY_MODS,
   DND35_FEAT_TYPES,
   DND35_SKILL_PRESET_COUNT,
-  type DnD35AttackRowInput,
-  type DnD35SheetInput,
-  type DnD35SkillRowInput,
-  type DnD35SpellRow,
-  type DnD35SpellSlotRowInput,
 } from '@/sheets/dnd35'
 import { SheetTable, type SheetTableColumn } from './SheetTable'
 import { SpellsTable } from './SpellsTable'
+import type {
+  DnD35BaseAttack,
+  DnD35CharacterBaseData,
+  DnD35BaseSkill,
+  DnD35Spell,
+  DnD35BaseSpellSlot,
+} from '@/types'
 
 type Row = Record<string, unknown>
 const asRows = (rows: readonly unknown[]): Row[] => rows as unknown as Row[]
@@ -55,15 +57,15 @@ const NumberField = ({
 }
 
 /**
- * Typed D&D 3.5 sheet editor (ADR-001). Edits the base inputs ([DnD35SheetInput]) and shows the derived
+ * Typed D&D 3.5 sheet editor (ADR-001). Edits the base inputs ([DnD35CharacterBaseData]) and shows the derived
  * values read-only, recomputed live via {@link enrichDnD35} — see web/README.md "The typed sheet mirror".
  * Renders the scalar groups (identity, abilities, hit points, saves, defense) plus the repeating-group
  * tables (skills with the canonical preset list, attacks, feats, gear, spellcasting stats + slots + the
  * class-filtered spell picker) via {@link SheetTable} / {@link SpellsTable}.
  */
 export type DnD35CharacterSheetProps = {
-  base: DnD35SheetInput
-  onChange: (next: DnD35SheetInput) => void
+  base: DnD35CharacterBaseData
+  onChange: (next: DnD35CharacterBaseData) => void
 }
 
 export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps) => {
@@ -85,15 +87,15 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
     />
   )
 
-  const setAbility = (key: keyof DnD35SheetInput['abilities']) => (n: number) =>
+  const setAbility = (key: keyof DnD35CharacterBaseData['abilities']) => (n: number) =>
     onChange({ ...base, abilities: { ...base.abilities, [key]: n } })
-  const setSave = (key: keyof DnD35SheetInput['saves']) => (n: number) =>
+  const setSave = (key: keyof DnD35CharacterBaseData['saves']) => (n: number) =>
     onChange({ ...base, saves: { ...base.saves, [key]: n } })
-  const setDefense = (key: keyof DnD35SheetInput['defense']) => (n: number) =>
+  const setDefense = (key: keyof DnD35CharacterBaseData['defense']) => (n: number) =>
     onChange({ ...base, defense: { ...base.defense, [key]: n } })
-  const setHp = (key: keyof DnD35SheetInput['hitPoints']) => (n: number) =>
+  const setHp = (key: keyof DnD35CharacterBaseData['hitPoints']) => (n: number) =>
     onChange({ ...base, hitPoints: { ...base.hitPoints, [key]: n } })
-  const setSpellcasting = (partial: Partial<DnD35SheetInput['spellcasting']>) =>
+  const setSpellcasting = (partial: Partial<DnD35CharacterBaseData['spellcasting']>) =>
     onChange({ ...base, spellcasting: { ...base.spellcasting, ...partial } })
 
   const selectField = (
@@ -121,13 +123,13 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
     { id: 'ranks', label: 'Ranks', kind: 'number' },
     { id: 'classSkill', label: 'Class Skill', kind: 'bool' },
     { id: 'misc', label: 'Misc', kind: 'number' },
-    { id: 'total', label: 'Total', kind: 'derived', derive: (row) => dnd35SkillTotal(base, row as unknown as DnD35SkillRowInput) },
+    { id: 'total', label: 'Total', kind: 'derived', derive: (row) => dnd35SkillTotal(base, row as unknown as DnD35BaseSkill) },
   ]
   const attackColumns: SheetTableColumn[] = [
     { id: 'weapon', label: 'Weapon', kind: 'text', span: 2 },
     { id: 'ability', label: 'Ability', kind: 'select', options: DND35_ABILITY_MODS },
     { id: 'misc', label: 'Misc', kind: 'number' },
-    { id: 'attackBonus', label: 'Attack', kind: 'derived', derive: (row) => dnd35AttackBonus(base, row as unknown as DnD35AttackRowInput) },
+    { id: 'attackBonus', label: 'Attack', kind: 'derived', derive: (row) => dnd35AttackBonus(base, row as unknown as DnD35BaseAttack) },
     { id: 'damage', label: 'Damage', kind: 'text' },
     { id: 'critical', label: 'Crit', kind: 'text' },
     { id: 'range', label: 'Range', kind: 'text' },
@@ -147,8 +149,8 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
   const slotColumns: SheetTableColumn[] = [
     { id: 'spellLevel', label: 'Spell Level', kind: 'text', presetLocked: true },
     { id: 'slotsPerDay', label: 'Slots/Day', kind: 'number' },
-    { id: 'bonusSpells', label: 'Bonus', kind: 'derived', derive: (row) => dnd35SpellSlotBonus(base, row as unknown as DnD35SpellSlotRowInput) },
-    { id: 'total', label: 'Total', kind: 'derived', derive: (row) => dnd35SpellSlotTotal(base, row as unknown as DnD35SpellSlotRowInput) },
+    { id: 'bonusSpells', label: 'Bonus', kind: 'derived', derive: (row) => dnd35SpellSlotBonus(base, row as unknown as DnD35BaseSpellSlot) },
+    { id: 'total', label: 'Total', kind: 'derived', derive: (row) => dnd35SpellSlotTotal(base, row as unknown as DnD35BaseSpellSlot) },
     { id: 'known', label: 'Known', kind: 'number' },
     { id: 'prepared', label: 'Prepared', kind: 'number' },
   ]
@@ -226,7 +228,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
         columns={skillColumns}
         rows={asRows(base.skills)}
         presetCount={DND35_SKILL_PRESET_COUNT}
-        onChange={(rows) => onChange({ ...base, skills: rows as unknown as DnD35SkillRowInput[] })}
+        onChange={(rows) => onChange({ ...base, skills: rows as unknown as DnD35BaseSkill[] })}
         newRow={() => ({ skill: '', keyAbility: 'strMod', ranks: 0, classSkill: false, misc: 0 })}
         addLabel="Add skill"
       />
@@ -235,7 +237,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
         title="Attacks"
         columns={attackColumns}
         rows={asRows(base.attacks)}
-        onChange={(rows) => onChange({ ...base, attacks: rows as unknown as DnD35AttackRowInput[] })}
+        onChange={(rows) => onChange({ ...base, attacks: rows as unknown as DnD35BaseAttack[] })}
         newRow={() => ({ weapon: '', ability: 'strMod', misc: 0, damage: '', critical: '', range: '', notes: '' })}
         addLabel="Add attack"
       />
@@ -244,7 +246,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
         title="Feats"
         columns={featColumns}
         rows={asRows(base.feats)}
-        onChange={(rows) => onChange({ ...base, feats: rows as unknown as DnD35SheetInput['feats'] })}
+        onChange={(rows) => onChange({ ...base, feats: rows as unknown as DnD35CharacterBaseData['feats'] })}
         newRow={() => ({ name: '', type: 'general', description: '' })}
         addLabel="Add feat"
       />
@@ -254,7 +256,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
           title="Gear"
           columns={gearColumns}
           rows={asRows(base.gear)}
-          onChange={(rows) => onChange({ ...base, gear: rows as unknown as DnD35SheetInput['gear'] })}
+          onChange={(rows) => onChange({ ...base, gear: rows as unknown as DnD35CharacterBaseData['gear'] })}
           newRow={() => ({ item: '', quantity: 1, weight: 0, notes: '' })}
           addLabel="Add gear"
         />
@@ -283,7 +285,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
         columns={slotColumns}
         rows={asRows(base.spellcasting.spellSlots)}
         presetCount={base.spellcasting.spellSlots.length}
-        onChange={(rows) => setSpellcasting({ spellSlots: rows as unknown as DnD35SpellSlotRowInput[] })}
+        onChange={(rows) => setSpellcasting({ spellSlots: rows as unknown as DnD35BaseSpellSlot[] })}
       />
 
       <SpellsTable
@@ -291,7 +293,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
         ruleSetId={base.ruleSetId}
         casterClass={base.spellcasting.casterClass}
         rows={base.spellcasting.spells}
-        onChange={(rows: DnD35SpellRow[]) => setSpellcasting({ spells: rows })}
+        onChange={(rows: DnD35Spell[]) => setSpellcasting({ spells: rows })}
       />
     </Stack>
   )

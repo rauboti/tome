@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { problemSchema, type Problem } from './types'
 
 /** Backend endpoint that begins the Hive OAuth flow (302 → Hive authorize). A full-page
  *  navigation, not XHR — it can't be a client route. */
@@ -7,17 +8,6 @@ export const LOGIN_PATH = '/auth/login'
 /** All BFF endpoints live under this prefix; callers pass resource-relative paths
  *  (e.g. `/auth/me`, `/rule-sets`). The dev proxy / nginx forwards `/api` to the api service. */
 const API_BASE = '/api'
-
-/** RFC-7807 problem details (openapi `Problem`). Every field is optional so an unexpected error
- *  body still parses. */
-export const problemSchema = z.object({
-  type: z.string().optional(),
-  title: z.string().optional(),
-  status: z.number().optional(),
-  detail: z.string().optional(),
-  instance: z.string().optional(),
-})
-export type Problem = z.infer<typeof problemSchema>
 
 /** Thrown for any non-2xx response. Carries the HTTP status and, when the body was
  *  `application/problem+json`, the parsed problem details. */
@@ -38,7 +28,7 @@ export class ApiError extends Error {
   }
 }
 
-/** Global 403 handler (FR-024): the SessionProvider registers it so any data call's 403 drops the app
+/** Global 403 handler: the SessionProvider registers it so any data call's 403 drops the app
  *  to the no-access screen. `null` clears it; the bootstrap probe opts out (`notifyForbidden: false`). */
 let onForbidden: (() => void) | null = null
 export const setOnForbidden = (handler: (() => void) | null): void => {

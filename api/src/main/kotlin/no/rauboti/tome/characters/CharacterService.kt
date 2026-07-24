@@ -14,7 +14,7 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * A [Character] paired with the soft [RuleWarning]s from validating its sheet (FR-005). [Character.data]
+ * A [Character] paired with the soft [RuleWarning]s from validating its sheet. [Character.data]
  * is the stored base inputs; the controller enriches it for the response. Warnings are never persisted.
  */
 data class CharacterWithWarnings(
@@ -23,10 +23,10 @@ data class CharacterWithWarnings(
 )
 
 /**
- * Application logic for player characters (US1). Writes store the typed [CharacterBaseData] as-is;
- * reads validate via the [RuleSet] and leave enrichment to the controller. The rule set is fixed for a
- * character's life (FR-002) — an update with a different `data.ruleSetId` is rejected — and a stale
- * write becomes [StaleVersionException] → 409 (SC-006). Authorization is owner-only in v1.
+ * Application logic for player characters. Writes store the typed [CharacterBaseData] as-is; reads
+ * validate via the [RuleSet] and leave enrichment to the controller. The rule set is fixed for a
+ * character's life — an update with a different `data.ruleSetId` is rejected — and a stale write
+ * becomes [StaleVersionException] → 409. Authorization is owner-only in v1.
  */
 @Service
 class CharacterService(
@@ -72,7 +72,7 @@ class CharacterService(
 
     /**
      * Replace a character's sheet ([data], full typed base) and optionally its [name], with optimistic
-     * concurrency. A differing `data.ruleSetId` is a 400 (rule set fixed for life, FR-002); a stale
+     * concurrency. A differing `data.ruleSetId` is a 400 (rule set fixed for life); a stale
      * [expectedVersion] is a 409.
      */
     fun update(

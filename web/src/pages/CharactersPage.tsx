@@ -5,10 +5,10 @@ import { Stack, Text } from '@chakra-ui/react'
 import { Callout, EmptyState, List, PageHeader } from '@rauboti/ui'
 import {
   listCharacters,
-  type Character,
-  type CharacterSummary,
 } from '@/api/characters'
-import { listRuleSets, type RuleSetSummary } from '@/api/schemas'
+import type { CharacterSummary } from '@/api/types'
+import type { Character, RuleSetSummary } from '@/types'
+import { listRuleSets } from '@/api/schemas'
 import { CreateCharacterDialog } from '@/components/characters/CreateCharacterDialog'
 
 /**

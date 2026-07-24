@@ -1,5 +1,5 @@
 import { http, HttpResponse, type RequestHandler } from 'msw'
-import type { Me } from '@/api/schemas'
+import type { Me } from '@/api/types'
 import { authenticatedUser, ruleSets } from './fixtures'
 
 /**

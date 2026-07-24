@@ -6,10 +6,10 @@ import { ApiError } from '@/api/client'
 import {
   getCharacter,
   updateCharacter,
-  type Character,
-  type RuleWarning,
 } from '@/api/characters'
-import { toDnD35Base, type DnD35SheetInput } from '@/sheets/dnd35'
+import type { Character, RuleWarning } from '@/types'
+import { toDnD35Base } from '@/sheets/dnd35'
+import type { DnD35CharacterBaseData } from '@/types'
 import { DnD35CharacterSheet } from './DnD35CharacterSheet'
 
 /**
@@ -26,7 +26,7 @@ export type CharacterSheetProps = {
 export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
   const { t } = useTranslation()
   const [character, setCharacter] = useState<Character | null>(null)
-  const [base, setBase] = useState<DnD35SheetInput | null>(null)
+  const [base, setBase] = useState<DnD35CharacterBaseData | null>(null)
   const [version, setVersion] = useState(0)
   const [warnings, setWarnings] = useState<RuleWarning[]>([])
   const [loadFailed, setLoadFailed] = useState(false)

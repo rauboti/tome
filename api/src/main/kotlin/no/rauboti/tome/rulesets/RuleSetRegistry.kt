@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component
 /**
  * Resolves a [RuleSet] by id. Spring injects every [RuleSet] bean on the classpath (v1: just
  * `DnD35RuleSet`), so registering a new rule set is purely additive — declare its `@Component` and it
- * appears here with no change to this class or any cross-cutting service (FR-023/SC-009).
+ * appears here with no change to this class or any cross-cutting service.
  *
- * Unknown ids are rejected with [NotFoundException] → 404 (RFC-7807 via the exception handler, T012).
+ * Unknown ids are rejected with [NotFoundException] → 404 (RFC-7807 via the exception handler).
  */
 @Component
 class RuleSetRegistry(

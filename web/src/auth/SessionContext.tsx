@@ -9,11 +9,12 @@ import {
 } from 'react'
 import type { ReactNode } from 'react'
 import { ApiError, setOnForbidden } from '@/api/client'
-import { getMe, logout, type Me } from '@/api/schemas'
+import { getMe, logout } from '@/api/schemas'
+import type { Me } from '@/api/types'
 import { applyLocale } from '@/i18n'
 
 /** Session state, resolved once the `/api/auth/me` probe settles. `noAccess` is a signed-in Hive
- *  user with no Tome role (the api answers 403, FR-024) — distinct from `unauthenticated` (401). */
+ *  user with no Tome role (the api answers 403) — distinct from `unauthenticated` (401). */
 export type SessionState =
   | { status: 'loading'; user: null }
   | { status: 'authenticated'; user: Me }
@@ -31,8 +32,8 @@ const SessionContext = createContext<SessionContextValue | null>(null)
 
 /**
  * Probe the session via `/api/auth/me` (200 authenticated, 401 unauthenticated, 403 no-access). The
- * locale is applied *before* the state lands so the first paint is in the right language (FR-015).
- * Opts out of the client's auto-redirect and global no-access handler to resolve 401/403 itself.
+ * locale is applied *before* the state lands so the first paint is in the right language. otps out
+ * of the client's auto-redirect and global no-access handler to resolve 401/403 itself.
  */
 const fetchSession = async (signal: AbortSignal): Promise<SessionState> => {
   try {

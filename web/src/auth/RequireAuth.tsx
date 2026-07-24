@@ -8,7 +8,7 @@ import { NoAccessScreen } from './NoAccessScreen'
 /**
  * Route guard (pathless layout route in `routes.tsx`), branching on `useSession()` status: a spinner
  * while the `/api/auth/me` probe is in flight, the login screen when unauthenticated, the no-access
- * screen when signed in without a Tome role (FR-024), else the routed app (`<Outlet/>`).
+ * screen when signed in without a Tome role, else the routed app (`<Outlet/>`).
  */
 export const RequireAuth = () => {
   const { t } = useTranslation()

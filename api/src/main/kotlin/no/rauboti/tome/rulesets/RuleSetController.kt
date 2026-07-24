@@ -13,8 +13,8 @@ data class RuleSetSummary(
 
 /**
  * Serves the bundled rule sets to the web as summaries — the list (for a picker) and a single lookup.
- * Per ADR-001 the sheet is a typed schema known to the client, so `/{id}` returns [RuleSetSummary], not
- * a sheet definition. Read-only; behind the `/api` role gate (SecurityConfig).
+ * Per the sheet is a typed schema known to the client, so `/{id}` returns [RuleSetSummary], not a sheet
+ * definition. Read-only; behind the `/api` role gate (SecurityConfig).
  */
 @RestController
 @RequestMapping("/api/rule-sets")

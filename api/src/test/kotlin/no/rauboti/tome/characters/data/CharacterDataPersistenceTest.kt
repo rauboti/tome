@@ -1,6 +1,8 @@
 package no.rauboti.tome.characters.data
 
 import com.mongodb.client.model.Filters
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
+import no.rauboti.tome.characters.data.dnd35.DnD35BaseSkill
 import no.rauboti.tome.support.IntegrationTest
 import org.bson.Document
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,9 +39,9 @@ class CharacterDataPersistenceTest : IntegrationTest() {
             SheetHolder(
                 id,
                 DnD35CharacterBaseData(
-                    abilities = DnD35AbilityScores(strength = 16),
+                    abilities = DnD35BaseAbilityScores(strength = 16),
                     level = 3,
-                    skills = listOf(DnD35SkillRowInput(skill = "Climb", keyAbility = "strMod", ranks = 5)),
+                    skills = listOf(DnD35BaseSkill(skill = "Climb", keyAbility = "strMod", ranks = 5)),
                 ),
             ),
         )
@@ -59,7 +61,7 @@ class CharacterDataPersistenceTest : IntegrationTest() {
         mongo.save(
             SheetHolder(
                 id,
-                DnD35CharacterBaseData(abilities = DnD35AbilityScores(strength = 18, dexterity = 14), baseAttackBonus = 6),
+                DnD35CharacterBaseData(abilities = DnD35BaseAbilityScores(strength = 18, dexterity = 14), baseAttackBonus = 6),
             ),
         )
 

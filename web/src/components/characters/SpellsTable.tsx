@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, Input } from '@rauboti/ui'
-import { getCatalogOptions, type CatalogOption } from '@/api/catalogs'
+import { getCatalogOptions } from '@/api/catalogs'
+import type { CatalogOption } from '@/api/types'
 import { NumberCell } from './SheetTable'
-import type { DnD35SpellRow } from '@/sheets/dnd35'
+import type { DnD35Spell } from '@/types'
 
 /**
  * The spellcasting spells table (ADR-001) — the one catalog-backed section. Each row's `spell` is a
@@ -15,8 +16,8 @@ export type SpellsTableProps = {
   title: string
   ruleSetId: string
   casterClass: string
-  rows: ReadonlyArray<DnD35SpellRow>
-  onChange: (rows: DnD35SpellRow[]) => void
+  rows: ReadonlyArray<DnD35Spell>
+  onChange: (rows: DnD35Spell[]) => void
 }
 
 const CatalogSpellSelect = ({
@@ -69,8 +70,8 @@ const CatalogSpellSelect = ({
 }
 
 export const SpellsTable = ({ title, ruleSetId, casterClass, rows, onChange }: SpellsTableProps) => {
-  const patch = (index: number, next: DnD35SpellRow) => onChange(rows.map((r, i) => (i === index ? next : r)))
-  const blank = (): DnD35SpellRow => ({ spell: '', level: 0, prepared: 0, notes: '' })
+  const patch = (index: number, next: DnD35Spell) => onChange(rows.map((r, i) => (i === index ? next : r)))
+  const blank = (): DnD35Spell => ({ spell: '', level: 0, prepared: 0, notes: '' })
 
   return (
     <Stack gap="3">

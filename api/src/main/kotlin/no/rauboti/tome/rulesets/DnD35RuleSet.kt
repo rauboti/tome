@@ -5,8 +5,8 @@ import no.rauboti.tome.characters.data.DnD35CharacterBaseData
 import org.springframework.stereotype.Component
 
 /**
- * The D&D 3.5 rule-set logic (ADR-001): identity + soft validation only. Derived values live on the
- * typed [no.rauboti.tome.characters.data.DnD35CharacterData] (built by `enrich()`), not here.
+ * The D&D 3.5 rule-set logic: identity + soft validation only. Derived values live on the typed
+ * [no.rauboti.tome.characters.data.DnD35CharacterData] (built by `enrich()`), not here.
  */
 @Component
 class DnD35RuleSet : RuleSet {
@@ -15,8 +15,8 @@ class DnD35RuleSet : RuleSet {
     override fun name(): String = "D&D 3.5"
 
     /**
-     * Soft-validate the 3.5 base inputs (FR-005): guidance only, never blocks — always returns a list.
-     * Only handles [DnD35CharacterBaseData]; any other variant yields no warnings. Checks: ability
+     * Soft-validate the 3.5 base inputs: guidance only, never blocks — always returns a list. Only
+     * handles [DnD35CharacterBaseData]; any other variant yields no warnings. Checks: ability
      * scores and level at/above their minimums, and skill ranks within the 3.5 max for the level
      * (class skill = level + 3, cross-class = half that).
      */

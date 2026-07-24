@@ -5,7 +5,8 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { ThemeProvider } from '@rauboti/ui'
 import { DnD35CharacterSheet } from './DnD35CharacterSheet'
-import { defaultDnD35SheetInput, type DnD35SheetInput } from '@/sheets/dnd35'
+import { defaultDnD35SheetInput } from '@/sheets/dnd35'
+import type { DnD35CharacterBaseData } from '@/types'
 import { server } from '@/mocks/server'
 import '@/i18n'
 
@@ -13,12 +14,12 @@ import '@/i18n'
  * The typed 3.5 content tables, driven through a stateful harness (base + onChange) so edits recompute
  * derived live, exactly as the sheet screen does.
  */
-const Harness = ({ initial }: { initial: DnD35SheetInput }) => {
+const Harness = ({ initial }: { initial: DnD35CharacterBaseData }) => {
   const [base, setBase] = useState(initial)
   return <DnD35CharacterSheet base={base} onChange={setBase} />
 }
 
-const renderSheet = (initial: DnD35SheetInput) =>
+const renderSheet = (initial: DnD35CharacterBaseData) =>
   render(
     <ThemeProvider>
       <Harness initial={initial} />

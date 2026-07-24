@@ -26,16 +26,16 @@ class ApiExceptionHandler {
     fun handleBadRequest(ex: BadRequestException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.message ?: "Bad request")
 
-    /** Optimistic-concurrency conflict → 409 (SC-006), raised by the character service. */
+    /** Optimistic-concurrency conflict → 409, raised by the character service. */
     @ExceptionHandler(StaleVersionException::class)
     fun handleStaleVersion(ex: StaleVersionException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.message ?: "Version conflict")
 
     /**
-     * Framework-level safety net: any Spring Data `@Version` conflict → 409 (SC-006). The character
-     * write path translates this to [StaleVersionException] in the service (T096), so it never reaches
-     * here for characters; other `@Version` aggregates (campaigns/encounters, US2+) that let it
-     * propagate get a clean 409 with a curated detail rather than the driver's message.
+     * Framework-level safety net: any Spring Data `@Version` conflict → 409. The character write
+     * path translates this to [StaleVersionException] in the service, so it never reaches here for
+     * characters; other `@Version` aggregates (campaigns/encounters, US2+) that let it propagate
+     * get a clean 409 with a curated detail rather than the driver's message.
      */
     @ExceptionHandler(OptimisticLockingFailureException::class)
     fun handleOptimisticLocking(ex: OptimisticLockingFailureException): ProblemDetail =
