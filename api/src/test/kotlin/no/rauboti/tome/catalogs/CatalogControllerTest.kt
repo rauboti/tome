@@ -13,7 +13,7 @@ import java.util.UUID
 
 /**
  * Contract test for the catalog endpoint (T113): `GET /api/rule-sets/{id}/catalogs/{catalog}?filter=`,
- * which backs a `SheetField.optionsFrom` picker. Exercises the wired security chain + MockMvc:
+ * which backs a catalog-backed select picker (fetched by a typed sheet component). Exercises the wired security chain + MockMvc:
  *  - requires a Tome role (401 without)
  *  - dnd35 `spells` filtered by class → 200, an array of `{ value, label, meta.level }`
  *  - unknown catalog → 404

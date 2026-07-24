@@ -2,9 +2,8 @@ package no.rauboti.tome.catalogs
 
 /**
  * One option returned by a catalog-backed select (openapi catalog endpoint item, T113). [label] is a
- * literal display string (catalog content is data, e.g. a spell name — not an i18n key like static
- * [no.rauboti.tome.rulesets.FieldOption]s). [meta] carries optional per-option data (e.g. a spell's
- * level for the filtered class).
+ * literal display string (catalog content is data, e.g. a spell name). [meta] carries optional
+ * per-option data (e.g. a spell's level for the filtered class).
  */
 data class CatalogOption(
     val value: String,
@@ -13,7 +12,8 @@ data class CatalogOption(
 )
 
 /**
- * A named, filterable option source behind a `SheetField.optionsFrom` select (T113). The **mechanism**
+ * A named, filterable option source behind a catalog-backed select (T113; a typed sheet component
+ * fetches it — ADR-001). The **mechanism**
  * is rule-set-agnostic (resolved generically by [CatalogRegistry] + served by [CatalogController]); a
  * concrete catalog owns its data and filter semantics (e.g. [SpellCatalog] = the dnd35 spell list
  * filtered by caster class). Registering a new catalog is additive: declare its `@Component`.
