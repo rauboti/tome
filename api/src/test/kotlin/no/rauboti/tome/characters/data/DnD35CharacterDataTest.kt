@@ -3,11 +3,11 @@ package no.rauboti.tome.characters.data
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseAttack
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseDefense
-import no.rauboti.tome.characters.data.dnd35.DnD35Gear
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSaves
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSkill
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSpellSlot
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSpellcasting
+import no.rauboti.tome.characters.data.dnd35.DnD35Gear
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test

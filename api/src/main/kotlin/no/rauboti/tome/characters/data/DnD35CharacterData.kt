@@ -7,6 +7,7 @@ import no.rauboti.tome.characters.data.dnd35.DnD35Defense
 import no.rauboti.tome.characters.data.dnd35.DnD35Feat
 import no.rauboti.tome.characters.data.dnd35.DnD35Gear
 import no.rauboti.tome.characters.data.dnd35.DnD35HitPoints
+import no.rauboti.tome.characters.data.dnd35.DnD35Player
 import no.rauboti.tome.characters.data.dnd35.DnD35Saves
 import no.rauboti.tome.characters.data.dnd35.DnD35Skill
 import no.rauboti.tome.characters.data.dnd35.DnD35Spellcasting
@@ -24,7 +25,7 @@ data class DnD35CharacterData(
 
     // identity (pass-through)
     val name: String get() = base.name
-    val player: String get() = base.player
+    val player: DnD35Player get() = base.player
     val race: String get() = base.race
     val characterClass: String get() = base.characterClass
     val alignment: String get() = base.alignment

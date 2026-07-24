@@ -27,6 +27,20 @@ const renderSheet = (initial: DnD35CharacterBaseData) =>
   )
 
 describe('DnD35CharacterSheet — typed content tables (T129)', () => {
+  test('renders every identity input, with alignment and size as comboboxes', () => {
+    renderSheet(defaultDnD35SheetInput('Aria'))
+
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Player' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Race' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Class' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Deity' })).toBeInTheDocument()
+    expect(screen.getByRole('spinbutton', { name: 'Level' })).toBeInTheDocument()
+    expect(screen.getByRole('spinbutton', { name: 'Experience' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Alignment' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Size' })).toBeInTheDocument()
+  })
+
   test('seeds the canonical skills and recomputes a skill total from its ranks + key-ability mod', async () => {
     const base = defaultDnD35SheetInput('Aria')
     base.abilities = { ...base.abilities, intelligence: 14 } // intMod +2; Appraise (row 1) is Int-based
@@ -71,9 +85,12 @@ describe('DnD35CharacterSheet — typed content tables (T129)', () => {
     }
     renderSheet(base)
 
-    // Options arrive from the catalog (keyed off casterClass=wizard).
-    await screen.findByRole('option', { name: 'Fireball' })
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Spells Spell 1' }), 'fireball')
+    // Options arrive from the catalog (keyed off casterClass=wizard); ArrowDown opens the combobox and
+    // the fetched options render into the open listbox.
+    const spell = await screen.findByRole('combobox', { name: 'Spells Spell 1' })
+    spell.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(await screen.findByRole('option', { name: 'Fireball' }))
 
     // Picking the spell filled its level (3 for wizard) from the option meta.
     expect(screen.getByRole('spinbutton', { name: 'Spells Level 1' })).toHaveValue(3)

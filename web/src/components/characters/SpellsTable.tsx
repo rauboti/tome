@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/react'
-import { Button, Input } from '@rauboti/ui'
+import { Button, Combobox, Input } from '@rauboti/ui'
 import { getCatalogOptions } from '@/api/catalogs'
 import type { CatalogOption } from '@/api/types'
 import { NumberCell } from './SheetTable'
@@ -51,21 +51,19 @@ const CatalogSpellSelect = ({
   const options = hasFilter ? fetched : []
 
   return (
-    <select
-      aria-label={label}
-      value={value}
-      onChange={(e) => {
-        const picked = options.find((o) => o.value === e.currentTarget.value)
-        onPick(e.currentTarget.value, picked?.meta ?? null)
+    <Combobox
+      label={label}
+      hideLabel
+      required
+      placeholder={hasFilter ? undefined : 'Set a caster class first'}
+      items={options.map((o) => ({ value: o.value, label: o.label }))}
+      value={value === '' ? [] : [value]}
+      onValueChange={(vals) => {
+        const next = vals[0] ?? ''
+        const picked = options.find((o) => o.value === next)
+        onPick(next, picked?.meta ?? null)
       }}
-    >
-      <option value="" />
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    />
   )
 }
 

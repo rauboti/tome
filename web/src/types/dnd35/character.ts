@@ -13,11 +13,17 @@ import type {
   DnD35BaseSpellcasting,
 } from './types'
 
+/** The player behind the character: the owner's id (UUID) + display name, stamped at create and fixed. */
+export type DnD35Player = {
+  id: string
+  name: string
+}
+
 /** The stored/edited base inputs (mirrors `DnD35CharacterBaseData`). */
 export type DnD35CharacterBaseData = {
   ruleSetId: 'dnd35'
   name: string
-  player: string
+  player: DnD35Player
   race: string
   characterClass: string
   alignment: string

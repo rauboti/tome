@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react'
-import { Input } from '@rauboti/ui'
+import { Heading, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Combobox, Input } from '@rauboti/ui'
 import {
   enrichDnD35,
   dnd35AttackBonus,
@@ -45,6 +45,7 @@ const NumberField = ({
     <Input
       label={label}
       aria-label={label}
+      required
       type="number"
       value={text}
       onChange={(e) => {
@@ -74,6 +75,22 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
   const fieldLabel = (id: string) => t(`dnd35.field.${id}`)
   const sectionLabel = (id: string) => t(`dnd35.section.${id}`)
 
+  // Alignment/size dropdown options, labels from the (bilingual) i18n maps.
+  const alignmentOptions = ['LG', 'NG', 'CG', 'LN', 'TN', 'CN', 'LE', 'NE', 'CE'].map((v) => ({
+    value: v,
+    label: t(`dnd35.alignment.${v}`),
+  }))
+  const sizeOptions = ['small', 'medium', 'large'].map((v) => ({ value: v, label: t(`dnd35.size.${v}`) }))
+
+  const textField = (labelId: string, value: string, set: (v: string) => void) => (
+    <Input
+      label={fieldLabel(labelId)}
+      aria-label={fieldLabel(labelId)}
+      required
+      value={value}
+      onChange={(e) => set(e.currentTarget.value)}
+    />
+  )
   const numberField = (id: string, value: number, set: (n: number) => void) => (
     <NumberField label={fieldLabel(id)} value={value} onCommit={set} />
   )
@@ -81,6 +98,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
     <Input
       label={fieldLabel(id)}
       aria-label={fieldLabel(id)}
+      required
       value={String(value)}
       readOnly
       disabled
@@ -98,23 +116,19 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
   const setSpellcasting = (partial: Partial<DnD35CharacterBaseData['spellcasting']>) =>
     onChange({ ...base, spellcasting: { ...base.spellcasting, ...partial } })
 
-  const selectField = (
+  const comboField = (
     label: string,
     value: string,
     options: ReadonlyArray<{ value: string; label: string }>,
     set: (v: string) => void,
   ) => (
-    <Stack gap="1">
-      <Text fontSize="sm">{label}</Text>
-      <select aria-label={label} value={value} onChange={(e) => set(e.currentTarget.value)}>
-        <option value="" />
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </Stack>
+    <Combobox
+      label={label}
+      required
+      items={[...options]}
+      value={value === '' ? [] : [value]}
+      onValueChange={(vals) => set(vals[0] ?? '')}
+    />
   )
 
   const skillColumns: SheetTableColumn[] = [
@@ -159,20 +173,29 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
     <Stack gap="6">
       <Stack gap="3">
         <Heading size="md">{sectionLabel('identity')}</Heading>
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap="4">
+        <SimpleGrid columns={{ base: 1, md: 4 }} gap="4">
+          {textField('name', base.name, (v) => onChange({ ...base, name: v }))}
           <Input
-            label={fieldLabel('name')}
-            aria-label={fieldLabel('name')}
-            value={base.name}
-            onChange={(e) => onChange({ ...base, name: e.currentTarget.value })}
+            label={fieldLabel('player')}
+            aria-label={fieldLabel('player')}
+            required
+            readOnly
+            disabled
+            value={base.player.name}
           />
+          {textField('race', base.race, (v) => onChange({ ...base, race: v }))}
+          {textField('class', base.characterClass, (v) => onChange({ ...base, characterClass: v }))}
+          {comboField(fieldLabel('alignment'), base.alignment, alignmentOptions, (v) => onChange({ ...base, alignment: v }))}
+          {textField('deity', base.deity, (v) => onChange({ ...base, deity: v }))}
+          {numberField('experience', base.experience, (n) => onChange({ ...base, experience: n }))}
           {numberField('level', base.level, (n) => onChange({ ...base, level: n }))}
+          {comboField(fieldLabel('size'), base.size, sizeOptions, (v) => onChange({ ...base, size: v }))}
         </SimpleGrid>
       </Stack>
 
       <Stack gap="3">
         <Heading size="md">{sectionLabel('abilities')}</Heading>
-        <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
+        <SimpleGrid columns={{ base: 2, md: 6 }} gap="4">
           {numberField('strength', base.abilities.strength, setAbility('strength'))}
           {derivedField('strMod', sheet.abilities.strMod)}
           {numberField('dexterity', base.abilities.dexterity, setAbility('dexterity'))}
@@ -198,7 +221,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
 
       <Stack gap="3">
         <Heading size="md">{sectionLabel('defense')}</Heading>
-        <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
+        <SimpleGrid columns={{ base: 2, md: 6 }} gap="4">
           {numberField('armorBonus', base.defense.armorBonus, setDefense('armorBonus'))}
           {numberField('shieldBonus', base.defense.shieldBonus, setDefense('shieldBonus'))}
           {numberField('naturalArmor', base.defense.naturalArmor, setDefense('naturalArmor'))}
@@ -213,7 +236,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
 
       <Stack gap="3">
         <Heading size="md">{sectionLabel('saves')}</Heading>
-        <SimpleGrid columns={{ base: 2, md: 3 }} gap="4">
+        <SimpleGrid columns={{ base: 2, md: 6 }} gap="4">
           {numberField('fortBase', base.saves.fortBase, setSave('fortBase'))}
           {derivedField('fortitude', sheet.saves.fortitude)}
           {numberField('refBase', base.saves.refBase, setSave('refBase'))}
@@ -261,7 +284,7 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
           addLabel="Add gear"
         />
         <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
-          <Input label="Total Weight" aria-label="Total Weight" value={String(sheet.totalWeight)} readOnly disabled />
+          <Input label="Total Weight" aria-label="Total Weight" required value={String(sheet.totalWeight)} readOnly disabled />
         </SimpleGrid>
       </Stack>
 
@@ -271,12 +294,13 @@ export const DnD35CharacterSheet = ({ base, onChange }: DnD35CharacterSheetProps
           <Input
             label="Caster Class"
             aria-label="Caster Class"
+            required
             value={base.spellcasting.casterClass}
             onChange={(e) => setSpellcasting({ casterClass: e.currentTarget.value })}
           />
           <NumberField label="Caster Level" value={base.spellcasting.casterLevel} onCommit={(n) => setSpellcasting({ casterLevel: n })} />
-          {selectField('Casting Ability', base.spellcasting.spellKeyAbility, DND35_ABILITY_MODS, (v) => setSpellcasting({ spellKeyAbility: v }))}
-          <Input label="Spell Save DC" aria-label="Spell Save DC" value={String(dnd35SpellSaveDcBase(base))} readOnly disabled />
+          {comboField('Casting Ability', base.spellcasting.spellKeyAbility, DND35_ABILITY_MODS, (v) => setSpellcasting({ spellKeyAbility: v }))}
+          <Input label="Spell Save DC" aria-label="Spell Save DC" required value={String(dnd35SpellSaveDcBase(base))} readOnly disabled />
         </SimpleGrid>
       </Stack>
 

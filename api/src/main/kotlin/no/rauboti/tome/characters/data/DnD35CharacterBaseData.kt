@@ -3,12 +3,13 @@ package no.rauboti.tome.characters.data
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseAbilityScores
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseAttack
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseDefense
-import no.rauboti.tome.characters.data.dnd35.DnD35Feat
-import no.rauboti.tome.characters.data.dnd35.DnD35Gear
-import no.rauboti.tome.characters.data.dnd35.DnD35HitPoints
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSaves
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSkill
 import no.rauboti.tome.characters.data.dnd35.DnD35BaseSpellcasting
+import no.rauboti.tome.characters.data.dnd35.DnD35Feat
+import no.rauboti.tome.characters.data.dnd35.DnD35Gear
+import no.rauboti.tome.characters.data.dnd35.DnD35HitPoints
+import no.rauboti.tome.characters.data.dnd35.DnD35Player
 import org.springframework.data.annotation.TypeAlias
 
 /**
@@ -21,7 +22,7 @@ import org.springframework.data.annotation.TypeAlias
 data class DnD35CharacterBaseData(
     // identity
     val name: String = "",
-    val player: String = "",
+    val player: DnD35Player = DnD35Player(),
     val race: String = "",
     val characterClass: String = "",
     val alignment: String = "",

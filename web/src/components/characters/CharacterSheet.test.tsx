@@ -24,7 +24,7 @@ const character = {
   data: {
     ruleSetId: 'dnd35',
     name: 'Conan',
-    player: '',
+    player: { id: 'ada-lovelace', name: 'Ada Lovelace' },
     race: '',
     characterClass: '',
     alignment: '',
