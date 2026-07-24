@@ -2,9 +2,13 @@ import { z } from 'zod'
 import { apiRequest, type ApiRequestOptions } from './client'
 
 /**
- * Typed client for the Tome BFF: the `/api/auth` identity shapes and the `/api/rule-sets` engine
- * shapes (openapi `Me`, `RuleSetSummary`, `SheetDefinition`). Zod schemas validate every response
- * body; the functions wrap [apiRequest] with the right method/path so callers work in typed values.
+ * Typed client for the Tome BFF: the `/api/auth` identity shapes and the `/api/rule-sets` picker
+ * shapes (openapi `Me`, `RuleSetSummary`). Zod schemas validate every response body; the functions
+ * wrap [apiRequest] with the right method/path.
+ *
+ * ADR-001: the sheet is a typed schema known to the client (see `@/sheets/dnd35`), not a data-driven
+ * `SheetDefinition` fetched to drive a generic renderer — so there is no definition schema or
+ * `GET /rule-sets/{id}` definition fetch here anymore (that endpoint returns a summary now).
  */
 
 // ---- Auth ----
@@ -14,9 +18,8 @@ import { apiRequest, type ApiRequestOptions } from './client'
  *  unsupported (FR-015, research D7).
  *
  *  `displayName`/`locale` are `.nullish()` (string | null | undefined), not `.optional()`: the BFF
- *  serializes an absent claim as an explicit JSON `null` (e.g. `"locale":null` for a user who has
- *  set no locale), and `.optional()` accepts a *missing* key but rejects `null` — which made a
- *  perfectly good 200 response throw a ZodError and drop the app to the login screen. */
+ *  serializes an absent claim as an explicit JSON `null` (e.g. `"locale":null`), and `.optional()`
+ *  accepts a *missing* key but rejects `null` — which made a good 200 throw a ZodError. */
 export const meSchema = z.object({
   userId: z.string(),
   displayName: z.string().nullish(),
@@ -34,7 +37,7 @@ export const getMe = (options: ApiRequestOptions = {}): Promise<Me> =>
 export const logout = (): Promise<void> =>
   apiRequest('/auth/logout', z.undefined(), { method: 'POST' })
 
-// ---- Rule sets (Hybrid engine) ----
+// ---- Rule sets ----
 
 /** A rule set as shown in a picker (openapi `RuleSetSummary`). */
 export const ruleSetSummarySchema = z.object({
@@ -43,82 +46,6 @@ export const ruleSetSummarySchema = z.object({
 })
 export type RuleSetSummary = z.infer<typeof ruleSetSummarySchema>
 
-/** A choice for a `select` field. */
-export const fieldOptionSchema = z.object({
-  value: z.string(),
-  labelKey: z.string(),
-})
-
-/** One field on the sheet (openapi `SheetDefinition.sections[].fields[]`). `type` is a string
- *  enum; `derivedFrom` is present for derived fields, `options` for selects.
- *
- *  `.nullish()` (not `.optional()`): the BFF serializes these from Kotlin nullable properties, so a
- *  non-derived field arrives as `"derivedFrom":null` and a non-select field as `"options":null`
- *  (rather than omitted). `.optional()` rejects an explicit `null`, which made the whole rule-set
- *  definition fail to parse → the sheet screen couldn't load the character. */
-/** One column of a `table` field (openapi `SheetField.columns[]`). A column is itself a field —
- *  base-input or per-row `derived` — but one level deep (no nested tables). */
-/** Points a `select` at a named catalog filtered by another field's value (openapi
- *  `SheetField.optionsFrom`, T113): the picker fetches options for the current `filterBy` field value. */
-export const optionsFromSchema = z.object({
-  catalog: z.string(),
-  filterBy: z.string(),
-})
-export type OptionsFrom = z.infer<typeof optionsFromSchema>
-
-export const sheetColumnSchema = z.object({
-  id: z.string(),
-  labelKey: z.string(),
-  type: z.enum(['int', 'text', 'bool', 'select', 'derived']),
-  derivedFrom: z.string().nullish(),
-  options: z.array(fieldOptionSchema).nullish(),
-  /** For a catalog-backed select column (e.g. spells filtered by caster class). */
-  optionsFrom: optionsFromSchema.nullish(),
-})
-export type SheetColumn = z.infer<typeof sheetColumnSchema>
-
-export const sheetFieldSchema = z.object({
-  id: z.string(),
-  labelKey: z.string(),
-  type: z.enum(['int', 'text', 'bool', 'select', 'list', 'derived', 'table']),
-  derivedFrom: z.string().nullish(),
-  options: z.array(fieldOptionSchema).nullish(),
-  /** How many of the section's `columns` this field spans (null/absent → 1). */
-  colSpan: z.number().int().nullish(),
-  /** For a `table` field: its per-row column definitions (null/absent otherwise). */
-  columns: z.array(sheetColumnSchema).nullish(),
-  /** For a `table` field: fixed rows the definition seeds (canonical content); each a row object
-   *  keyed by column id. Preset cells render read-only; users may still append rows. */
-  presetRows: z.array(z.record(z.string(), z.unknown())).nullish(),
-  /** For a catalog-backed select field (see [optionsFromSchema]). */
-  optionsFrom: optionsFromSchema.nullish(),
-})
-export type SheetField = z.infer<typeof sheetFieldSchema>
-
-export const sheetSectionSchema = z.object({
-  id: z.string(),
-  labelKey: z.string(),
-  fields: z.array(sheetFieldSchema),
-  /** Columns the section lays its fields out in (null/absent → 1, one field per row). */
-  columns: z.number().int().nullish(),
-})
-export type SheetSection = z.infer<typeof sheetSectionSchema>
-
-/** The data-driven sheet schema (openapi `SheetDefinition`) that drives the generic renderer. */
-export const sheetDefinitionSchema = z.object({
-  ruleSetId: z.string(),
-  version: z.string(),
-  sections: z.array(sheetSectionSchema),
-})
-export type SheetDefinition = z.infer<typeof sheetDefinitionSchema>
-
 /** `GET /api/rule-sets` — the bundled rule sets (v1: just dnd35). */
 export const listRuleSets = (signal?: AbortSignal): Promise<RuleSetSummary[]> =>
   apiRequest('/rule-sets', z.array(ruleSetSummarySchema), { signal })
-
-/** `GET /api/rule-sets/{id}` — the full sheet definition for a rule set. */
-export const getRuleSetDefinition = (
-  id: string,
-  signal?: AbortSignal,
-): Promise<SheetDefinition> =>
-  apiRequest(`/rule-sets/${id}`, sheetDefinitionSchema, { signal })
