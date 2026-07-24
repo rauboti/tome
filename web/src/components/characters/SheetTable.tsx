@@ -31,6 +31,8 @@ export type SheetTableProps = {
   presetCount?: number
   newRow?: () => Record<string, unknown>
   addLabel?: string
+  /** Render the section heading (default true). Set false when a wrapper owns the title. */
+  showHeading?: boolean
 }
 
 const num = (v: unknown): number => (typeof v === 'number' ? v : Number(v ?? 0) || 0)
@@ -80,6 +82,7 @@ export const SheetTable = ({
   presetCount = 0,
   newRow,
   addLabel,
+  showHeading = true,
 }: SheetTableProps) => {
   const template = columns.map((c) => `${c.span ?? 1}fr`).join(' ') + (newRow ? ' auto' : '')
   const patch = (index: number, next: Record<string, unknown>) =>
@@ -144,7 +147,7 @@ export const SheetTable = ({
 
   return (
     <Stack gap="3">
-      <Heading size="md">{title}</Heading>
+      {showHeading && <Heading size="md">{title}</Heading>}
       <Grid templateColumns={template} gap="2" alignItems="center">
         {columns.map((c) => (
           <Text key={c.id} fontSize="xs" fontWeight="semibold" color="text.muted">

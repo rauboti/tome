@@ -18,6 +18,8 @@ export type SpellsTableProps = {
   casterClass: string
   rows: ReadonlyArray<DnD35Spell>
   onChange: (rows: DnD35Spell[]) => void
+  /** Render the section heading (default true). Set false when a wrapper owns the title. */
+  showHeading?: boolean
 }
 
 const CatalogSpellSelect = ({
@@ -67,13 +69,13 @@ const CatalogSpellSelect = ({
   )
 }
 
-export const SpellsTable = ({ title, ruleSetId, casterClass, rows, onChange }: SpellsTableProps) => {
+export const SpellsTable = ({ title, ruleSetId, casterClass, rows, onChange, showHeading = true }: SpellsTableProps) => {
   const patch = (index: number, next: DnD35Spell) => onChange(rows.map((r, i) => (i === index ? next : r)))
   const blank = (): DnD35Spell => ({ spell: '', level: 0, prepared: 0, notes: '' })
 
   return (
     <Stack gap="3">
-      <Heading size="md">{title}</Heading>
+      {showHeading && <Heading size="md">{title}</Heading>}
       {casterClass.trim() === '' && (
         <Text fontSize="sm" color="text.muted">
           Set a caster class above to pick spells from its list.
