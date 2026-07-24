@@ -60,7 +60,7 @@ export const DND35_SKILL_PRESET_COUNT = DND35_SKILL_PRESETS.length
 export const defaultDnD35SheetInput = (name = ''): DnD35CharacterBaseData => ({
   ruleSetId: 'dnd35',
   name,
-  player: '',
+  player: { id: '', name: '' },
   race: '',
   characterClass: '',
   alignment: '',

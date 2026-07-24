@@ -4,6 +4,7 @@ import { Button, Callout, Combobox, Dialog, Input } from '@rauboti/ui'
 import { createCharacter } from '@/api/characters'
 import type { Character, RuleSetSummary } from '@/types'
 import { defaultDnD35SheetInput } from '@/sheets/dnd35'
+import { useSession } from '@/auth/SessionContext'
 
 /**
  * The "New character" dialog (US1). Pick a rule set (v1 offers only D&D 3.5, but the picker is driven
@@ -22,6 +23,7 @@ export const CreateCharacterDialog = ({
   onCreated,
 }: CreateCharacterDialogProps) => {
   const { t } = useTranslation()
+  const { user } = useSession()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [ruleSetId, setRuleSetId] = useState('')
@@ -39,11 +41,11 @@ export const CreateCharacterDialog = ({
     setSubmitting(true)
     setFailed(false)
     try {
-      const created = await createCharacter({
-        name: trimmed,
-        // v1 ships D&D 3.5 only; its `ruleSetId` rides inside the typed base (ADR-001).
-        data: defaultDnD35SheetInput(trimmed),
-      })
+      // v1 ships D&D 3.5 only; its `ruleSetId` rides inside the typed base (ADR-001).
+      const data = defaultDnD35SheetInput(trimmed)
+      // The player is the signed-in owner — stamp id + display name now (fixed for the character's life).
+      if (user) data.player = { id: user.userId, name: user.displayName ?? '' }
+      const created = await createCharacter({ name: trimmed, data })
       setOpen(false)
       setName('')
       setRuleSetId('')

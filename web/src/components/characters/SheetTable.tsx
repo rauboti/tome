@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/react'
-import { Button, Input } from '@rauboti/ui'
+import { Button, Combobox, Input } from '@rauboti/ui'
 
 /**
  * A typed sheet table (ADR-001) — the reusable editor for the D&D 3.5 repeating-group sections (skills,
@@ -110,20 +110,22 @@ export const SheetTable = ({
       )
     }
     if (column.kind === 'select') {
+      const options = column.options ?? []
+      const current = str(row[column.id])
+      // Combobox has no disabled prop, so a preset-locked cell renders read-only as its chosen label.
+      if (locked) {
+        const chosen = options.find((o) => o.value === current)
+        return <Input label={name} aria-label={name} hideLabel required value={chosen?.label ?? ''} readOnly disabled />
+      }
       return (
-        <select
-          aria-label={name}
-          disabled={locked}
-          value={str(row[column.id])}
-          onChange={(e) => set(e.currentTarget.value)}
-        >
-          <option value="" />
-          {(column.options ?? []).map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <Combobox
+          label={name}
+          hideLabel
+          required
+          items={[...options]}
+          value={current === '' ? [] : [current]}
+          onValueChange={(vals) => set(vals[0] ?? '')}
+        />
       )
     }
     // text

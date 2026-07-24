@@ -22,7 +22,9 @@ const saveBase = { fortBase: z.number(), refBase: z.number(), willBase: z.number
 export const dnd35SheetSchema = z.object({
   ruleSetId: z.literal('dnd35'),
   name: z.string(),
-  player: z.string().default(''),
+  player: z
+    .object({ id: z.string().default(''), name: z.string().default('') })
+    .default({ id: '', name: '' }),
   race: z.string().default(''),
   characterClass: z.string().default(''),
   alignment: z.string().default(''),
