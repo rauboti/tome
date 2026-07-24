@@ -1,17 +1,23 @@
 import { z } from 'zod'
 import { apiRequest } from './client'
+import {
+  dnd35SheetSchema,
+  type DnD35Sheet,
+  type DnD35SheetInput,
+} from '@/sheets/dnd35'
 
 /**
- * Typed client for the character endpoints (openapi `/characters`, US1). Zod validates every
- * response body; the functions wrap [apiRequest] with the right method/path. Sheet `data` is a flat,
- * rule-set-shaped object (its field ids come from the rule set's `SheetDefinition`), so it is typed
- * loosely as `Record<string, unknown>` — the definition-driven renderer, not this schema, knows the
- * per-field shapes. `data` carries the server-computed derived values on the way back.
+ * Typed client for the character endpoints (openapi `/characters`, US1). Zod validates every response
+ * body; the functions wrap [apiRequest] with the right method/path. Sheet `data` is the **typed**
+ * rule-set sheet (ADR-001): a request sends the base [DnD35SheetInput]; a response carries the enriched
+ * [DnD35Sheet] (base + derived). v1 ships D&D 3.5 only — the union widens when Dark Souls (US5) lands.
  */
 
-/** A sheet's values — a flat map keyed by field id (matches the api `SheetData`). */
-export const sheetValuesSchema = z.record(z.string(), z.unknown())
-export type SheetValues = z.infer<typeof sheetValuesSchema>
+/** The enriched sheet a response carries. v1: D&D 3.5. */
+export type Sheet = DnD35Sheet
+/** The base sheet a request sends. v1: D&D 3.5. */
+export type SheetInput = DnD35SheetInput
+export const sheetSchema = dnd35SheetSchema
 
 /** A soft validation finding (openapi `RuleWarning`): guidance, never a block (FR-005). `field` is
  *  the offending field id, or `null` for a sheet-wide warning — the BFF serializes it from a Kotlin
@@ -31,32 +37,29 @@ export const characterSummarySchema = z.object({
 })
 export type CharacterSummary = z.infer<typeof characterSummarySchema>
 
-/** A full character (openapi `Character`): the summary plus owner, promoted HP (read from the sheet,
- *  nullable), the sheet `data` incl. computed derived values, soft `warnings`, and the `version` to
- *  echo back on the next write (optimistic concurrency, SC-006). */
+/** A full character (openapi `Character`): the summary plus owner, the enriched sheet `data` (base +
+ *  computed derived values), soft `warnings`, and the `version` to echo back on the next write
+ *  (optimistic concurrency, SC-006). HP lives inside `data.hitPoints` — no promoted top-level HP (ADR-001). */
 export const characterSchema = characterSummarySchema.extend({
   ownerId: z.string(),
-  hpCurrent: z.number().int().nullable().optional(),
-  hpMax: z.number().int().nullable().optional(),
-  data: sheetValuesSchema,
+  data: sheetSchema,
   warnings: z.array(ruleWarningSchema),
   version: z.number().int(),
 })
-export type Character = z.infer<typeof characterSchema>
+export type Character = Omit<z.infer<typeof characterSchema>, 'data'> & { data: Sheet }
 
-/** `POST /api/characters` body — `ruleSetId` + `name` required, `data` an optional initial sheet. */
+/** `POST /api/characters` body — the promoted `name` and the typed base `data` (its `ruleSetId`
+ *  selects the rule set; no separate top-level `ruleSetId`, ADR-001). */
 export type CreateCharacterInput = {
-  ruleSetId: string
   name: string
-  data?: SheetValues
+  data: SheetInput
 }
 
-/** `PUT /api/characters/{id}` body — the sheet `data` (**base inputs only**; derived fields are
- *  stripped client-side and recomputed on read, D8) + the read `version`; `name` optional (omit to
- *  keep the current name). */
+/** `PUT /api/characters/{id}` body — the typed base sheet `data` (base inputs only; derived are
+ *  recomputed on read, D8) + the read `version`; `name` optional (omit to keep the current name). */
 export type UpdateCharacterInput = {
   name?: string
-  data: SheetValues
+  data: SheetInput
   version: number
 }
 
@@ -71,13 +74,19 @@ export const getCharacter = (
   id: string,
   signal?: AbortSignal,
 ): Promise<Character> =>
-  apiRequest(`/characters/${id}`, characterSchema, { signal })
+  // Zod validates the shape at runtime; the typed `Character` view narrows the carried table fields.
+  apiRequest(`/characters/${id}`, characterSchema, {
+    signal,
+  }) as unknown as Promise<Character>
 
 /** `POST /api/characters` — create a character for a rule set (201 → the created character). */
 export const createCharacter = (
   input: CreateCharacterInput,
 ): Promise<Character> =>
-  apiRequest('/characters', characterSchema, { method: 'POST', body: input })
+  apiRequest('/characters', characterSchema, {
+    method: 'POST',
+    body: input,
+  }) as unknown as Promise<Character>
 
 /** `PUT /api/characters/{id}` — save the sheet with optimistic concurrency (409 on a stale version). */
 export const updateCharacter = (
@@ -87,7 +96,7 @@ export const updateCharacter = (
   apiRequest(`/characters/${id}`, characterSchema, {
     method: 'PUT',
     body: input,
-  })
+  }) as unknown as Promise<Character>
 
 /** `DELETE /api/characters/{id}` — remove a character (204). */
 export const deleteCharacter = (id: string): Promise<void> =>

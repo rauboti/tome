@@ -10,44 +10,107 @@ import { server } from '@/mocks/server'
 import '@/i18n'
 
 /**
- * Web test for the character sheet edit screen (T027; confirmed for compute-on-read in T102). Drives
- * the screen exactly as the app does: it loads a character and its rule-set definition over the
- * (MSW-mocked) BFF, renders the definition-driven {@link SheetRenderer}, and saves with optimistic
- * concurrency. Under compute-on-read (D8) the server is authoritative for derived values — the mocked
- * responses carry the **resolved** sheet (base inputs + recomputed derived, e.g. `strMod`), and the
- * client re-derives locally only for instant feedback, persisting base inputs only.
- * Asserts the US1 sheet behaviours:
- *  - the loaded sheet renders, with server-computed **derived** values shown read-only;
+ * Web test for the typed character sheet editor (T121, red→green with T126). Drives the screen as the
+ * app does: it loads a character over the (MSW-mocked) BFF and renders the **typed**
+ * {@link DnD35CharacterSheet}, then saves with optimistic concurrency. Under the base/enriched split
+ * (ADR-001) the response `data` is the **enriched** sheet (grouped base + derived, e.g.
+ * `abilities.strMod`); the editor recomputes derived locally for instant feedback and sends **base
+ * inputs only**. Asserts the US1 sheet behaviours:
+ *  - the loaded sheet renders, with derived values shown read-only;
  *  - a derived value recomputes **live** as its input changes, before any save;
- *  - editing + Save issues a PUT carrying the **version that was read** (SC-006) and **base inputs
- *    only** — no derived fields (D8);
- *  - a save that returns soft **warnings** surfaces them without being treated as an error (FR-005);
- *  - a **409** version conflict is surfaced to the user rather than silently dropped.
- *
- * The rule-set definition comes from the default MSW handler (`GET /api/rule-sets/dnd35`); each test
- * layers the character read/write handlers with `server.use(...)`.
+ *  - editing + Save issues a PUT carrying the read `version` (SC-006) and **base inputs only** — no
+ *    derived (D8);
+ *  - soft **warnings** from a save surface without being treated as an error (FR-005);
+ *  - a **409** version conflict is surfaced rather than silently dropped.
  */
 
-/** A stored character (openapi `Character`), matching the fields in the mock dnd35 definition. */
+/** A stored character (openapi `Character`) with the enriched D&D 3.5 sheet in `data`. */
 const character = {
   id: 'char-1',
   name: 'Conan',
   ruleSetId: 'dnd35',
   ownerId: 'ada-lovelace',
-  hpCurrent: 30,
-  hpMax: 30,
   data: {
+    ruleSetId: 'dnd35',
     name: 'Conan',
+    player: '',
+    race: '',
+    characterClass: '',
+    alignment: '',
+    deity: '',
+    size: '',
     level: 5,
-    alignment: 'CE',
-    strength: 18,
-    strMod: 4,
-    feats: ['Cleave'],
+    experience: 0,
+    abilities: {
+      strength: 18,
+      dexterity: 12,
+      constitution: 14,
+      intelligence: 10,
+      wisdom: 8,
+      charisma: 10,
+      strMod: 4,
+      dexMod: 1,
+      conMod: 2,
+      intMod: 0,
+      wisMod: -1,
+      chaMod: 0,
+    },
+    hitPoints: { max: 30, current: 30 },
+    defense: {
+      armorBonus: 0,
+      shieldBonus: 0,
+      naturalArmor: 0,
+      deflection: 0,
+      dodge: 0,
+      sizeMod: 0,
+      armorClass: 11,
+      touchAC: 11,
+      flatFootedAC: 10,
+    },
+    saves: {
+      fortBase: 2,
+      refBase: 0,
+      willBase: 1,
+      fortitude: 4,
+      reflex: 1,
+      will: 0,
+    },
+    baseAttackBonus: 5,
+    grappleSizeMod: 0,
+    initiative: 1,
+    grapple: 9,
+    totalWeight: 0,
+    attacks: [],
+    skills: [],
+    feats: [],
+    gear: [],
+    languages: [],
     notes: '',
+    spellcasting: {
+      casterClass: '',
+      casterLevel: 0,
+      spellKeyAbility: '',
+      spellSlots: [],
+      spells: [],
+    },
   },
   warnings: [] as Array<{ code: string; field?: string; message: string }>,
   version: 2,
 }
+
+/** Rebuild a valid enriched response from a base edit — recomputes the touched ability's modifier. */
+const withStrength = (strength: number) => ({
+  ...character,
+  data: {
+    ...character.data,
+    abilities: {
+      ...character.data.abilities,
+      strength,
+      strMod: Math.floor((strength - 10) / 2),
+    },
+  },
+  version: character.version + 1,
+})
 
 const renderSheet = () =>
   render(
@@ -58,20 +121,19 @@ const renderSheet = () =>
     </ThemeProvider>,
   )
 
-describe('CharacterSheet', () => {
-  test('renders the loaded sheet with server-computed derived values shown read-only', async () => {
+describe('CharacterSheet (typed DnD35)', () => {
+  test('renders the loaded sheet with derived values shown read-only', async () => {
     server.use(
       http.get('/api/characters/char-1', () => HttpResponse.json(character)),
     )
     renderSheet()
 
-    // Editable fields carry their values once the character + definition have loaded.
     expect(await screen.findByRole('textbox', { name: 'Name' })).toHaveValue(
       'Conan',
     )
     expect(screen.getByRole('spinbutton', { name: 'Strength' })).toHaveValue(18)
 
-    // The derived Str Modifier is display-only (the engine owns it, T017).
+    // The derived Str Modifier is display-only (the engine owns it).
     const strMod = screen.getByRole('textbox', { name: 'Str Modifier' })
     expect(strMod).toHaveValue('4')
     expect(strMod).toBeDisabled()
@@ -83,12 +145,10 @@ describe('CharacterSheet', () => {
     )
     renderSheet()
 
-    // Str Modifier starts at floor((18 - 10) / 2) = 4 from the loaded strength.
     expect(
       await screen.findByRole('textbox', { name: 'Str Modifier' }),
     ).toHaveValue('4')
 
-    // Editing Strength updates the modifier immediately — no save / round-trip.
     const strength = screen.getByRole('spinbutton', { name: 'Strength' })
     await userEvent.clear(strength)
     await userEvent.type(strength, '20')
@@ -99,17 +159,14 @@ describe('CharacterSheet', () => {
   })
 
   test('editing a field and saving sends base inputs only (no derived) with the version that was read', async () => {
-    let putBody: { data?: Record<string, unknown>; version?: number } | null =
-      null
+    let putBody:
+      | { data?: Record<string, unknown>; version?: number }
+      | null = null
     server.use(
       http.get('/api/characters/char-1', () => HttpResponse.json(character)),
       http.put('/api/characters/char-1', async ({ request }) => {
         putBody = (await request.json()) as typeof putBody
-        return HttpResponse.json({
-          ...character,
-          data: { ...character.data, ...putBody?.data },
-          version: character.version + 1,
-        })
+        return HttpResponse.json(withStrength(16))
       }),
     )
     renderSheet()
@@ -122,10 +179,12 @@ describe('CharacterSheet', () => {
     await waitFor(() => expect(putBody).not.toBeNull())
     // Optimistic concurrency: the read version (2) travels with the write.
     expect(putBody!.version).toBe(2)
-    expect(putBody!.data?.strength).toBe(16)
-    // Compute-on-read (D8): the sheet loaded a server-resolved `strMod: 4`, but derived values are
-    // recomputed on read — never persisted — so the write carries base inputs only, no `strMod`.
-    expect(putBody!.data).not.toHaveProperty('strMod')
+    const abilities = putBody!.data?.abilities as Record<string, unknown>
+    expect(abilities.strength).toBe(16)
+    // Compute-on-read (D8): base inputs only — no derived modifiers sent.
+    expect(abilities).not.toHaveProperty('strMod')
+    expect(putBody!.data).not.toHaveProperty('initiative')
+    expect(putBody!.data).not.toHaveProperty('grapple')
   })
 
   test('surfaces soft warnings returned by a save without treating them as an error', async () => {
@@ -134,9 +193,7 @@ describe('CharacterSheet', () => {
       http.get('/api/characters/char-1', () => HttpResponse.json(character)),
       http.put('/api/characters/char-1', () =>
         HttpResponse.json({
-          ...character,
-          data: { ...character.data, strength: 0, strMod: -5 },
-          version: character.version + 1,
+          ...withStrength(0),
           warnings: [
             { code: 'ability.below-minimum', field: 'strength', message },
           ],
@@ -148,7 +205,6 @@ describe('CharacterSheet', () => {
     await screen.findByRole('spinbutton', { name: 'Strength' })
     await userEvent.click(screen.getByRole('button', { name: /save/i }))
 
-    // The soft warning is shown to the user; the save still succeeded.
     expect(await screen.findByText(message)).toBeInTheDocument()
   })
 

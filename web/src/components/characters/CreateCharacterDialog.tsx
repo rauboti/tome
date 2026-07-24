@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Callout, Combobox, Dialog, Input } from '@rauboti/ui'
 import { createCharacter, type Character } from '@/api/characters'
+import { defaultDnD35SheetInput } from '@/sheets/dnd35'
 import type { RuleSetSummary } from '@/api/schemas'
 
 /**
@@ -41,8 +42,9 @@ export const CreateCharacterDialog = ({
     setFailed(false)
     try {
       const created = await createCharacter({
-        ruleSetId: selectedRuleSet,
         name: trimmed,
+        // v1 ships D&D 3.5 only; its `ruleSetId` rides inside the typed base (ADR-001).
+        data: defaultDnD35SheetInput(trimmed),
       })
       setOpen(false)
       setName('')
