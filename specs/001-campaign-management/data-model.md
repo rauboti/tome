@@ -8,8 +8,10 @@
 
 Persistence is **MongoDB** via Spring Data MongoDB (`MongoTemplate` — the low-level template, no JPA,
 mirroring the platform's `JdbcTemplate` convention). Migrations/indexes are **Spring Data-native** (index
-ensure on boot + a small applied-changes ledger — no migration framework; see §Migrations). Sheet values live in a native BSON sub-document and hold **base inputs
-only** — derived values are computed on read, never stored (D8). All ids are UUIDs (`_id`). Identity
+ensure on boot + a small applied-changes ledger — no migration framework; see §Migrations). Sheet values live in a native BSON sub-document — a **typed, discriminated
+sheet** (ADR-001; `_class` = the rule set's `@TypeAlias`, e.g. `dnd35`) holding **base inputs
+only**; derived values are **computed properties on read, never stored** (D8 principle, typed
+mechanism — ADR-001). All ids are UUIDs (`_id`). Identity
 is Hive's — `userId` / `dmId` / `playerId` / `initiatorId` hold the **Hive subject**; there is no local
 user collection (research D1). Every mutable aggregate carries a Spring Data **`@Version`** field for
 optimistic concurrency (research D5) and `createdAt` / `updatedAt` timestamps.
@@ -65,13 +67,15 @@ The paper-sheet replacement (User Story 1). Owned by a user, built for one rule 
 | `userId` | UUID | Hive subject of the owning user |
 | `ruleSetId` | string | Validated against the engine; fixed for life (FR-002) |
 | `name` | string | Top-level for lists/rosters |
-| `data` | document | Sheet **base inputs only**, shaped by the rule set's definition — incl. HP inputs `hpCurrent`/`hpMax` (HP are entered, not derived); **other** values (ability modifiers, saves, BAB, …) are **derived on read, never stored** (D8) |
+| `data` | document | The character's **typed sheet base inputs** (ADR-001) — a discriminated sub-document (`_class` = the rule set's `@TypeAlias`, e.g. `dnd35`); base inputs only, incl. HP inputs `hpCurrent`/`hpMax` (entered). Derived values (ability modifiers, saves, BAB, AC, …) are **computed properties on read, never stored — by construction** (a getter-only property has no backing field), not a strip step (D8/ADR-001) |
 | `version` | int (`@Version`) | Optimistic concurrency |
 | `createdAt` / `updatedAt` | instant | |
 
-- **Base-inputs-only**: on write, fields the definition marks `derived` are stripped/ignored before
-  persisting; `RuleSet.computeDerived` fills them in on every read (D8). The REST response (GET, and
-  the POST/PUT echo) is a **fully resolved** sheet.
+- **Base-inputs-only**: the stored sub-document is a typed base-inputs object; derived values are
+  **computed properties** on the typed sheet, so they are **never persisted by construction** — no
+  write-time strip step, because a getter-only `val` has no backing field (ADR-001, superseding the
+  definition-driven `computeDerived`/strip of D8). The REST response (GET, and the POST/PUT echo)
+  serializes the sheet with its computed derived values — a **fully resolved** sheet.
 - **Relationships**: owned by a user (`userId`); referenced by `campaign.members[]` and
   `encounter.combatants[]`. A character participates in at most one **active** campaign (v1 —
   Invariants).
@@ -121,14 +125,14 @@ Links a player's character into the campaign (research D6). Created by the DM.
 #### `npcs[]` (DM-controlled NPC — embedded)
 
 A DM-controlled non-player character under the campaign's rule set (User Story 3). Same sheet engine
-as `character` (`SheetData` + `RuleSet`); embedded because ownership/visibility are the DM's and it has
-no life outside the campaign.
+as `character` (the typed sheet + `RuleSet`, ADR-001); embedded because ownership/visibility are the
+DM's and it has no life outside the campaign.
 
 | Field | Type | Notes |
 |-------|------|-------|
 | `_id` | UUID | stable id (referenced by `encounter.combatants[]`) |
 | `name` | string | |
-| `data` | document | Sheet base inputs incl. HP inputs `hpCurrent`/`hpMax` (entered, not derived); **other** values are derived on read, never stored (D8) |
+| `data` | document | The NPC's **typed sheet base inputs** (ADR-001; discriminated by `_class`) incl. HP inputs `hpCurrent`/`hpMax` (entered); derived values are computed properties on read, never stored (D8/ADR-001) |
 | `isPrivate` | boolean | If true, hidden from players (FR-011/FR-013); default true |
 
 #### `content[]` (note / shared content — embedded)
@@ -279,14 +283,16 @@ storage feature.
 - The same `PermissionService` decision is applied when fanning out SSE events, so a live update is
   delivered only to subscribers authorized for that content (SC-004).
 
-## Derived values (D8)
+## Derived values (D8 principle; typed mechanism — ADR-001)
 
-Stored sheets hold base inputs only. A **per-entity resolve-on-read helper** (v1: `CharacterDataResolver`;
-NPC and other entities get analogous resolvers, sharing a core only if duplication warrants) runs the
-sheet through its `RuleSet` to produce the resolved sheet (inputs + derived) for every consumer — REST
-responses, the player view, combat/dice, and SSE payloads. Each resolver centralizes its entity's
-compute-on-read; consumers depend only on `SheetData` + `RuleSet` (FR-023/SC-009). The web additionally
-derives on change for instant feedback but always reconciles to the server's resolved response.
+Stored sheets hold base inputs only. Derived values are **computed properties on the typed sheet**
+(ADR-001) — evaluated on access, never persisted (a getter-only property has no backing field), so
+they cannot drift from their inputs. There is **no resolve-on-read helper and no write-time strip**:
+the earlier `CharacterDataResolver` / definition-driven `RuleSet.computeDerived` are retired. Every
+consumer — REST responses, the player view, combat/dice, SSE payloads — reads the same typed sheet
+and its computed derived directly; cross-cutting consumers depend on the sheet's **projection
+interfaces** (e.g. a combatant view), not on any concrete rule set (FR-023/SC-009). The web mirrors
+the typed sheet and computes the same derived for instant feedback, reconciling to the server response.
 
 ## Migrations (Spring Data-native, indicative order)
 
