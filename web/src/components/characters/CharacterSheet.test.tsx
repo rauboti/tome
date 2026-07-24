@@ -107,7 +107,7 @@ const renderSheet = () =>
   render(
     <ThemeProvider>
       <MemoryRouter>
-        <CharacterSheet characterId="char-1" />
+        <CharacterSheet characterId="char-1" sectionsDefaultOpen />
       </MemoryRouter>
     </ThemeProvider>,
   )

@@ -16,7 +16,7 @@ import '@/i18n'
  */
 const Harness = ({ initial }: { initial: DnD35CharacterBaseData }) => {
   const [base, setBase] = useState(initial)
-  return <DnD35CharacterSheet base={base} onChange={setBase} />
+  return <DnD35CharacterSheet base={base} onChange={setBase} sectionsDefaultOpen />
 }
 
 const renderSheet = (initial: DnD35CharacterBaseData) =>

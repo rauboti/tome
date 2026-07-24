@@ -21,9 +21,14 @@ import { DnD35CharacterSheet } from './DnD35CharacterSheet'
  */
 export type CharacterSheetProps = {
   characterId: string
+  /** Whether the sheet's sections start expanded. Defaults to false (collapsed). */
+  sectionsDefaultOpen?: boolean
 }
 
-export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
+export const CharacterSheet = ({
+  characterId,
+  sectionsDefaultOpen = false,
+}: CharacterSheetProps) => {
   const { t } = useTranslation()
   const [character, setCharacter] = useState<Character | null>(null)
   const [base, setBase] = useState<DnD35CharacterBaseData | null>(null)
@@ -111,7 +116,11 @@ export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
         </Callout>
       )}
 
-      <DnD35CharacterSheet base={base} onChange={setBase} />
+      <DnD35CharacterSheet
+        base={base}
+        onChange={setBase}
+        sectionsDefaultOpen={sectionsDefaultOpen}
+      />
     </Stack>
   )
 }
