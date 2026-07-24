@@ -12,9 +12,10 @@ data class RuleSetSummary(
 )
 
 /**
- * Serves the bundled rule sets to the web: the list (for a picker) and each one's full
- * [SheetDefinition] (which drives the definition-driven sheet renderer). Read-only — rule sets are
- * bundled code + data, not a user-writable resource. Behind the `/api` role gate (SecurityConfig).
+ * Serves the bundled rule sets to the web as summaries — the list (for a picker) and a single lookup.
+ * ADR-001: the sheet is a typed schema known to the client (codegen'd from openapi), not a definition
+ * fetched to drive a generic renderer, so `/{id}` returns the [RuleSetSummary], not a `SheetDefinition`.
+ * Read-only; behind the `/api` role gate (SecurityConfig).
  */
 @RestController
 @RequestMapping("/api/rule-sets")
@@ -25,7 +26,7 @@ class RuleSetController(
     fun list(): List<RuleSetSummary> = registry.all().map { RuleSetSummary(it.id(), it.name()) }
 
     @GetMapping("/{ruleSetId}")
-    fun definition(
+    fun get(
         @PathVariable ruleSetId: String,
-    ): SheetDefinition = registry.get(ruleSetId).definition()
+    ): RuleSetSummary = registry.get(ruleSetId).let { RuleSetSummary(it.id(), it.name()) }
 }

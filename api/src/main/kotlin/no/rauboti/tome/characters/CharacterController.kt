@@ -1,8 +1,10 @@
 package no.rauboti.tome.characters
 
+import no.rauboti.tome.characters.data.CharacterBaseData
+import no.rauboti.tome.characters.data.CharacterData
+import no.rauboti.tome.characters.data.enrich
 import no.rauboti.tome.common.BadRequestException
 import no.rauboti.tome.rulesets.RuleWarning
-import no.rauboti.tome.rulesets.SheetData
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -18,24 +20,25 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 /**
- * Create a character: `ruleSetId` + `name` are required — declared non-null so a body missing either
- * fails deserialization and the framework answers 400 (the create contract has no other 4xx besides
- * the rule-set check the service makes). `data` is the optional initial sheet (partial allowed).
+ * Create a character: `name` and the typed `data` are required — declared non-null so a body missing
+ * either fails deserialization → 400. `data` is the typed base sheet ([CharacterBaseData]); its
+ * `ruleSetId` selects the rule set (an unknown one fails to bind → 400), so no separate top-level
+ * `ruleSetId` is sent (ADR-001). A partial sheet is fine — every base field defaults.
  */
 data class CreateCharacterRequest(
-    val ruleSetId: String,
     val name: String,
-    val data: SheetData? = null,
+    val data: CharacterBaseData,
 )
 
 /**
- * Update a character sheet: `data` (the full sheet) and `version` are required (non-null → 400 if
- * absent); `name` is optional (null keeps the current name). `version` carries optimistic concurrency
- * — a stale value comes back as 409 (SC-006).
+ * Update a character sheet: the typed `data` (full base sheet) and `version` are required (non-null →
+ * 400 if absent); `name` is optional (null keeps the current name). `version` carries optimistic
+ * concurrency — a stale value comes back as 409 (SC-006). `data.ruleSetId` must match the character's
+ * (the rule set is fixed for life, FR-002) or the service answers 400.
  */
 data class UpdateCharacterRequest(
     val name: String? = null,
-    val data: SheetData,
+    val data: CharacterBaseData,
     val version: Int,
 )
 
@@ -47,18 +50,17 @@ data class CharacterSummaryResponse(
 )
 
 /**
- * Full character projection (openapi `Character`): the promoted columns, the sheet `data` with its
- * recomputed derived values, the promoted-for-convenience HP (read out of `data`), the soft
- * `warnings` from the last validate, and the `version` to send back on the next write.
+ * Full character projection (openapi `Character`): the promoted columns, the **enriched** sheet `data`
+ * ([CharacterData] — base inputs plus derived values computed on read), the soft `warnings` from the
+ * last validate, and the `version` to send back on the next write. HP lives inside `data` (in the
+ * DnD35 sheet's `hitPoints` group), not as a promoted top-level field in v1.
  */
 data class CharacterResponse(
     val id: UUID,
     val name: String,
     val ruleSetId: String,
     val ownerId: UUID,
-    val hpCurrent: Int?,
-    val hpMax: Int?,
-    val data: SheetData,
+    val data: CharacterData,
     val warnings: List<RuleWarning>,
     val version: Int,
 )
@@ -89,7 +91,7 @@ class CharacterController(
         @RequestBody body: CreateCharacterRequest,
     ): CharacterResponse {
         if (body.name.isBlank()) throw BadRequestException("Character name must not be blank.")
-        return service.create(callerId(jwt), body.ruleSetId, body.name, body.data ?: emptyMap()).toResponse()
+        return service.create(callerId(jwt), body.name, body.data).toResponse()
     }
 
     @GetMapping("/{characterId}")
@@ -124,15 +126,10 @@ class CharacterController(
             name = character.name,
             ruleSetId = character.ruleSetId,
             ownerId = character.userId,
-            // HP is not a promoted field in v1 (it lives in the sheet as a base input); read it out for the API.
-            hpCurrent = character.data.intField("hpCurrent"),
-            hpMax = character.data.intField("hpMax"),
-            // `character.data` here is the resolved sheet (base inputs + derived) the service produced.
-            data = character.data,
+            // Enrich the stored base into the served sheet (base inputs + derived) on read (ADR-001).
+            data = character.data.enrich(),
             warnings = warnings,
             // A persisted character always carries a @Version (0 on insert, bumped on save).
             version = requireNotNull(character.version) { "a persisted character must have a version" },
         )
-
-    private fun SheetData.intField(key: String): Int? = (this[key] as? Number)?.toInt()
 }

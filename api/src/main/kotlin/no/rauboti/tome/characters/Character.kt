@@ -1,6 +1,6 @@
 package no.rauboti.tome.characters
 
-import no.rauboti.tome.rulesets.SheetData
+import no.rauboti.tome.characters.data.CharacterBaseData
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Document
@@ -10,11 +10,11 @@ import java.util.UUID
 /**
  * A player character — the `characters` MongoDB document (US1, data-model.md §characters).
  *
- * [data] holds the sheet's **base inputs only**, shaped by the rule set's definition (incl. entered HP
- * `hpCurrent`/`hpMax`); derived values — ability modifiers, saves, BAB, initiative, … — are computed on
- * read by `CharacterDataResolver` and **never stored** (D8). The cross-cutting values
- * [name]/[ruleSetId]/[userId] are ordinary top-level document fields for list/roster queries, with
- * `{ userId: 1 }` indexed (migration `C001`).
+ * [data] is the typed **base inputs only** ([CharacterBaseData], ADR-001; incl. entered HP); derived
+ * values — ability modifiers, saves, AC, initiative, … — are computed on read by enriching to
+ * `CharacterData` (`CharacterBaseData.enrich()`) and **never stored** (D8, by construction — the base
+ * type has no derived properties). The cross-cutting values [name]/[ruleSetId]/[userId] are ordinary
+ * top-level document fields for list/roster queries, with `{ userId: 1 }` indexed (migration `C001`).
  *
  * [userId] is the owner's Hive subject — identity is Hive's, there is no local user table (research D1).
  * [version] backs optimistic concurrency via Spring Data `@Version` (research D5): `null` on a
@@ -30,7 +30,7 @@ data class Character(
     val userId: UUID,
     val ruleSetId: String,
     val name: String,
-    val data: SheetData,
+    val data: CharacterBaseData,
     @Version val version: Int?,
     val createdAt: Instant,
     val updatedAt: Instant,

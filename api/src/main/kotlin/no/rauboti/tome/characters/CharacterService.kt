@@ -1,24 +1,22 @@
 package no.rauboti.tome.characters
 
+import no.rauboti.tome.characters.data.CharacterBaseData
 import no.rauboti.tome.common.BadRequestException
 import no.rauboti.tome.common.ForbiddenException
 import no.rauboti.tome.common.NotFoundException
 import no.rauboti.tome.common.StaleVersionException
-import no.rauboti.tome.rulesets.FieldType
 import no.rauboti.tome.rulesets.RuleSet
 import no.rauboti.tome.rulesets.RuleSetRegistry
 import no.rauboti.tome.rulesets.RuleWarning
-import no.rauboti.tome.rulesets.SheetChange
-import no.rauboti.tome.rulesets.SheetData
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
 
 /**
- * A [Character] paired with the soft [RuleWarning]s from validating its sheet (FR-005). The
- * character's [Character.data] here is the **resolved** sheet (base inputs + derived, per
- * [CharacterDataResolver]) ready for the response; warnings are guidance, never persisted, never a block.
+ * A [Character] paired with the soft [RuleWarning]s from validating its sheet (FR-005). [Character.data]
+ * here is the stored **base inputs** ([CharacterBaseData]); the controller enriches it to the served
+ * `CharacterData` (derived filled in) for the response. Warnings are guidance, never persisted, never a block.
  */
 data class CharacterWithWarnings(
     val character: Character,
@@ -26,53 +24,49 @@ data class CharacterWithWarnings(
 )
 
 /**
- * Application logic for player characters (US1), between the REST controller (T097) and the
- * [CharacterRepository]. Applies the Hybrid engine with **compute-on-read** (D8):
+ * Application logic for player characters (US1), on the typed base/enriched split (ADR-001):
  *
- *  - **on write** — fields the rule set's definition marks `derived` are **stripped** before persisting,
- *    so the stored document holds base inputs only; derived values are never stored (FR-004/D8).
- *  - **on read/echo** — [CharacterDataResolver] recomputes the derived values, so GET and the POST/PUT
- *    echo return a fully resolved sheet.
- *  - **concurrency** — a stale write surfaces Spring Data's `OptimisticLockingFailureException`, which
- *    this service maps to [StaleVersionException] → `409` (SC-006).
+ *  - **on write** — the request binds to a typed [CharacterBaseData] (base inputs only), stored as-is;
+ *    there is no derived to strip (the base type has none).
+ *  - **on read/echo** — the controller enriches the stored base to `CharacterData`, so responses carry
+ *    the computed derived values.
+ *  - **validation** — the rule set's [RuleSet.validate] runs over the typed base (soft warnings, FR-005).
+ *  - **concurrency** — a stale write surfaces `OptimisticLockingFailureException`, mapped to
+ *    [StaleVersionException] → `409` (SC-006).
  *
- * Authorization in v1 is owner-only; DM cross-campaign visibility arrives with the campaign
- * `PermissionService` (US2) and is not modelled here.
+ * The rule set is fixed for a character's life (FR-002): an update carrying a different `data.ruleSetId`
+ * is rejected. Authorization in v1 is owner-only.
  */
 @Service
 class CharacterService(
     private val repository: CharacterRepository,
     private val ruleSets: RuleSetRegistry,
-    private val resolver: CharacterDataResolver,
 ) {
     /**
-     * Create a character for [ownerId] under [ruleSetId] (unknown id → 400; create has no 404). The
-     * promoted [name] is seeded into the sheet's `name` field when the caller didn't supply one, so the
-     * rendered "Name" field isn't blank; derived fields are stripped before the insert (base inputs only).
+     * Create a character for [ownerId] from the typed [data] (its `ruleSetId` selects the rule set; an
+     * unrecognized/unsupported one is a 400). [name] is the promoted top-level name used for lists.
      */
     fun create(
         ownerId: UUID,
-        ruleSetId: String,
         name: String,
-        data: SheetData,
+        data: CharacterBaseData,
     ): CharacterWithWarnings {
-        val ruleSet = resolveForWrite(ruleSetId)
-        val seeded = if (data.containsKey("name")) data else data + ("name" to name)
+        val ruleSet = resolveForWrite(data.ruleSetId)
         val now = Instant.now()
         val stored =
             repository.insert(
                 Character(
                     id = UUID.randomUUID(),
                     userId = ownerId,
-                    ruleSetId = ruleSetId,
+                    ruleSetId = data.ruleSetId,
                     name = name,
-                    data = stripDerived(seeded, ruleSet),
+                    data = data,
                     version = null,
                     createdAt = now,
                     updatedAt = now,
                 ),
             )
-        return toResolved(stored, ruleSet, SheetChange(previous = emptyMap(), changedFields = stored.data.keys))
+        return CharacterWithWarnings(stored, ruleSet.validate(stored.data))
     }
 
     /** Get a character owned by [callerId] (404 if absent, 403 if owned by someone else). */
@@ -82,33 +76,35 @@ class CharacterService(
     ): CharacterWithWarnings {
         val character = requireOwned(id, callerId)
         val ruleSet = ruleSets.get(character.ruleSetId)
-        return toResolved(character, ruleSet, SheetChange(previous = character.data, changedFields = emptySet()))
+        return CharacterWithWarnings(character, ruleSet.validate(character.data))
     }
 
-    /** The caller's own characters, for the list endpoint (summaries — no sheet resolution needed). */
+    /** The caller's own characters, for the list endpoint (summaries — no enrichment needed). */
     fun list(ownerId: UUID): List<Character> = repository.findByUserId(ownerId)
 
     /**
-     * Replace a character's sheet ([data] is the full sheet) and optionally its [name], with optimistic
-     * concurrency. Derived fields are stripped before persisting; a stale [expectedVersion] (a concurrent
-     * edit already landed) becomes a `409` via [StaleVersionException].
+     * Replace a character's sheet ([data] is the full typed base) and optionally its [name], with
+     * optimistic concurrency. The rule set is fixed for life (FR-002): a differing `data.ruleSetId` is
+     * a 400. A stale [expectedVersion] becomes a `409` via [StaleVersionException].
      */
     fun update(
         id: UUID,
         callerId: UUID,
         name: String?,
-        data: SheetData,
+        data: CharacterBaseData,
         expectedVersion: Int,
     ): CharacterWithWarnings {
         val existing = requireOwned(id, callerId)
-        // Rule set is fixed for a character's life (FR-002), so the existing one always resolves.
+        if (data.ruleSetId != existing.ruleSetId) {
+            throw BadRequestException(
+                "A character's rule set is fixed; cannot change it from '${existing.ruleSetId}' to '${data.ruleSetId}'.",
+            )
+        }
         val ruleSet = ruleSets.get(existing.ruleSetId)
-        val baseInputs = stripDerived(data, ruleSet)
-        val changed = (baseInputs.keys + existing.data.keys).filter { existing.data[it] != baseInputs[it] }.toSet()
         val toSave =
             existing.copy(
                 name = name ?: existing.name,
-                data = baseInputs,
+                data = data,
                 // Carry the caller's expected version so @Version rejects a stale write (SC-006).
                 version = expectedVersion,
                 updatedAt = Instant.now(),
@@ -119,7 +115,7 @@ class CharacterService(
             } catch (e: OptimisticLockingFailureException) {
                 throw StaleVersionException()
             }
-        return toResolved(saved, ruleSet, SheetChange(previous = existing.data, changedFields = changed))
+        return CharacterWithWarnings(saved, ruleSet.validate(saved.data))
     }
 
     /** Delete a character owned by [callerId] (404 if absent, 403 if owned by someone else). */
@@ -141,37 +137,8 @@ class CharacterService(
         return character
     }
 
-    /**
-     * Resolve the sheet on read: return [character] with its [Character.data] replaced by the resolved
-     * sheet (base + derived) plus the soft warnings from validating it (scoped by [change]).
-     */
-    private fun toResolved(
-        character: Character,
-        ruleSet: RuleSet,
-        change: SheetChange,
-    ): CharacterWithWarnings {
-        val resolved = resolver.resolve(character.data, ruleSet)
-        val warnings = ruleSet.validate(resolved, change)
-        return CharacterWithWarnings(character.copy(data = resolved), warnings)
-    }
-
-    /** Drop every field the [ruleSet] definition marks `derived`, leaving base inputs only (D8). */
-    private fun stripDerived(
-        data: SheetData,
-        ruleSet: RuleSet,
-    ): SheetData {
-        val derivedIds =
-            ruleSet
-                .definition()
-                .sections
-                .flatMap { it.fields }
-                .filter { it.type == FieldType.DERIVED }
-                .mapTo(mutableSetOf()) { it.id }
-        return data.filterKeys { it !in derivedIds }
-    }
-
-    /** Resolve the rule set for a create; an unrecognized id is a bad request (not a 404). */
+    /** Resolve the rule set for a write; an unrecognized/unsupported rule set is a bad request (not 404). */
     private fun resolveForWrite(ruleSetId: String): RuleSet =
         ruleSets.all().firstOrNull { it.id() == ruleSetId }
-            ?: throw BadRequestException("Unknown rule set '$ruleSetId'.")
+            ?: throw BadRequestException("Unknown or unsupported rule set '$ruleSetId'.")
 }

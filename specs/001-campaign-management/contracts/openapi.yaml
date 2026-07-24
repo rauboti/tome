@@ -107,18 +107,21 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/CharacterSummary" }
     post:
-      summary: Create a character for a rule set
+      summary: Create a character
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [ruleSetId, name]
+              required: [name, data]
               properties:
-                ruleSetId: { type: string }
-                name: { type: string }
-                data: { type: object, description: "Initial base inputs for the rule set's `Sheet` (partial allowed; `readOnly` derived ignored). Loosely typed here (T118); **T124 tightens this to the typed `Sheet` union, enforced on both client and server** (unknown/mismatched `ruleSetId` → 400). Responses already carry the precise typed `Sheet` union." }
+                name: { type: string, description: "promoted top-level name for lists/rosters" }
+                data:
+                  allOf: [ { $ref: "#/components/schemas/SheetInput" } ]
+                  description: >-
+                    The typed base sheet. Its `ruleSetId` selects the rule set (no separate top-level
+                    `ruleSetId` — ADR-001); an unknown/unsupported value is rejected → 400. Partial is fine.
       responses:
         "201":
           description: Created
@@ -149,7 +152,9 @@ paths:
               required: [version, data]
               properties:
                 name: { type: string }
-                data: { type: object, description: "Full base inputs for the rule set's `Sheet` (`readOnly` derived ignored). Loosely typed on the request; binding settled in T124. Responses carry the typed `Sheet` union." }
+                data:
+                  allOf: [ { $ref: "#/components/schemas/SheetInput" } ]
+                  description: "The typed base sheet. `data.ruleSetId` must match the character's (rule set is fixed for life, FR-002) or the service answers 400."
                 version: { type: integer }
       responses:
         "200":
@@ -286,7 +291,9 @@ paths:
               required: [name]
               properties:
                 name: { type: string }
-                data: { type: object, description: "Initial base inputs for the campaign rule set's `Sheet` (partial allowed; `readOnly` derived ignored). Loosely typed on the request; binding settled in T124. Responses carry the typed `Sheet` union." }
+                data:
+                  allOf: [ { $ref: "#/components/schemas/SheetInput" } ]
+                  description: "The typed base sheet; `data.ruleSetId` must match the campaign's rule set (else 400)."
                 isPrivate: { type: boolean, default: true }
       responses:
         "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Npc" } } } }
@@ -300,7 +307,7 @@ paths:
         schema: { type: string }
     put:
       summary: Update an NPC sheet (DM only, optimistic concurrency)
-      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [version, data], properties: { name: { type: string }, data: { type: object, description: "Full base inputs for the campaign rule set's `Sheet` (`readOnly` derived ignored). Loosely typed on the request; binding settled in T124." }, isPrivate: { type: boolean }, version: { type: integer } } } } } }
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [version, data], properties: { name: { type: string }, data: { allOf: [ { $ref: "#/components/schemas/SheetInput" } ], description: "The typed base sheet; `data.ruleSetId` fixed to the NPC's rule set." }, isPrivate: { type: boolean }, version: { type: integer } } } } } }
       responses:
         "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Npc" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
@@ -488,12 +495,126 @@ components:
       properties:
         id: { type: string }
         name: { type: string }
-    # ── Rule-set sheets (typed, discriminated) — ADR-001 ──────────────────────────────────────
-    # `data` on Character/Npc is a discriminated union keyed by `ruleSetId`. Each rule set has a typed
-    # sheet schema: base inputs plus `readOnly` derived values (computed on read, never stored — the
-    # write-time strip is gone; a getter-only computed property is simply never persisted). This block
-    # is the codegen source for the web's TS sheet types (T126) and mirrors the Kotlin sealed
-    # `CharacterData` (T122). The DnD35 field list is the Phase 3C content (tasks T105–T114).
+    # ── Rule-set sheets: typed base/enriched split — ADR-001 (T122/T124) ──────────────────────
+    # Two discriminated unions keyed on `ruleSetId`, mirroring the Kotlin split:
+    #   • SheetInput — the BASE inputs a request sends and storage keeps (no derived). Request `data`.
+    #   • Sheet      — the ENRICHED sheet a response returns (base + `readOnly` derived, grouped).
+    # `enrich()` maps SheetInput → Sheet on read. Both are the codegen source for the web (T126).
+    # DnD35 content = Phase 3C (tasks T105–T114). Field groups mirror DnD35CharacterBaseData/Data.
+
+    # ---- request / base (stored) ----
+    SheetInput:
+      oneOf:
+        - $ref: "#/components/schemas/DnD35SheetInput"
+        - $ref: "#/components/schemas/DarkSoulsSheetInput"
+      discriminator:
+        propertyName: ruleSetId
+        mapping:
+          dnd35: "#/components/schemas/DnD35SheetInput"
+          darksouls: "#/components/schemas/DarkSoulsSheetInput"
+      description: >-
+        The base inputs for one rule set — what create/update send and storage keeps; no derived values.
+        `ruleSetId` selects the variant; an unknown value is rejected → 400.
+    DnD35SheetInput:
+      type: object
+      description: "D&D 3.5 base inputs (mirrors DnD35CharacterBaseData). Every field optional (sensible defaults)."
+      properties:
+        ruleSetId: { const: dnd35, description: "discriminator" }
+        name: { type: string }
+        player: { type: string }
+        race: { type: string }
+        characterClass: { type: string }
+        alignment: { type: string }
+        deity: { type: string }
+        size: { type: string }
+        level: { type: integer }
+        experience: { type: integer }
+        abilities: { $ref: "#/components/schemas/DnD35AbilityScores" }
+        hitPoints: { $ref: "#/components/schemas/DnD35HitPoints" }
+        defense: { $ref: "#/components/schemas/DnD35DefenseInputs" }
+        saves: { $ref: "#/components/schemas/DnD35SaveInputs" }
+        baseAttackBonus: { type: integer }
+        grappleSizeMod: { type: integer, description: "grapple special-size scale (Small −4, Large +4)" }
+        attacks: { type: array, items: { $ref: "#/components/schemas/DnD35AttackRowInput" } }
+        skills: { type: array, items: { $ref: "#/components/schemas/DnD35SkillRowInput" } }
+        feats: { type: array, items: { $ref: "#/components/schemas/DnD35FeatRow" } }
+        gear: { type: array, items: { $ref: "#/components/schemas/DnD35GearRow" } }
+        languages: { type: array, items: { type: string } }
+        notes: { type: string }
+        spellcasting: { $ref: "#/components/schemas/DnD35SpellcastingInputs" }
+    DarkSoulsSheetInput:
+      type: object
+      description: "Stub base inputs (US5) — present so the union is total."
+      properties:
+        ruleSetId: { const: darksouls, description: "discriminator" }
+        name: { type: string }
+
+    # ---- base value objects (inputs) ----
+    DnD35AbilityScores:
+      type: object
+      properties:
+        strength: { type: integer }
+        dexterity: { type: integer }
+        constitution: { type: integer }
+        intelligence: { type: integer }
+        wisdom: { type: integer }
+        charisma: { type: integer }
+    DnD35HitPoints:
+      type: object
+      description: "Entered hit points — both base inputs (HP is entered in 3.5, not derived). Shared by input and enriched."
+      properties:
+        max: { type: integer }
+        current: { type: integer }
+    DnD35DefenseInputs:
+      type: object
+      properties:
+        armorBonus: { type: integer }
+        shieldBonus: { type: integer }
+        naturalArmor: { type: integer }
+        deflection: { type: integer }
+        dodge: { type: integer }
+        sizeMod: { type: integer, description: "AC/attack size scale (Small +1, Large −1)" }
+    DnD35SaveInputs:
+      type: object
+      properties:
+        fortBase: { type: integer }
+        refBase: { type: integer }
+        willBase: { type: integer }
+    DnD35SpellcastingInputs:
+      type: object
+      properties:
+        casterClass: { type: string }
+        casterLevel: { type: integer }
+        spellKeyAbility: { type: string, description: "select: an ability-mod id, e.g. intMod" }
+        spellSlots: { type: array, items: { $ref: "#/components/schemas/DnD35SpellSlotRowInput" } }
+        spells: { type: array, items: { $ref: "#/components/schemas/DnD35SpellRow" } }
+    DnD35AttackRowInput:
+      type: object
+      properties:
+        weapon: { type: string }
+        ability: { type: string, description: "select: ability-mod id (e.g. strMod)" }
+        misc: { type: integer }
+        damage: { type: string }
+        critical: { type: string }
+        range: { type: string }
+        notes: { type: string }
+    DnD35SkillRowInput:
+      type: object
+      properties:
+        skill: { type: string }
+        keyAbility: { type: string, description: "select: ability-mod id" }
+        ranks: { type: integer }
+        classSkill: { type: boolean }
+        misc: { type: integer }
+    DnD35SpellSlotRowInput:
+      type: object
+      properties:
+        spellLevel: { type: integer }
+        slotsPerDay: { type: integer }
+        known: { type: integer }
+        prepared: { type: integer }
+
+    # ---- response / enriched (served) ----
     Sheet:
       oneOf:
         - $ref: "#/components/schemas/DnD35Sheet"
@@ -504,26 +625,50 @@ components:
           dnd35: "#/components/schemas/DnD35Sheet"
           darksouls: "#/components/schemas/DarkSoulsSheet"
       description: >-
-        A resolved sheet for one rule set. In a response it carries base inputs plus derived values
-        (`readOnly`, computed on read, never persisted); on a request only base inputs are read. The
-        `ruleSetId` property is the polymorphic discriminator (Jackson `@JsonTypeInfo`, wire-only — it
-        deliberately duplicates the resource's top-level `ruleSetId`, which is what queries/indexes use).
+        The enriched sheet a response returns: base inputs plus derived values (grouped, `readOnly`,
+        computed on read, never persisted). Built from the stored SheetInput by `enrich()`.
     DnD35Sheet:
       type: object
-      description: "D&D 3.5 sheet (ADR-001; content = tasks T105–T114). `readOnly` = derived, recomputed on read."
+      description: "D&D 3.5 enriched sheet (mirrors DnD35CharacterData). `readOnly` properties are derived."
       properties:
         ruleSetId: { const: dnd35, description: "discriminator" }
-        # identity
         name: { type: string }
         player: { type: string }
         race: { type: string }
-        class: { type: string }
-        alignment: { type: string, description: "select" }
+        characterClass: { type: string }
+        alignment: { type: string }
         deity: { type: string }
-        size: { type: string, description: "select" }
+        size: { type: string }
         level: { type: integer }
         experience: { type: integer }
-        # abilities — scores are base inputs, *Mod are derived
+        abilities: { $ref: "#/components/schemas/DnD35Abilities" }
+        hitPoints: { $ref: "#/components/schemas/DnD35HitPoints" }
+        defense: { $ref: "#/components/schemas/DnD35Defense" }
+        saves: { $ref: "#/components/schemas/DnD35Saves" }
+        baseAttackBonus: { type: integer }
+        grappleSizeMod: { type: integer }
+        initiative: { type: integer, readOnly: true }
+        grapple: { type: integer, readOnly: true }
+        attacks: { type: array, items: { $ref: "#/components/schemas/DnD35AttackRow" } }
+        skills: { type: array, items: { $ref: "#/components/schemas/DnD35SkillRow" } }
+        feats: { type: array, items: { $ref: "#/components/schemas/DnD35FeatRow" } }
+        gear: { type: array, items: { $ref: "#/components/schemas/DnD35GearRow" } }
+        totalWeight: { type: integer, readOnly: true, description: "sum of gear weight" }
+        languages: { type: array, items: { type: string } }
+        notes: { type: string }
+        spellcasting: { $ref: "#/components/schemas/DnD35Spellcasting" }
+    DarkSoulsSheet:
+      type: object
+      description: "Stub enriched variant (US5)."
+      properties:
+        ruleSetId: { const: darksouls, description: "discriminator" }
+        name: { type: string }
+
+    # ---- enriched value objects (base + derived) ----
+    DnD35Abilities:
+      type: object
+      description: "Ability scores plus derived modifiers."
+      properties:
         strength: { type: integer }
         dexterity: { type: integer }
         constitution: { type: integer }
@@ -536,68 +681,71 @@ components:
         intMod: { type: integer, readOnly: true }
         wisMod: { type: integer, readOnly: true }
         chaMod: { type: integer, readOnly: true }
-        # combat
-        hpMax: { type: integer }
-        hpCurrent: { type: integer }
-        baseAttackBonus: { type: integer }
-        grappleSizeMod: { type: integer, description: "grapple special-size scale (Small −4, Large +4) — distinct from sizeMod" }
-        initiative: { type: integer, readOnly: true }
-        grapple: { type: integer, readOnly: true }
-        # defense — bonuses are base inputs, AC values derived
+    DnD35Defense:
+      type: object
+      description: "Defense bonuses plus derived AC totals."
+      properties:
         armorBonus: { type: integer }
         shieldBonus: { type: integer }
         naturalArmor: { type: integer }
         deflection: { type: integer }
         dodge: { type: integer }
-        sizeMod: { type: integer, description: "AC/attack size scale (Small +1, Large −1)" }
+        sizeMod: { type: integer }
         armorClass: { type: integer, readOnly: true }
         touchAC: { type: integer, readOnly: true }
         flatFootedAC: { type: integer, readOnly: true }
-        # saves — base entered, total derived
+    DnD35Saves:
+      type: object
+      description: "Save bases plus derived totals (base + governing ability mod)."
+      properties:
         fortBase: { type: integer }
         refBase: { type: integer }
         willBase: { type: integer }
         fortitude: { type: integer, readOnly: true }
         reflex: { type: integer, readOnly: true }
         will: { type: integer, readOnly: true }
-        # tables
-        attacks: { type: array, items: { $ref: "#/components/schemas/DnD35AttackRow" } }
-        skills:
-          type: array
-          items: { $ref: "#/components/schemas/DnD35SkillRow" }
-          description: "canonical 3.5 skills seeded; users may append subtyped rows (Craft/Knowledge/…)"
-        feats: { type: array, items: { $ref: "#/components/schemas/DnD35FeatRow" } }
-        gear: { type: array, items: { $ref: "#/components/schemas/DnD35GearRow" } }
-        totalWeight: { type: integer, readOnly: true, description: "sum of gear weight" }
-        languages: { type: array, items: { type: string } }
-        notes: { type: string }
-        # spellcasting
+    DnD35Spellcasting:
+      type: object
+      description: "Spellcasting inputs plus derived save-DC base and per-slot totals."
+      properties:
         casterClass: { type: string }
         casterLevel: { type: integer }
-        spellKeyAbility: { type: string, description: "select: an ability-mod id, e.g. intMod" }
-        spellSaveDcBase: { type: integer, readOnly: true, description: "10 + key-ability mod; a level-N spell's DC = base + N" }
+        spellKeyAbility: { type: string }
+        saveDcBase: { type: integer, readOnly: true, description: "10 + key-ability mod; a level-N spell's DC = base + N" }
         spellSlots: { type: array, items: { $ref: "#/components/schemas/DnD35SpellSlotRow" } }
         spells: { type: array, items: { $ref: "#/components/schemas/DnD35SpellRow" } }
     DnD35AttackRow:
       type: object
       properties:
         weapon: { type: string }
-        ability: { type: string, description: "select: ability-mod id used for the attack (e.g. strMod)" }
+        ability: { type: string, description: "select: ability-mod id (e.g. strMod)" }
         misc: { type: integer }
-        attackBonus: { type: integer, readOnly: true, description: "baseAttackBonus + chosen ability mod + misc" }
         damage: { type: string }
         critical: { type: string }
         range: { type: string }
         notes: { type: string }
+        attackBonus: { type: integer, readOnly: true, description: "baseAttackBonus + ability mod + misc" }
     DnD35SkillRow:
       type: object
       properties:
         skill: { type: string }
-        keyAbility: { type: string, description: "select: ability-mod id (read-only on preset rows)" }
+        keyAbility: { type: string }
         ranks: { type: integer }
         classSkill: { type: boolean }
         misc: { type: integer }
         total: { type: integer, readOnly: true, description: "ranks + key-ability mod + misc" }
+    DnD35SpellSlotRow:
+      type: object
+      description: "One row per spell level 0–9. slotsPerDay entered; bonus/total derived."
+      properties:
+        spellLevel: { type: integer }
+        slotsPerDay: { type: integer }
+        known: { type: integer }
+        prepared: { type: integer }
+        bonusSpells: { type: integer, readOnly: true }
+        total: { type: integer, readOnly: true, description: "slotsPerDay + bonusSpells" }
+
+    # ---- shared rows (no derived; same in input and enriched) ----
     DnD35FeatRow:
       type: object
       properties:
@@ -611,16 +759,6 @@ components:
         quantity: { type: integer }
         weight: { type: integer }
         notes: { type: string }
-    DnD35SpellSlotRow:
-      type: object
-      description: "One row per spell level 0–9 (preset). slotsPerDay entered; bonus/total derived."
-      properties:
-        spellLevel: { type: integer }
-        slotsPerDay: { type: integer }
-        bonusSpells: { type: integer, readOnly: true }
-        total: { type: integer, readOnly: true, description: "slotsPerDay + bonusSpells" }
-        known: { type: integer }
-        prepared: { type: integer }
     DnD35SpellRow:
       type: object
       properties:
@@ -628,11 +766,6 @@ components:
         level: { type: integer, description: "spell level for the caster class (catalog-supplied)" }
         prepared: { type: integer }
         notes: { type: string }
-    DarkSoulsSheet:
-      type: object
-      description: "Stub variant (ADR-001) — present so the union and the Kotlin sealed `when`s are total. US5 (tasks T072–T075) fleshes it."
-      properties:
-        ruleSetId: { const: darksouls, description: "discriminator" }
     CharacterSummary:
       type: object
       properties:
