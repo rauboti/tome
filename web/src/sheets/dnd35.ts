@@ -1,17 +1,9 @@
 import { z } from 'zod'
 
 /**
- * Typed D&D 3.5 sheet (ADR-001, T126) — the web mirror of the Kotlin `DnD35CharacterBaseData` /
- * `DnD35CharacterData` split:
- *  - `DnD35SheetInput` — base inputs (what a request sends / the draft the editor holds);
- *  - `DnD35Sheet` — the enriched sheet a response returns (base + derived), validated by
- *    [dnd35SheetSchema];
- *  - [enrichDnD35] — the client mirror of the server's `enrich()`, so derived values update **live**
- *    while editing (the base inputs are the source of truth; derived are recomputed, never sent).
- *
- * Hand-authored to mirror the openapi `Sheet`/`SheetInput` (no codegen toolchain wired; the openapi
- * remains the contract and these types must track it — a future `openapi-typescript` step could
- * generate them). Every base field is modelled so an edit round-trip never drops un-rendered groups.
+ * Typed D&D 3.5 sheet (ADR-001) — the web mirror of the Kotlin base/enriched split. See web/README.md
+ * "The typed sheet mirror". Base inputs are the source of truth; `enrichDnD35` recomputes derived values
+ * for live editing and they are never sent back. Hand-authored to track the openapi `Sheet`/`SheetInput`.
  */
 
 // ---- base value objects ----
@@ -176,7 +168,7 @@ export const dnd35SheetSchema = z.object({
   initiative: z.number(),
   grapple: z.number(),
   totalWeight: z.number(),
-  // Table groups are carried through unchanged (rendered by a later content port); typed loosely here.
+  // Table groups pass through unchanged; typed loosely here.
   attacks: z.array(z.record(z.string(), z.unknown())).default([]),
   skills: z.array(z.record(z.string(), z.unknown())).default([]),
   feats: z.array(z.record(z.string(), z.unknown())).default([]),
@@ -190,10 +182,9 @@ export const dnd35SheetSchema = z.object({
 const abilityMod = (score: number): number => Math.floor((score - 10) / 2)
 
 /**
- * Client mirror of the server's `enrich()` — build the enriched [DnD35Sheet] from base inputs so the
- * editor can show derived values that update live. Keeps parity with `DnD35CharacterData` for the
- * groups the UI renders (abilities, defense, saves, initiative, grapple); table/spellcasting groups
- * are carried through unchanged (their per-row derived come from the server until the content port).
+ * Client mirror of the server's `enrich()`: build the enriched [DnD35Sheet] from base inputs. The scalar
+ * groups (abilities, defense, saves, initiative, grapple) are recomputed here; table and spellcasting
+ * groups pass through unchanged (their per-row derived come from the server).
  */
 export const enrichDnD35 = (base: DnD35SheetInput): DnD35Sheet => {
   const a = base.abilities
@@ -250,7 +241,7 @@ export const DND35_FEAT_TYPES: ReadonlyArray<{ value: string; label: string }> =
   { value: 'itemCreation', label: 'Item Creation' },
 ]
 
-/** The canonical 3.5 SRD skill list (name + governing ability mod), seeded on a fresh sheet (T106). */
+/** The canonical 3.5 SRD skill list (name + governing ability mod), seeded on a fresh sheet. */
 export const DND35_SKILL_PRESETS: ReadonlyArray<{ skill: string; keyAbility: string }> = [
   { skill: 'Appraise', keyAbility: 'intMod' },
   { skill: 'Balance', keyAbility: 'dexMod' },
@@ -300,20 +291,20 @@ const abilityModByRef = (scores: DnD35AbilityScores, ref: string): number =>
   })[ref] ?? 0
 
 // ---- per-row derived (client mirror of the server; base + one row → the read-only value) ----
-/** A skill row's total: ranks + its key-ability mod + misc (T106). */
+/** A skill row's total: ranks + its key-ability mod + misc. */
 export const dnd35SkillTotal = (base: DnD35SheetInput, row: DnD35SkillRowInput): number =>
   row.ranks + abilityModByRef(base.abilities, row.keyAbility) + row.misc
-/** A weapon's attack bonus: BAB + its ability mod + misc (T107). */
+/** A weapon's attack bonus: BAB + its ability mod + misc. */
 export const dnd35AttackBonus = (base: DnD35SheetInput, row: DnD35AttackRowInput): number =>
   base.baseAttackBonus + abilityModByRef(base.abilities, row.ability) + row.misc
-/** The spell save-DC base: 10 + the casting-ability mod; a level-N spell's DC = this + N (T110). */
+/** The spell save-DC base: 10 + the casting-ability mod; a level-N spell's DC = this + N. */
 export const dnd35SpellSaveDcBase = (base: DnD35SheetInput): number =>
   10 + abilityModByRef(base.abilities, base.spellcasting.spellKeyAbility)
-/** Bonus spells for a level: `min(level,1) * max(0, floor((keyMod - level)/4) + 1)` — 0 at level 0 (T111). */
+/** Bonus spells for a level: `min(level,1) * max(0, floor((keyMod - level)/4) + 1)` — 0 at level 0. */
 export const dnd35SpellSlotBonus = (base: DnD35SheetInput, row: DnD35SpellSlotRowInput): number =>
   Math.min(row.spellLevel, 1) *
   Math.max(0, Math.floor((abilityModByRef(base.abilities, base.spellcasting.spellKeyAbility) - row.spellLevel) / 4) + 1)
-/** Total slots for a level: entered slots/day + bonus spells (T111). */
+/** Total slots for a level: entered slots/day + bonus spells. */
 export const dnd35SpellSlotTotal = (base: DnD35SheetInput, row: DnD35SpellSlotRowInput): number =>
   row.slotsPerDay + dnd35SpellSlotBonus(base, row)
 

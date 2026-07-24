@@ -5,11 +5,10 @@ import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 
 /**
- * T122 (TDD). Pins the **computed-derived parity** of the enriched [DnD35CharacterData] against the
- * values the retired formula engine produced — assertions ported 1:1 from `DnD35RuleSetTest`'s
- * `computeDerived` cases (T105–T111). The sheet is built by enriching a [DnD35CharacterBaseData]; the
- * derived read from their groups the way the user asked (`abilities.strMod`, `saves.fortitude`,
- * `defense.armorClass`, `spellcasting.saveDcBase`, rows with totals).
+ * Pins the derived-property values of the enriched [DnD35CharacterData] against the D&D 3.5 rules.
+ * The sheet is built by enriching a [DnD35CharacterBaseData] (via the `DnD35CharacterData(base)`
+ * constructor / `enrich()`), and the derived read from their groups (`abilities.strMod`,
+ * `saves.fortitude`, `defense.armorClass`, `spellcasting.saveDcBase`, rows with totals).
  */
 class DnD35CharacterDataTest {
     private fun sheet(base: DnD35CharacterBaseData) = DnD35CharacterData(base)

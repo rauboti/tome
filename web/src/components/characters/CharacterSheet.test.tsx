@@ -6,22 +6,13 @@ import { http, HttpResponse } from 'msw'
 import { ThemeProvider } from '@rauboti/ui'
 import { CharacterSheet } from './CharacterSheet'
 import { server } from '@/mocks/server'
-// Real i18n bundles so field labels resolve to their canonical D&D terms (T022).
+// Real i18n bundles so field labels resolve to their canonical D&D terms.
 import '@/i18n'
 
 /**
- * Web test for the typed character sheet editor (T121, red→green with T126). Drives the screen as the
- * app does: it loads a character over the (MSW-mocked) BFF and renders the **typed**
- * {@link DnD35CharacterSheet}, then saves with optimistic concurrency. Under the base/enriched split
- * (ADR-001) the response `data` is the **enriched** sheet (grouped base + derived, e.g.
- * `abilities.strMod`); the editor recomputes derived locally for instant feedback and sends **base
- * inputs only**. Asserts the US1 sheet behaviours:
- *  - the loaded sheet renders, with derived values shown read-only;
- *  - a derived value recomputes **live** as its input changes, before any save;
- *  - editing + Save issues a PUT carrying the read `version` (SC-006) and **base inputs only** — no
- *    derived (D8);
- *  - soft **warnings** from a save surface without being treated as an error (FR-005);
- *  - a **409** version conflict is surfaced rather than silently dropped.
+ * Drives the sheet editor as the app does: loads a character over the MSW-mocked BFF, whose response
+ * `data` is the enriched sheet (base + derived), then saves. The editor recomputes derived locally for
+ * instant feedback but sends base inputs only, with optimistic concurrency on `version`.
  */
 
 /** A stored character (openapi `Character`) with the enriched D&D 3.5 sheet in `data`. */

@@ -11,12 +11,10 @@ import org.springframework.data.mongodb.core.query.Query
 
 /**
  * Verifies the Spring Data-native migration mechanism (T089/T091): [MigrationRunner] applies
- * [C001__CreateCharacters] once on boot — creating the `characters` `{ userId: 1 }` index and recording
- * it in `_migrations` —
- * and a second run is a ledger-guarded no-op.
- *
- * The runner fires on `ApplicationReadyEvent` during context startup, so by the time these tests run
- * the migration has already been applied against the shared Mongo container ([IntegrationTest]).
+ * [C001__CreateCharacters] once on boot — creating the `characters` `{ userId: 1 }` index and
+ * recording it in `_migrations` — and a second run is a ledger-guarded no-op. The runner fires on
+ * `ApplicationReadyEvent`, so the migration is already applied by the time these tests run against the
+ * shared Mongo container ([IntegrationTest]).
  */
 class MigrationRunnerTest : IntegrationTest() {
     @Autowired private lateinit var mongo: MongoTemplate

@@ -11,8 +11,8 @@ import {
 } from './dnd35'
 
 /**
- * T129 (client parity). The per-row derived helpers mirror the server's `enrich()` (values ported 1:1
- * from the Kotlin `DnD35CharacterDataTest`), and a fresh sheet seeds the canonical 3.5 content.
+ * Client parity: the per-row derived helpers mirror the server's `enrich()` (values ported 1:1 from
+ * the Kotlin `DnD35CharacterDataTest`), and a fresh sheet seeds the canonical 3.5 content.
  */
 describe('dnd35 typed sheet helpers', () => {
   test('a fresh sheet seeds the 31 canonical skills and spell levels 0..9', () => {

@@ -5,11 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { LOGIN_PATH } from '@/api/client'
 
 /**
- * Unauthenticated landing: a single "Sign in with Hive" action that navigates to the BFF's
- * `/auth/login` (a full-page nav — it 302s to Hive, so it can't be a client route). If Hive is
- * unreachable the OAuth callback bounces back with `?error=signin_unavailable`, surfaced here as a
- * Callout (matches the AuthController marker, T011). English until sign-in — the user's locale is
- * only known after.
+ * Unauthenticated landing: a "Sign in with Hive" action linking to the BFF's `/auth/login` (a
+ * full-page nav that 302s to Hive, so not a client route). A Hive-unreachable callback returns
+ * `?error=signin_unavailable` (AuthController marker, T011), shown as a Callout. English until
+ * sign-in — the user's locale is only known after.
  */
 export const LoginScreen = () => {
   const { t } = useTranslation()

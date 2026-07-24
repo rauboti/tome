@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 
 /**
  * Unit test for the D&D 3.5 rule-set logic (T123 reshape). Pure — no Spring, no DB. Derived-value
- * computation moved onto the typed sheet (parity in `DnD35CharacterDataTest`), so the `RuleSet` now
- * carries only `id`/`name` and the soft [validate] over the typed [DnD35CharacterBaseData] (FR-005:
- * warnings only, never blocks).
+ * computation moved onto the typed sheet (covered in `DnD35CharacterDataTest`), so the `RuleSet` now
+ * carries only `id`/`name` and the soft [validate] over [DnD35CharacterBaseData] (FR-005: warnings
+ * only, never blocks).
  */
 class DnD35RuleSetTest {
     private val ruleSet = DnD35RuleSet()

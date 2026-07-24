@@ -11,18 +11,13 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 /**
- * Applies the [MigrationChange] beans on startup — the Spring Data-native migration mechanism (no
- * framework; research §Migrations). On [ApplicationReadyEvent] it reads the already-applied change ids
- * from the `_migrations` ledger and runs each not-yet-applied change in [MigrationChange.id] order,
- * recording it afterwards so it runs at most once.
+ * Applies the [MigrationChange] beans on startup (Spring Data-native; research §Migrations). On
+ * [ApplicationReadyEvent] it reads the applied ids from the `_migrations` ledger and runs each
+ * not-yet-applied change in [MigrationChange.id] order, recording it afterwards so it runs at most once.
  *
- * v1 is single-instance, so no distributed lock is taken; concurrent starts are tolerated because the
- * changes are idempotent and the ledger `_id` is the change id — a losing racer's record insert hits a
- * duplicate key, treated here as "already recorded". (Multi-instance coordination is a Flamingock
- * revisit trigger — research §Migrations.)
- *
- * With no [MigrationChange] beans present this is a harmless no-op; the first change (`C001`) lands in
- * T091.
+ * v1 is single-instance, so no distributed lock; concurrent starts are tolerated because the changes
+ * are idempotent and the ledger `_id` is the change id — a losing racer's insert hits a duplicate key,
+ * treated as "already recorded". (Multi-instance coordination is a Flamingock revisit trigger.)
  */
 @Component
 class MigrationRunner(

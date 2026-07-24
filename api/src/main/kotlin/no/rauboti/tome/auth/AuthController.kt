@@ -18,16 +18,11 @@ import java.net.URI
 import java.security.MessageDigest
 
 /**
- * The BFF's Hive login + identity endpoints. `/auth/login` starts Authorization-Code + PKCE: it
- * stashes a CSRF `state` and the PKCE `code_verifier` server-side (session) and redirects the browser
- * to Hive's authorize endpoint with the S256 `code_challenge`. `/auth/callback` verifies `state`,
- * exchanges the code for a Hive token pair (kept server-side, on the session), and redirects to the
- * SPA. A failed exchange (Hive unreachable) redirects back with `?error=signin_unavailable` so the
- * login screen shows a message rather than a raw problem+json page mid-redirect. `/auth/login` and
- * `/auth/callback` are public — no session/token is needed to *start* login.
- *
- * `GET /api/auth/me` and `POST /api/auth/logout` sit behind the security chain (SecurityConfig, T009):
- * logout needs only a session, while `me` requires a Tome role (a roleless Hive user gets 403, FR-024).
+ * The BFF's Hive login + identity endpoints. `/auth/login` starts the Authorization-Code + PKCE
+ * handshake; `/auth/callback` verifies `state`, exchanges the code, and stores the token pair on the
+ * session. A failed exchange (Hive unreachable) redirects to the SPA with `?error=signin_unavailable`
+ * rather than a raw problem+json page mid-redirect. `/auth/login`/`/auth/callback` are public; `me`
+ * requires a Tome role (roleless Hive user gets 403, FR-024) and `logout` only a session.
  */
 @RestController
 class AuthController(
@@ -37,10 +32,8 @@ class AuthController(
     @param:Value("\${tome.web.base-url}") private val webBaseUrl: String,
 ) {
     /**
-     * OAuth redirect URI = the public web origin + the BFF's own [CALLBACK_PATH]. Derived rather than
-     * separately configured, so it can't drift from [webBaseUrl] or the callback mapping. The browser
-     * reaches it at the web origin (nginx in Docker, the Vite proxy in dev, both forward `/auth` to
-     * this BFF). Must match the redirect URI registered for this client in Hive.
+     * OAuth redirect URI = web origin + [CALLBACK_PATH], derived (not separately configured) so it
+     * can't drift from [webBaseUrl] or the callback mapping. Must match the URI registered in Hive.
      */
     private val redirectUri = "$webBaseUrl$CALLBACK_PATH"
 
@@ -74,23 +67,21 @@ class AuthController(
         val expectedState = session.getAttribute(SessionKeys.STATE) as? String
         val verifier = session.getAttribute(SessionKeys.VERIFIER) as? String
         if (expectedState == null || verifier == null || !constantTimeEquals(state, expectedState)) {
-            // Controller-local guard on the OAuth handshake; problem+json 400 via
-            // spring.mvc.problemdetails. The domain exception hierarchy (T012) is unrelated.
+            // Controller-local handshake guard → problem+json 400 (spring.mvc.problemdetails), not
+            // the domain exception hierarchy (T012).
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or missing OAuth state.")
         }
         // One-time use: drop the challenge material before the exchange.
         session.removeAttribute(SessionKeys.STATE)
         session.removeAttribute(SessionKeys.VERIFIER)
 
-        // Both tokens are held server-side (session). The access token authenticates API calls
-        // (via SessionTokenAuthenticationFilter); the refresh token renews it silently.
+        // Both tokens stay server-side; the access token authenticates API calls, the refresh renews it.
         val tokens =
             try {
                 hiveTokenClient.exchange(code, verifier, redirectUri)
             } catch (_: HiveUnavailableException) {
-                // This is a browser redirect, so a 502 problem+json would land as a raw error page.
-                // Bounce back to the SPA with a marker the login screen turns into a
-                // "sign-in unavailable, try again" message.
+                // Browser redirect, so a 502 problem+json would land as a raw error page; bounce to
+                // the SPA with a marker it renders as "sign-in unavailable, try again".
                 return redirectToSpa(mapOf("error" to SIGNIN_UNAVAILABLE))
             }
         session.setAttribute(SessionKeys.ACCESS_TOKEN, tokens.accessToken)
@@ -100,9 +91,9 @@ class AuthController(
     }
 
     /**
-     * Drops the server-side tokens by invalidating the session; the SPA then treats the user as
-     * logged out. (Hive has no consumer token-revoke endpoint yet, so the refresh token stays valid
-     * at Hive until it expires — it's discarded here and never reachable again.)
+     * Invalidates the session, dropping the server-side tokens; the SPA then treats the user as logged
+     * out. (Hive has no consumer token-revoke endpoint yet, so the refresh token stays valid there
+     * until it expires — but it's discarded here and never reachable again.)
      */
     @PostMapping("/api/auth/logout")
     fun logout(session: HttpSession): ResponseEntity<Void> {
@@ -111,10 +102,9 @@ class AuthController(
     }
 
     /**
-     * The current authenticated user, read from the session-authenticated Hive token
-     * ([no.rauboti.tome.config.SessionTokenAuthenticationFilter] sets the [Jwt] principal).
-     * Unauthenticated callers never reach here — the security chain answers 401 first; a signed-in
-     * user without a Tome role is stopped with 403 by the `/api` role gate (FR-024).
+     * The current authenticated user, from the session-authenticated Hive token (principal set by
+     * [no.rauboti.tome.config.SessionTokenAuthenticationFilter]). Unauthenticated callers get 401 from
+     * the security chain first; a roleless Hive user is stopped with 403 by the `/api` gate (FR-024).
      */
     @GetMapping("/api/auth/me")
     fun me(
@@ -124,7 +114,7 @@ class AuthController(
             userId = requireNotNull(jwt.subject) { "Hive token is missing the subject claim." },
             displayName = jwt.getClaimAsString("name"),
             roles = jwt.getClaimAsStringList("roles") ?: emptyList(),
-            // Optional UI locale; only the two supported values are surfaced (openapi enum nb/en).
+            // Optional UI locale; only the openapi enum values (nb/en) are surfaced.
             locale = jwt.getClaimAsString("locale")?.takeIf { it == "nb" || it == "en" },
         )
 

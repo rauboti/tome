@@ -7,11 +7,10 @@ import { defaultDnD35SheetInput } from '@/sheets/dnd35'
 import type { RuleSetSummary } from '@/api/schemas'
 
 /**
- * The "New character" dialog for the characters page (US1, T033). A small controlled form: pick a
- * rule set (v1 offers only D&D 3.5, but the picker is driven by the server list so a future rule set
- * is additive) and enter a name, then `POST /api/characters`. On success it closes and hands the
- * created character back via [onCreated] (the page routes to its sheet); a failed create shows a
- * soft error and keeps the form open. Owner is the signed-in user (set server-side from the session).
+ * The "New character" dialog (US1). Pick a rule set (v1 offers only D&D 3.5, but the picker is driven
+ * by the server list so a future rule set is additive) and a name, then `POST /api/characters`. On
+ * success it hands the created character back via [onCreated]; a failed create shows a soft error and
+ * keeps the form open. Owner is the signed-in user, set server-side from the session.
  */
 export type CreateCharacterDialogProps = {
   ruleSets: RuleSetSummary[]

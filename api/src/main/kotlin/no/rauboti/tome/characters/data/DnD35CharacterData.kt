@@ -5,15 +5,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * D&D 3.5 **enriched** sheet (ADR-001) — the served view. Wraps a [DnD35CharacterBaseData] and exposes
- * its groups with derived values filled in, grouped the way the sheet reads: [abilities] (scores +
- * mods), [defense] (bonuses + AC), [saves] (bases + totals), [spellcasting] (inputs + save DC + slot
- * totals), and table rows carrying their per-row totals. Parity of every derived value against the
- * retired formula engine is pinned by `DnD35CharacterDataTest`.
- *
- * Never persisted (built on read by [CharacterBaseData.enrich]). The stored [base] is `@JsonIgnore`d so
- * the response is the flat enriched shape, not a `{ base: … }` wrapper; the exact response schema is
- * reconciled with openapi in T124.
+ * D&D 3.5 **enriched** sheet (ADR-001) — the served view: wraps a [DnD35CharacterBaseData] and exposes
+ * its groups with derived values filled in. Never persisted (built on read by [CharacterBaseData.enrich]).
+ * The stored [base] is `@JsonIgnore`d so the response is the flat enriched shape, not a `{ base: … }`
+ * wrapper (schema reconciled with openapi in T124).
  */
 data class DnD35CharacterData(
     @get:JsonIgnore val base: DnD35CharacterBaseData,

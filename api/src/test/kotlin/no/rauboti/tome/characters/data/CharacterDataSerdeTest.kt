@@ -11,13 +11,12 @@ import tools.jackson.module.kotlin.kotlinModule
 import tools.jackson.module.kotlin.readValue
 
 /**
- * T122 (TDD). Pins the **wire** contract of the split (the model-level slice of T119, no HTTP wiring):
- *  - **requests** parse into the polymorphic [CharacterBaseData] (keyed on `ruleSetId`), unknown ids
+ * Wire contract of the base/enriched split:
+ *  - requests parse into the polymorphic [CharacterBaseData] (keyed on `ruleSetId`), unknown ids
  *    rejected;
- *  - **responses** serialize the enriched [CharacterData] with the discriminator and the derived values.
+ *  - responses serialize the enriched [CharacterData] with the discriminator and the derived values.
  *
- * Storage polymorphism is a separate mechanism (see [CharacterDataPersistenceTest]); the HTTP round-trip
- * + 409 stay in T119/T124.
+ * Storage polymorphism is covered separately (see [CharacterDataPersistenceTest]).
  */
 class CharacterDataSerdeTest {
     private val mapper = JsonMapper.builder().addModule(kotlinModule()).build()

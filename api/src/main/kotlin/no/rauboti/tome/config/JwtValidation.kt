@@ -14,10 +14,8 @@ import org.springframework.security.oauth2.jwt.JwtValidators
 const val TOME_AUDIENCE = "tome"
 
 /**
- * Validators for a Hive-issued JWT, from Tome's perspective (D6): the Spring defaults
- * (`exp`/`nbf` timestamps) plus `iss == HIVE_EXTERNAL_URL`, and an `aud` that contains
- * `tome`. Signature verification against the JWKS is the decoder's job; these are the
- * claim checks layered on top.
+ * Validators for a Hive-issued JWT (D6): the Spring defaults (`exp`/`nbf`) plus `iss == issuer` and an
+ * `aud` containing `tome`. Signature verification against the JWKS is the decoder's job.
  */
 fun tomeJwtValidator(issuer: String): OAuth2TokenValidator<Jwt> =
     DelegatingOAuth2TokenValidator(
@@ -38,13 +36,10 @@ private fun audienceValidator(): OAuth2TokenValidator<Jwt> =
     }
 
 /**
- * Maps the token's `roles` claim to Spring's `ROLE_` convention, so endpoints can use
- * `hasRole("admin")` / `@PreAuthorize`. Hive scopes each token to a single app, so `roles`
- * is a flat list of the keys the user holds in Tome (the `aud` — already checked by
- * [tomeJwtValidator] — identifies the app). The values are Hive's lowercase app-role keys
- * **`admin`/`user`** (the display names `Administrator`/`User` live in Hive's role catalog, not
- * the token) — casing must match what Hive stamps for the `tome` app (FR-024). Absent/empty → no
- * authorities, i.e. no access (a signed-in Hive user without a Tome grant is denied).
+ * Maps the token's `roles` claim to Spring's `ROLE_` convention so endpoints can use `hasRole("admin")`.
+ * Values are Hive's lowercase app-role keys (`admin`/`user`) — casing must match what Hive stamps for
+ * the `tome` app (FR-024; display names live in Hive's catalog, not the token). Absent/empty → no
+ * authorities, so a signed-in Hive user without a Tome grant is denied.
  */
 class TomeJwtAuthoritiesConverter : Converter<Jwt, Collection<GrantedAuthority>> {
     override fun convert(jwt: Jwt): Collection<GrantedAuthority> =

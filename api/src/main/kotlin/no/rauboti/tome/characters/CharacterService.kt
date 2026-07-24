@@ -15,8 +15,7 @@ import java.util.UUID
 
 /**
  * A [Character] paired with the soft [RuleWarning]s from validating its sheet (FR-005). [Character.data]
- * here is the stored **base inputs** ([CharacterBaseData]); the controller enriches it to the served
- * `CharacterData` (derived filled in) for the response. Warnings are guidance, never persisted, never a block.
+ * is the stored base inputs; the controller enriches it for the response. Warnings are never persisted.
  */
 data class CharacterWithWarnings(
     val character: Character,
@@ -24,28 +23,17 @@ data class CharacterWithWarnings(
 )
 
 /**
- * Application logic for player characters (US1), on the typed base/enriched split (ADR-001):
- *
- *  - **on write** — the request binds to a typed [CharacterBaseData] (base inputs only), stored as-is;
- *    there is no derived to strip (the base type has none).
- *  - **on read/echo** — the controller enriches the stored base to `CharacterData`, so responses carry
- *    the computed derived values.
- *  - **validation** — the rule set's [RuleSet.validate] runs over the typed base (soft warnings, FR-005).
- *  - **concurrency** — a stale write surfaces `OptimisticLockingFailureException`, mapped to
- *    [StaleVersionException] → `409` (SC-006).
- *
- * The rule set is fixed for a character's life (FR-002): an update carrying a different `data.ruleSetId`
- * is rejected. Authorization in v1 is owner-only.
+ * Application logic for player characters (US1). Writes store the typed [CharacterBaseData] as-is;
+ * reads validate via the [RuleSet] and leave enrichment to the controller. The rule set is fixed for a
+ * character's life (FR-002) — an update with a different `data.ruleSetId` is rejected — and a stale
+ * write becomes [StaleVersionException] → 409 (SC-006). Authorization is owner-only in v1.
  */
 @Service
 class CharacterService(
     private val repository: CharacterRepository,
     private val ruleSets: RuleSetRegistry,
 ) {
-    /**
-     * Create a character for [ownerId] from the typed [data] (its `ruleSetId` selects the rule set; an
-     * unrecognized/unsupported one is a 400). [name] is the promoted top-level name used for lists.
-     */
+    /** Create a character for [ownerId]; [data]'s `ruleSetId` selects the rule set (unknown → 400). */
     fun create(
         ownerId: UUID,
         name: String,
@@ -83,9 +71,9 @@ class CharacterService(
     fun list(ownerId: UUID): List<Character> = repository.findByUserId(ownerId)
 
     /**
-     * Replace a character's sheet ([data] is the full typed base) and optionally its [name], with
-     * optimistic concurrency. The rule set is fixed for life (FR-002): a differing `data.ruleSetId` is
-     * a 400. A stale [expectedVersion] becomes a `409` via [StaleVersionException].
+     * Replace a character's sheet ([data], full typed base) and optionally its [name], with optimistic
+     * concurrency. A differing `data.ruleSetId` is a 400 (rule set fixed for life, FR-002); a stale
+     * [expectedVersion] is a 409.
      */
     fun update(
         id: UUID,
@@ -105,7 +93,7 @@ class CharacterService(
             existing.copy(
                 name = name ?: existing.name,
                 data = data,
-                // Carry the caller's expected version so @Version rejects a stale write (SC-006).
+                // Expected version so @Version rejects a stale write (SC-006).
                 version = expectedVersion,
                 updatedAt = Instant.now(),
             )

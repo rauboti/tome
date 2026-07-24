@@ -3,13 +3,10 @@ package no.rauboti.tome.characters.data
 import org.springframework.data.annotation.TypeAlias
 
 /**
- * D&D 3.5 **base inputs** (ADR-001) — the stored/edited/parsed sheet. Identity fields stay top-level;
- * cohesive inputs are grouped ([abilities]/[hitPoints]/[defense]/[saves]/[spellcasting]). Holds **no
- * derived values**: those are added by enriching to [DnD35CharacterData] on read
- * ([CharacterBaseData.enrich]). Content mirrors the Phase 3C sheet (tasks T105–T114).
- *
- * `@TypeAlias("dnd35")` pins the stored `_class` discriminator (not the class FQN). All fields default,
- * so a partial sheet (create/edit) constructs cleanly.
+ * D&D 3.5 **base inputs** (ADR-001) — the stored/parsed sheet, enriched to [DnD35CharacterData] on read
+ * ([CharacterBaseData.enrich]). Identity fields stay top-level; cohesive inputs are grouped.
+ * `@TypeAlias("dnd35")` pins the stored `_class` discriminator; all fields default so a partial sheet
+ * (create/edit) constructs cleanly.
  */
 @TypeAlias("dnd35")
 data class DnD35CharacterBaseData(
@@ -54,7 +51,7 @@ data class DnD35AbilityScores(
     val charisma: Int = 10,
 )
 
-/** Entered hit points — both base inputs (HP is entered in 3.5). Shared by base and enriched. */
+/** Entered hit points — HP is entered in 3.5, not derived; shared by base and enriched. */
 data class DnD35HitPoints(
     val max: Int = 0,
     val current: Int = 0,

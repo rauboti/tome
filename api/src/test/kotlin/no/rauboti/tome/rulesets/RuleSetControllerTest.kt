@@ -13,12 +13,9 @@ import java.util.UUID
 
 /**
  * Contract test for the rule-set endpoints (T018, written before the controller in T019 — the 200
- * cases fail until it exists). Exercises the wired security chain + MockMvc against the openapi:
- *  - `GET /api/rule-sets`        → 200, an array of `RuleSetSummary { id, name }` (v1: just dnd35)
- *  - `GET /api/rule-sets/{id}`   → 200, that rule set's `RuleSetSummary { id, name }` (ADR-001: the
- *                                  sheet is a typed schema known to the client, not a fetched definition)
- *  - unknown id                  → 404
- * All are data-API routes, so they require a Tome role (a `jwt()` caller with `ROLE_User`).
+ * cases fail until it exists). Guards `GET /api/rule-sets` and `GET /api/rule-sets/{id}` returning
+ * `RuleSetSummary { id, name }` (v1: just dnd35; ADR-001: the sheet is a typed schema known to the
+ * client, not a fetched definition), unknown id → 404, and that all routes require a Tome role.
  */
 @AutoConfigureMockMvc
 class RuleSetControllerTest : IntegrationTest() {

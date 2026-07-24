@@ -25,9 +25,9 @@ type Row = Record<string, unknown>
 const asRows = (rows: readonly unknown[]): Row[] => rows as unknown as Row[]
 
 /**
- * A number input that holds its own display string, committing the parsed number to the parent on each
- * change (empty → 0). Local text state keeps `clear()`-then-`type()` clean (no controlled-number cursor
- * fight) while the parent stays the source of truth for derived recomputation.
+ * A number input holding its own display string, committing the parsed number to the parent on each
+ * change (empty → 0). Local text state avoids the controlled-number cursor fight while the parent stays
+ * the source of truth for derived recomputation.
  */
 const NumberField = ({
   label,
@@ -55,15 +55,11 @@ const NumberField = ({
 }
 
 /**
- * Typed D&D 3.5 sheet editor (ADR-001, T126) — replaces the generic definition-driven renderer for
- * this rule set. Edits the **base inputs** ([DnD35SheetInput]) and shows the **derived** values
- * read-only, recomputed **live** via {@link enrichDnD35} (the client mirror of the server's `enrich()`)
- * so a modifier updates as its score changes, before any save.
- *
- * Renders the full 3.5 sheet (T129): the scalar groups (identity, abilities, hit points, saves,
- * defense) plus the repeating-group tables (skills with the canonical preset list, attacks, feats,
- * gear, spellcasting stats + slots + the class-filtered spell picker) via {@link SheetTable} /
- * {@link SpellsTable}. Per-row derived (skill total, attack bonus, slot bonus/total) recompute live.
+ * Typed D&D 3.5 sheet editor (ADR-001). Edits the base inputs ([DnD35SheetInput]) and shows the derived
+ * values read-only, recomputed live via {@link enrichDnD35} — see web/README.md "The typed sheet mirror".
+ * Renders the scalar groups (identity, abilities, hit points, saves, defense) plus the repeating-group
+ * tables (skills with the canonical preset list, attacks, feats, gear, spellcasting stats + slots + the
+ * class-filtered spell picker) via {@link SheetTable} / {@link SpellsTable}.
  */
 export type DnD35CharacterSheetProps = {
   base: DnD35SheetInput

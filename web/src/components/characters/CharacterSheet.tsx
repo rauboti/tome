@@ -13,16 +13,11 @@ import { toDnD35Base, type DnD35SheetInput } from '@/sheets/dnd35'
 import { DnD35CharacterSheet } from './DnD35CharacterSheet'
 
 /**
- * The character sheet edit screen (US1; retyped for the base/enriched engine, ADR-001/T126). Loads
- * the character over the BFF, holds the **base inputs** as an editable draft, and renders the typed
- * {@link DnD35CharacterSheet} (which shows derived values recomputed live). Saves with optimistic
- * concurrency:
- *  - derived values are computed on read (D8): the editor recomputes them locally for instant feedback
- *    and sends **base inputs only**; the server's enriched response is authoritative on load and save;
- *  - soft `warnings` from a write are surfaced (never blocking, FR-005);
- *  - a 409 means someone else saved first (SC-006) — shown as a conflict notice.
- *
- * Takes a plain `characterId` (the route wrapper supplies it), so it renders in a test without a router.
+ * The character sheet edit screen (US1). Loads the character over the BFF, holds the base inputs as an
+ * editable draft, and renders {@link DnD35CharacterSheet} with derived values recomputed live. On save
+ * it sends base inputs only (see web/README.md "The typed sheet mirror"); soft `warnings` are surfaced
+ * but never block (FR-005), and a 409 means someone else saved first (SC-006), shown as a conflict notice.
+ * Takes a plain `characterId` so it renders in a test without a router.
  */
 export type CharacterSheetProps = {
   characterId: string
@@ -62,7 +57,7 @@ export const CharacterSheet = ({ characterId }: CharacterSheetProps) => {
     setSaveFailed(false)
     try {
       const sheetName = base.name.trim() !== '' ? base.name : undefined
-      // Send base inputs only — the server enriches (derived) on read; nothing derived is persisted (D8).
+      // Send base inputs only — the server enriches on read; nothing derived is persisted.
       const updated = await updateCharacter(characterId, {
         name: sheetName,
         data: base,

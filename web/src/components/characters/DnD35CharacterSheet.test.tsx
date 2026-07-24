@@ -10,10 +10,8 @@ import { server } from '@/mocks/server'
 import '@/i18n'
 
 /**
- * T129 — the typed 3.5 content tables. Drives the component through a stateful harness (base + onChange)
- * so edits recompute derived live, exactly as the sheet screen does. Covers: the canonical skills are
- * seeded and a skill total recomputes from ranks; a weapon's attack bonus is derived; and the
- * class-filtered spell picker fetches from the catalog and auto-fills the spell's level on pick.
+ * The typed 3.5 content tables, driven through a stateful harness (base + onChange) so edits recompute
+ * derived live, exactly as the sheet screen does.
  */
 const Harness = ({ initial }: { initial: DnD35SheetInput }) => {
   const [base, setBase] = useState(initial)

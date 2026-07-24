@@ -2,10 +2,10 @@ import { z } from 'zod'
 import { apiRequest } from './client'
 
 /**
- * Client for catalog-backed selects (T113): a field's `optionsFrom` picker fetches its choices from
- * `GET /api/rule-sets/{ruleSetId}/catalogs/{catalog}?filter={value}`. The catalog content is data
- * (e.g. SRD spell names), so `label` is a literal display string (not an i18n key); `meta` carries
- * optional per-option data (e.g. a spell's level for the filtered class).
+ * Client for catalog-backed selects (T113): a field's `optionsFrom` picker fetches choices from
+ * `GET /api/rule-sets/{ruleSetId}/catalogs/{catalog}?filter={value}`. Content is data (e.g. SRD spell
+ * names), so `label` is a literal display string, not an i18n key; `meta` carries optional per-option
+ * data (e.g. a spell's level for the filtered class).
  */
 export const catalogOptionSchema = z.object({
   value: z.string(),

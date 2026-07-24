@@ -7,11 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /**
- * Translates the app's domain exceptions into RFC-7807 problem details. Spring serializes
- * [ProblemDetail] as `application/problem+json` ({type, title, status, detail}) — the shape the
- * openapi `Problem` schema and the frontend expect. Spring's own MVC exceptions also render as
- * problem details (spring.mvc.problemdetails.enabled), so the error envelope is uniform across
- * framework and domain errors.
+ * Translates domain exceptions into RFC-7807 [ProblemDetail]s (`application/problem+json` —
+ * {type, title, status, detail}), the shape the openapi `Problem` schema and the frontend expect.
+ * Spring's own MVC exceptions render the same way (spring.mvc.problemdetails.enabled), so the error
+ * envelope is uniform across framework and domain errors.
  */
 @RestControllerAdvice
 class ApiExceptionHandler {
@@ -27,17 +26,16 @@ class ApiExceptionHandler {
     fun handleBadRequest(ex: BadRequestException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.message ?: "Bad request")
 
-    /** Optimistic-concurrency conflict → 409 (SC-006). The domain signal the character service raises. */
+    /** Optimistic-concurrency conflict → 409 (SC-006), raised by the character service. */
     @ExceptionHandler(StaleVersionException::class)
     fun handleStaleVersion(ex: StaleVersionException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.message ?: "Version conflict")
 
     /**
-     * Framework-level safety net: **any** Spring Data `@Version` optimistic-lock conflict → 409 (SC-006).
-     * The character write path translates this to [StaleVersionException] in the service (T096), so it
-     * never reaches here for characters; other `@Version` aggregates (campaigns/encounters, US2+) that
-     * let the Spring Data exception propagate get a clean 409 from this mapping. A curated detail is used
-     * rather than the driver's internal message.
+     * Framework-level safety net: any Spring Data `@Version` conflict → 409 (SC-006). The character
+     * write path translates this to [StaleVersionException] in the service (T096), so it never reaches
+     * here for characters; other `@Version` aggregates (campaigns/encounters, US2+) that let it
+     * propagate get a clean 409 with a curated detail rather than the driver's message.
      */
     @ExceptionHandler(OptimisticLockingFailureException::class)
     fun handleOptimisticLocking(ex: OptimisticLockingFailureException): ProblemDetail =

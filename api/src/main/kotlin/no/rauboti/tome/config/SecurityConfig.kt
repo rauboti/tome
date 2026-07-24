@@ -19,26 +19,10 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 /**
- * Security for the BFF (research D1/D6). Tome is a *consumer* of Hive: it validates Hive-issued
- * RS256 JWTs offline via Hive's JWKS. The browser holds only a session cookie — the token lives
- * server-side in the session — so API requests are authenticated by [SessionTokenAuthenticationFilter],
- * which decodes that token (same [JwtDecoder]/validators and authorities converter a resource
- * server would use) and silently refreshes it on expiry.
- *
- * The `SecurityContext` itself is stateless (rebuilt per request from the session token, never
- * persisted). URL model:
- *  - `/actuator/health` and the `/auth` login/callback handshake are **public** (the handshake
- *    *starts* a session, so needs none).
- *  - `POST /api/auth/logout` needs only a valid session, so a signed-in Hive user **without** a
- *    Tome grant can still sign out.
- *  - **everything else under `/api` — including `/api/auth/me` — requires a Tome app role
- *    (`Admin` or `User`)**. This is the deliberate divergence from taskmaster (which let any
- *    signed-in user read the `/api/auth` routes): FR-024 requires that a Hive user without a Tome
- *    role is denied, and the auth contract test (T010) asserts `/api/auth/me` returns **403** then.
- *  - unauthenticated calls answer with a plain **401** (no redirect), which the SPA turns into a
- *    Hive login.
- *
- * CORS is driven by `tome.cors.allowed-origins`.
+ * Security for the BFF (research D1/D6). Tome validates Hive-issued RS256 JWTs offline via Hive's
+ * JWKS; the token lives server-side in the session (browser holds only a cookie), so requests are
+ * authenticated by [SessionTokenAuthenticationFilter] and the `SecurityContext` is stateless. The URL
+ * model and role gating are documented in api/README.md; the inline comments below mark the why.
  */
 @Configuration
 @EnableWebSecurity
@@ -51,9 +35,8 @@ class SecurityConfig(
     @param:Value("\${tome.cors.allowed-origins}") private val corsAllowedOrigins: List<String>,
 ) {
     /**
-     * Decoder pointed at Hive's JWKS URI (`internal-url` + JWKS path; keys fetched + cached lazily
-     * on first use, so no network call at startup), carrying Tome's claim validators — `iss` is
-     * validated against the external URL Hive stamps into its tokens.
+     * Decoder pointed at Hive's JWKS URI (`internal-url` + JWKS path; keys fetched lazily, no startup
+     * network call), with Tome's validators — `iss` is checked against the external URL Hive stamps.
      */
     @Bean
     fun jwtDecoder(): JwtDecoder =
@@ -83,10 +66,9 @@ class SecurityConfig(
                 it.requestMatchers("/auth/login", "/auth/callback").permitAll()
                 // Any signed-in Hive user may sign out, even without a Tome grant.
                 it.requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
-                // Everything else under /api (incl. /api/auth/me) is gated on a Tome app role.
-                // A signed-in Hive user without an admin/user grant gets a 403 (FR-024). Role keys
-                // are Hive's lowercase app-role keys (`admin`/`user`) — the token's `roles` claim
-                // carries the keys, not the display names (consistent with the other consumers).
+                // Everything else under /api (incl. /api/auth/me) needs a Tome role; a signed-in Hive
+                // user without an admin/user grant gets 403 (FR-024). Keys are Hive's lowercase role
+                // keys from the `roles` claim, not display names.
                 it.requestMatchers("/api/**").hasAnyRole("admin", "user")
                 it.anyRequest().authenticated()
             }.exceptionHandling {

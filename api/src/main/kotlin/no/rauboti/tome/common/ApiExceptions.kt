@@ -17,10 +17,8 @@ class BadRequestException(
 
 /**
  * 409 — optimistic-concurrency conflict (SC-006). Thrown when a write carries a `version` that no
- * longer matches the stored aggregate (a concurrent edit landed first). The client re-reads and
- * retries; no write is silently overwritten.
- *
- * [HiveUnavailableException] (502) lives in its own file and is handled by the same advice.
+ * longer matches the stored aggregate (a concurrent edit landed first); the client re-reads and
+ * retries, so no write is silently overwritten.
  */
 class StaleVersionException(
     message: String = "The resource was modified by someone else. Reload and try again.",

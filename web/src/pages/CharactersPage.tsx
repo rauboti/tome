@@ -12,11 +12,10 @@ import { listRuleSets, type RuleSetSummary } from '@/api/schemas'
 import { CreateCharacterDialog } from '@/components/characters/CreateCharacterDialog'
 
 /**
- * The characters landing page (US1, T033): the caller's own characters plus a "New character"
- * dialog. Loads the list and the rule sets (for the create picker) on mount via the typed client;
- * a load failure shows a soft error, an empty list shows a prompt, and each row links to the
- * character's sheet (`/characters/:id`, T034). Creating a character prepends it and routes to its
- * sheet. Owner scoping is server-side — the list only ever returns the caller's characters.
+ * The characters landing page (US1): the caller's own characters plus a "New character" dialog. Loads
+ * the list and the rule sets (for the create picker) on mount; each row links to the character's sheet
+ * (`/characters/:id`), and creating a character prepends it and routes to its sheet. Owner scoping is
+ * server-side — the list only ever returns the caller's characters.
  */
 export const CharactersPage = () => {
   const { t } = useTranslation()

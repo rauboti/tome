@@ -9,8 +9,7 @@ import '@/i18n'
 const router = createBrowserRouter(routes)
 
 /** In mock mode (`VITE_ENABLE_MSW=true`) start the MSW worker before rendering so the first
- *  `/api/auth/me` probe is intercepted. A normal `yarn dev` skips this and hits the real api via
- *  the Vite proxy. */
+ *  `/api/auth/me` probe is intercepted; a normal `yarn dev` skips it. */
 const enableMocking = async (): Promise<void> => {
   if (import.meta.env.VITE_ENABLE_MSW !== 'true') return
   const { worker } = await import('@/mocks/browser')

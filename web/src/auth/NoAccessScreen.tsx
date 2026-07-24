@@ -5,9 +5,8 @@ import { useSession } from './SessionContext'
 
 /**
  * Shown by the RequireAuth guard when the user is signed in to Hive but has no Tome role (403 on
- * `/api/auth/me`, FR-024). A sibling of [LoginScreen], not a routed page: they *are* authenticated,
- * they just can't use Tome — so the only action is to sign out (e.g. to switch accounts). A Tome
- * role is granted in Hive, out of band.
+ * `/api/auth/me`, FR-024). Not a routed page: they are authenticated, so the only action is to sign
+ * out (e.g. to switch accounts). A Tome role is granted in Hive, out of band.
  */
 export const NoAccessScreen = () => {
   const { t } = useTranslation()

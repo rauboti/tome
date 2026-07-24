@@ -30,12 +30,9 @@ type SessionContextValue = SessionState & {
 const SessionContext = createContext<SessionContextValue | null>(null)
 
 /**
- * Probe the session via the shared client. The BFF holds the Hive token server-side, so the browser
- * sends only its session cookie. 200 → signed in with a Tome role; 401 → not signed in; 403 → signed
- * in but no Tome role (no-access, FR-024). Whenever a payload arrives its locale is applied *before*
- * the state lands, so the first paint is already in the right language (FR-015). The probe opts out
- * of the client's auto-redirect (so the app renders a login screen instead of bouncing to Hive) and
- * of the global no-access handler (it resolves its own 403).
+ * Probe the session via `/api/auth/me` (200 authenticated, 401 unauthenticated, 403 no-access). The
+ * locale is applied *before* the state lands so the first paint is in the right language (FR-015).
+ * Opts out of the client's auto-redirect and global no-access handler to resolve 401/403 itself.
  */
 const fetchSession = async (signal: AbortSignal): Promise<SessionState> => {
   try {

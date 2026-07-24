@@ -38,12 +38,8 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Registered by the SessionProvider: called whenever a request comes back 403 (authenticated but
- * no Tome role), so the app can drop to the "no access to Tome" screen no matter which data call
- * surfaced it (FR-024). `null` clears the handler. The session-bootstrap probe opts out via
- * `notifyForbidden: false` (it interprets its own 403).
- */
+/** Global 403 handler (FR-024): the SessionProvider registers it so any data call's 403 drops the app
+ *  to the no-access screen. `null` clears it; the bootstrap probe opts out (`notifyForbidden: false`). */
 let onForbidden: (() => void) | null = null
 export const setOnForbidden = (handler: (() => void) | null): void => {
   onForbidden = handler
@@ -73,14 +69,9 @@ const readProblem = async (
   }
 }
 
-/**
- * Typed fetch wrapper for the Tome BFF. Sends the session cookie, validates the response body
- * against `schema`, and normalizes failures:
- *   - 401 → redirect to `/auth/login` (unless opted out), then reject with `ApiError`.
- *   - 403 → notify the no-access handler (unless opted out), then reject with `ApiError`.
- *   - other non-2xx → reject with `ApiError` (parsing `problem+json` when present).
- *   - 2xx → parse the JSON body with `schema` (use `z.undefined()` for 204).
- */
+/** Typed fetch wrapper for the Tome BFF: sends the session cookie, validates the 2xx body against
+ *  `schema` (`z.undefined()` for 204), and rejects non-2xx with `ApiError`. See the web README's Auth
+ *  flow for the 401/403 handling. */
 export const apiRequest = async <T>(
   path: string,
   schema: z.ZodType<T>,

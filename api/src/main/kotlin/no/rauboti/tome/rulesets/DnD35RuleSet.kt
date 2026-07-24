@@ -5,10 +5,8 @@ import no.rauboti.tome.characters.data.DnD35CharacterBaseData
 import org.springframework.stereotype.Component
 
 /**
- * The D&D 3.5 rule-set logic (ADR-001). Derived values now live on the typed sheet
- * ([no.rauboti.tome.characters.data.DnD35CharacterData], built by `enrich()`), so this strategy is
- * purely identity + soft validation — no definition, no `computeDerived`. Registered as the `dnd35`
- * [RuleSet] by the registry.
+ * The D&D 3.5 rule-set logic (ADR-001): identity + soft validation only. Derived values live on the
+ * typed [no.rauboti.tome.characters.data.DnD35CharacterData] (built by `enrich()`), not here.
  */
 @Component
 class DnD35RuleSet : RuleSet {

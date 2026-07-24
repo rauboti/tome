@@ -18,10 +18,7 @@ import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 
 /**
- * Contract test for the character endpoints (T025, written **before** the model/service/controller
- * in T029–T031 — the 201/200/204 cases fail until they exist; the `401` cases already pass on the
- * wired security chain from T009). Exercises the real chain + MockMvc against the openapi
- * `/characters` paths:
+ * Conformance of the `/api/characters` endpoints to `contracts/openapi.yaml`:
  *  - `GET  /api/characters`        → 200, an array of `CharacterSummary { id, name, ruleSetId }`
  *  - `POST /api/characters`        → 201, a `Character` (owner = the caller's Hive subject); 400 on
  *                                    a body missing the required `ruleSetId`/`name`
@@ -29,11 +26,8 @@ import java.util.UUID
  *  - `PUT  /api/characters/{id}`   → 200 with the bumped `version` (optimistic concurrency); 409 stale
  *  - `DELETE /api/characters/{id}` → 204, then the resource is gone (404)
  *
- * All are data-API routes, so they require a Tome role (a `jwt()` caller with `ROLE_User`); the
- * caller's `sub` is the owning user. Each authenticated case runs against the real MongoDB from
- * [IntegrationTest], so created documents persist across the request chain within a test. The openapi
- * response shapes are unchanged by the compute-on-read re-platform (the `Character`/`CharacterSummary`
- * contracts stay identical); this test pins that.
+ * All are data-API routes requiring a Tome role (`jwt()` caller with `ROLE_User`); the caller's `sub`
+ * owns the document. Response shapes stayed identical across the compute-on-read re-platform.
  */
 @AutoConfigureMockMvc
 class CharacterContractTest : IntegrationTest() {

@@ -17,12 +17,10 @@ data class HiveTokens(
 )
 
 /**
- * Talks to Hive's `POST {internal-url}/oauth2/token` (`client_secret_post`; research D1):
- * [exchange] redeems an authorization code (Authorization-Code + PKCE), [refresh] renews
- * a session with the rotating refresh token. Both return the new [HiveTokens]. Any
- * transport failure or unusable response is surfaced as [HiveUnavailableException] — the
- * "Hive unreachable" path; for a refresh it also signals the session can no longer be
- * renewed silently (fall back to login).
+ * Talks to Hive's `POST {internal-url}/oauth2/token` (`client_secret_post`; research D1): [exchange]
+ * redeems an authorization code (Authorization-Code + PKCE), [refresh] renews with the rotating refresh
+ * token. Any transport failure or unusable response surfaces as [HiveUnavailableException]; for a
+ * refresh that also means the session can't be renewed silently (fall back to login).
  */
 interface HiveTokenClient {
     fun exchange(
@@ -77,8 +75,8 @@ class RestClientHiveTokenClient(
                     .retrieve()
                     .body(Map::class.java)
             } catch (e: RestClientException) {
-                // Transport failure (ResourceAccessException) or non-2xx (RestClientResponseException,
-                // e.g. an invalid_grant on a dead refresh token) — Hive is unusable for this call.
+                // Transport failure or non-2xx (e.g. invalid_grant on a dead refresh token) — Hive
+                // is unusable for this call.
                 throw HiveUnavailableException("Hive token request failed", e)
             } ?: throw HiveUnavailableException("Empty response from Hive token endpoint")
 

@@ -8,17 +8,13 @@ import org.testcontainers.mongodb.MongoDBContainer
 /**
  * Shared Testcontainers wiring for integration tests.
  *
- * The container is a JVM-wide singleton: started once on first access and reused across every
- * test class via [IntegrationTest]. `start()` is idempotent, and the instance is never stopped
- * explicitly — Testcontainers' Ryuk reaper tears it down at JVM exit. That gives one MongoDB
- * replica set for the whole `verify` run.
+ * The container is a JVM-wide singleton reused across test classes; it is never stopped explicitly —
+ * Ryuk tears it down at JVM exit — giving one MongoDB for the whole `verify` run.
  *
- * [MongoDBContainer] initiates a single-node replica set automatically, so multi-document
- * transactions and `@Version` optimistic concurrency work (research §D5). Exposed to Spring via
- * [@ServiceConnection][ServiceConnection], which supplies a `MongoConnectionDetails` bean from the
- * container's replica-set URL — no `@DynamicPropertySource` plumbing — so tests bypass the
- * `spring.mongodb.uri` property entirely (which is why they can't catch a misconfigured URI property;
- * that path is covered by the compose boot check in T104).
+ * [MongoDBContainer] initiates a single-node replica set, required for multi-document transactions
+ * and `@Version` optimistic concurrency (research §D5). [@ServiceConnection][ServiceConnection] wires
+ * it from the container's replica-set URL, so tests bypass the `spring.mongodb.uri` property entirely
+ * — which is why they can't catch a misconfigured URI; the compose boot check covers that path.
  */
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {

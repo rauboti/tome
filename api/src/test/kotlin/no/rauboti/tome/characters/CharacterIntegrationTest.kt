@@ -22,14 +22,13 @@ import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 
 /**
- * Behavioural integration test for the character write path on the **typed base/enriched split**
- * (ADR-001, T124), MockMvc against the real MongoDB from [IntegrationTest]. Pins:
- *  - a created sheet's **base inputs persist** and reload; the response is the **enriched** sheet with
+ * Character write path on the typed base/enriched split (ADR-001). Guards:
+ *  - a created sheet's base inputs persist and reload; the response is the enriched sheet with
  *    derived values grouped (`data.abilities.strMod`, `data.saves.fortitude`);
- *  - the **raw stored document holds base inputs only** — grouped, no derived, `_class` = `dnd35`;
- *  - a soft rule violation returns a **warning without blocking** (FR-005);
- *  - an **unknown rule set → 400** (the request `data` fails to bind to a known `CharacterBaseData`);
- *  - optimistic concurrency: a stale `@Version` write → **409** and does not overwrite the winner.
+ *  - the raw stored document holds base inputs only — grouped, no derived, `_class` = `dnd35`;
+ *  - a soft rule violation returns a warning without blocking (FR-005);
+ *  - an unknown rule set → 400 (the request `data` fails to bind to a known `CharacterBaseData`);
+ *  - a stale `@Version` write → 409 and does not overwrite the winner.
  */
 @AutoConfigureMockMvc
 class CharacterIntegrationTest : IntegrationTest() {
@@ -105,7 +104,7 @@ class CharacterIntegrationTest : IntegrationTest() {
                 """{"ruleSetId":"dnd35","abilities":{"strength":16,"dexterity":14,"constitution":13,"wisdom":8},"saves":{"fortBase":2,"willBase":1}}""",
             )["id"] as String
 
-        // The GET response carries the resolved derived values, grouped (enriched on read).
+        // Derived values are resolved and grouped on read (enriched).
         mvc
             .get("/api/characters/$id") { with(user(owner, "user")) }
             .andExpect {

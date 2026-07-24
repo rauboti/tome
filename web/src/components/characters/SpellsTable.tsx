@@ -6,10 +6,9 @@ import { NumberCell } from './SheetTable'
 import type { DnD35SpellRow } from '@/sheets/dnd35'
 
 /**
- * The spellcasting spells table (ADR-001/T129) — the one catalog-backed section. Each row's `spell`
- * is a **class-filtered** picker: it fetches options from `GET /rule-sets/{id}/catalogs/spells?filter=
- * {casterClass}` (survives the typed pivot, T113/T114); picking a spell auto-fills `level` from the
- * option's `meta.level` for that class. Rows are user-added. Kept separate from the generic
+ * The spellcasting spells table (ADR-001) — the one catalog-backed section. Each row's `spell` is a
+ * class-filtered picker fetching `GET /rule-sets/{id}/catalogs/spells?filter={casterClass}`; picking a
+ * spell auto-fills `level` from the option's `meta.level` for that class. Kept separate from the generic
  * {@link SheetTable} because of the async, class-filtered fetch.
  */
 export type SpellsTableProps = {

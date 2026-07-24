@@ -3,10 +3,9 @@ import type { Me } from '@/api/schemas'
 import { authenticatedUser, ruleSets } from './fixtures'
 
 /**
- * Default MSW request handlers, shared by the test server (`server.ts`) and the dev worker
- * (`browser.ts`). Defaults represent a signed-in user with a Tome role so the app renders without
- * a real Hive; individual tests override per-case with `server.use(...)` (e.g. a 401 for the
- * unauthenticated path, or a 403 for the no-access path).
+ * Default MSW request handlers, shared by the test server (`server.ts`) and dev worker (`browser.ts`).
+ * Defaults are a signed-in user with a Tome role; tests override per-case with `server.use(...)`
+ * (e.g. a 401 for the unauthenticated path, a 403 for no-access).
  */
 
 const makeAuthHandlers = (): RequestHandler[] => {

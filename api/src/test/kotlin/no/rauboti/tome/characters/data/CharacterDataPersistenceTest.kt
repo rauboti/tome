@@ -16,14 +16,10 @@ import java.util.UUID
 import org.springframework.data.mongodb.core.mapping.Document as MongoDocument
 
 /**
- * T122 (TDD). Pins the **storage** contract (the model-level slice of T119, no service wiring): the
- * stored [CharacterBaseData] round-trips through `MongoTemplate` to the correct concrete variant, the
- * discriminator is stored as `_class` = the `@TypeAlias` (not the class FQN), and — because the base
- * type has no derived properties at all — nothing derived can leak into storage. Enriching a reloaded
- * base recomputes the derived.
- *
- * Uses a tiny test-local wrapper document to exercise the sheet type before `Character.data` is retyped
- * to [CharacterBaseData] in T124.
+ * Storage contract for [CharacterBaseData]: it round-trips through `MongoTemplate` to the correct
+ * concrete variant, the discriminator is stored as `_class` = the `@TypeAlias` (not the class FQN),
+ * and — because the base type has no derived properties — nothing derived can leak into storage;
+ * enriching a reloaded base recomputes the derived. Uses a test-local wrapper document ([SheetHolder]).
  */
 class CharacterDataPersistenceTest : IntegrationTest() {
     @Autowired private lateinit var mongo: MongoTemplate

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 import tools.jackson.module.kotlin.jacksonObjectMapper
 
 /**
- * Unit test for [SpellCatalog] (T113) — the class-filtered spell option source. Pure: constructs the
- * catalog with a bare Jackson mapper (it reads the bundled `spells.json` off the classpath).
+ * Unit test for [SpellCatalog] (T113) — the class-filtered spell option source. Pure; reads the
+ * bundled `spells.json` off the classpath via a bare Jackson mapper.
  */
 class SpellCatalogFilterTest {
     private val catalog = SpellCatalog(jacksonObjectMapper())

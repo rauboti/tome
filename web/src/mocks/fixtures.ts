@@ -1,9 +1,8 @@
 import type { Me, RuleSetSummary } from '@/api/schemas'
 
 /**
- * Shared sample data for the MSW handlers (dev worker + test server). Shapes mirror the openapi
- * contract (`Me`, `RuleSetSummary`). The sheet is a typed schema known to the client (ADR-001), so
- * there is no `SheetDefinition` fixture — character/sheet data is supplied per-test.
+ * Shared sample data for the MSW handlers (dev worker + test server), mirroring the openapi contract
+ * (`Me`, `RuleSetSummary`). No `SheetDefinition` fixture (ADR-001) — sheet data is supplied per-test.
  */
 
 /** The signed-in user returned by `GET /api/auth/me` in mock mode (no locale chosen → English UI,

@@ -2,24 +2,17 @@ import { z } from 'zod'
 import { apiRequest, type ApiRequestOptions } from './client'
 
 /**
- * Typed client for the Tome BFF: the `/api/auth` identity shapes and the `/api/rule-sets` picker
- * shapes (openapi `Me`, `RuleSetSummary`). Zod schemas validate every response body; the functions
- * wrap [apiRequest] with the right method/path.
- *
- * ADR-001: the sheet is a typed schema known to the client (see `@/sheets/dnd35`), not a data-driven
- * `SheetDefinition` fetched to drive a generic renderer — so there is no definition schema or
- * `GET /rule-sets/{id}` definition fetch here anymore (that endpoint returns a summary now).
+ * Client for the `/api/auth` identity shapes and the `/api/rule-sets` picker shapes (openapi `Me`,
+ * `RuleSetSummary`). No `SheetDefinition` fetch: the sheet is a typed client schema (ADR-001), so
+ * `GET /rule-sets/{id}` returns only a summary.
  */
 
 // ---- Auth ----
 
-/** `GET /api/auth/me` (openapi). Roles/locale stay permissive strings — the app only displays
- *  them; the admin/user gate is enforced server-side (FR-024). Locale renders English when null or
- *  unsupported (FR-015, research D7).
- *
- *  `displayName`/`locale` are `.nullish()` (string | null | undefined), not `.optional()`: the BFF
- *  serializes an absent claim as an explicit JSON `null` (e.g. `"locale":null`), and `.optional()`
- *  accepts a *missing* key but rejects `null` — which made a good 200 throw a ZodError. */
+/** `GET /api/auth/me` (openapi). Roles/locale are permissive strings the app only displays; the
+ *  admin/user gate is server-side (FR-024). Locale renders English when null or unsupported (FR-015,
+ *  research D7). `displayName`/`locale` are `.nullish()`, not `.optional()`: the BFF serializes an
+ *  absent claim as explicit `null`, which `.optional()` would reject. */
 export const meSchema = z.object({
   userId: z.string(),
   displayName: z.string().nullish(),

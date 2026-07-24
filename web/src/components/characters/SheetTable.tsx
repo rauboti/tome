@@ -3,14 +3,12 @@ import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/react'
 import { Button, Input } from '@rauboti/ui'
 
 /**
- * A typed sheet table (ADR-001/T129) — the reusable editor for the D&D 3.5 repeating-group sections
- * (skills, attacks, feats, gear, spell slots, spells). Column headers render once; each cell is an
- * accessible control named `${column} ${rowIndex + 1}` (the convention the retired generic renderer
- * used, so cell-level queries stay stable — this also folds in the T115 "condensed layout" concern).
- *
- * Rows are the base-input row objects; derived columns are read-only and computed by the caller
- * (`column.derive`). Leading `presetCount` rows are canonical seed rows: their `presetLocked` cells are
- * read-only and those rows can't be removed; the user may append/remove further rows via `newRow`.
+ * A typed sheet table (ADR-001) — the reusable editor for the D&D 3.5 repeating-group sections (skills,
+ * attacks, feats, gear, spell slots, spells). Each cell is an accessible control named
+ * `${column} ${rowIndex + 1}` so cell-level queries stay stable. Rows are the base-input row objects;
+ * derived columns are read-only and computed by the caller (`column.derive`). Leading `presetCount` rows
+ * are canonical seed rows: their `presetLocked` cells are read-only and those rows can't be removed; the
+ * user may append/remove further rows via `newRow`.
  */
 export type SheetTableColumn = {
   id: string
@@ -90,7 +88,7 @@ export const SheetTable = ({
 
   const cell = (column: SheetTableColumn, row: Record<string, unknown>, rowIndex: number) => {
     // Table-scoped accessible name so cells stay unique across tables that share a column label
-    // (e.g. both Skills and Spell Slots have a "Total"). Row-indexed per the retired renderer's convention.
+    // (e.g. both Skills and Spell Slots have a "Total").
     const name = `${title} ${column.label} ${rowIndex + 1}`
     const locked = rowIndex < presetCount && column.presetLocked
     const set = (value: unknown) => patch(rowIndex, { ...row, [column.id]: value })

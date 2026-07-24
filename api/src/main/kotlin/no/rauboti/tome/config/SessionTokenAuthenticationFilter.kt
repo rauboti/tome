@@ -16,17 +16,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
- * Authenticates BFF API requests from the **session-stored** Hive access token — the browser
- * holds only the session cookie, so the token never leaves the server (BFF; research D1/D6).
- * Each request decodes the stored access token and builds a per-request `SecurityContext` from
- * its claims, reusing the very same [JwtDecoder]/validators and authorities converter a direct
- * resource server would (so authorities and `hasRole(...)` checks are identical).
- *
- * If the access token has expired, it is refreshed **silently, server-side** with the stored
- * refresh token — the user's work survives the access-token TTL with no browser round-trip.
- * If the refresh also fails (refresh token expired/revoked, or Hive unreachable), the dead
- * tokens are dropped and the request stays unauthenticated → 401 → the SPA restarts the Hive
- * login.
+ * Authenticates BFF API requests from the session-stored Hive access token, building a per-request
+ * `SecurityContext` from its claims with the same [JwtDecoder]/validators and authorities converter a
+ * direct resource server would use (so authorities and `hasRole(...)` checks are identical). An expired
+ * token is refreshed silently server-side; if that also fails (refresh token expired/revoked, or Hive
+ * unreachable), the dead tokens are dropped → 401 → the SPA restarts the Hive login.
  */
 @Component
 class SessionTokenAuthenticationFilter(
@@ -41,9 +35,9 @@ class SessionTokenAuthenticationFilter(
     ) {
         val session = request.getSession(false)
         val accessToken = session?.getAttribute(SessionKeys.ACCESS_TOKEN) as? String
-        // Spring Security's AnonymousAuthenticationFilter runs before this one, so the context
-        // already holds a (non-null) anonymous token by now. Treat that as "not yet authenticated"
-        // and still decode our session token — otherwise every API request stays anonymous → 401.
+        // AnonymousAuthenticationFilter runs first, so the context already holds an anonymous token;
+        // treat that as "not yet authenticated" and still decode our session token, else every API
+        // request stays anonymous → 401.
         val existing = SecurityContextHolder.getContext().authentication
         if (accessToken != null && (existing == null || existing is AnonymousAuthenticationToken)) {
             validAccessJwt(accessToken, session)?.let { jwt ->
@@ -72,8 +66,8 @@ class SessionTokenAuthenticationFilter(
             session.setAttribute(SessionKeys.REFRESH_TOKEN, tokens.refreshToken)
             jwtDecoder.decode(tokens.accessToken)
         } catch (refreshFailed: RuntimeException) {
-            // Refresh token expired/revoked or Hive unreachable — the session can't be renewed.
-            // Drop the dead tokens so the request is unauthenticated (401 → SPA re-login).
+            // Refresh token expired/revoked or Hive unreachable — drop the dead tokens so the request
+            // is unauthenticated (401 → SPA re-login).
             session.removeAttribute(SessionKeys.ACCESS_TOKEN)
             session.removeAttribute(SessionKeys.REFRESH_TOKEN)
             null

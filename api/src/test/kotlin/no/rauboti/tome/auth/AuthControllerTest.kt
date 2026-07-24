@@ -13,16 +13,12 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor
 import java.util.UUID
 
 /**
- * Contract test for the BFF auth endpoints (T010). Written **before** the AuthController (T011),
- * so the 200/204 cases fail until it exists — the 401/403 cases already pass on the wired security
- * chain alone (SecurityConfig, T009). Exercises that real chain end-to-end via MockMvc; authenticated
- * callers use spring-security-test's `jwt()` post-processor, which pre-populates the SecurityContext
- * that [no.rauboti.tome.config.SessionTokenAuthenticationFilter] leaves intact (it only fills an
- * empty context), so authorities and `hasAnyRole(...)` are exercised exactly as in production.
- *
- * Contract (openapi `/auth/me`): 200 → `{ userId, roles, displayName?, locale? }`; `/auth/logout`
- * → 204. FR-024: a signed-in Hive user *without* a Tome role (Admin/User) is denied — `/api/auth/me`
- * returns **403**, not 200.
+ * Contract test for the BFF auth endpoints (T010), written before AuthController (T011): the 200/204
+ * cases fail until it exists, while the 401/403 cases pass on the security chain alone (SecurityConfig,
+ * T009). The `jwt()` post-processor pre-populates the SecurityContext that
+ * [no.rauboti.tome.config.SessionTokenAuthenticationFilter] leaves intact, so authorities and
+ * `hasAnyRole(...)` are exercised as in production. FR-024: a signed-in Hive user without a Tome role
+ * (Admin/User) gets **403** from `/api/auth/me`, not 200.
  */
 @AutoConfigureMockMvc
 class AuthControllerTest : IntegrationTest() {

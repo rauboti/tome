@@ -12,11 +12,10 @@ data class CatalogOption(
 )
 
 /**
- * A named, filterable option source behind a catalog-backed select (T113; a typed sheet component
- * fetches it — ADR-001). The **mechanism**
- * is rule-set-agnostic (resolved generically by [CatalogRegistry] + served by [CatalogController]); a
- * concrete catalog owns its data and filter semantics (e.g. [SpellCatalog] = the dnd35 spell list
- * filtered by caster class). Registering a new catalog is additive: declare its `@Component`.
+ * A named, filterable option source behind a catalog-backed select (T113, ADR-001). The mechanism is
+ * rule-set-agnostic (resolved by [CatalogRegistry], served by [CatalogController]); a concrete catalog
+ * owns its data and filter semantics (e.g. [SpellCatalog] = the dnd35 spell list filtered by caster
+ * class). Registering a new catalog is additive — declare its `@Component`.
  */
 interface Catalog {
     /** The rule set this catalog belongs to, e.g. `dnd35`. */

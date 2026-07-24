@@ -20,10 +20,9 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 /**
- * Create a character: `name` and the typed `data` are required — declared non-null so a body missing
- * either fails deserialization → 400. `data` is the typed base sheet ([CharacterBaseData]); its
- * `ruleSetId` selects the rule set (an unknown one fails to bind → 400), so no separate top-level
- * `ruleSetId` is sent (ADR-001). A partial sheet is fine — every base field defaults.
+ * Create a character. `name` and the typed base `data` are non-null, so a body missing either fails
+ * deserialization → 400; `data.ruleSetId` selects the rule set (unknown → 400). A partial sheet is
+ * fine — every base field defaults.
  */
 data class CreateCharacterRequest(
     val name: String,
@@ -31,10 +30,9 @@ data class CreateCharacterRequest(
 )
 
 /**
- * Update a character sheet: the typed `data` (full base sheet) and `version` are required (non-null →
- * 400 if absent); `name` is optional (null keeps the current name). `version` carries optimistic
- * concurrency — a stale value comes back as 409 (SC-006). `data.ruleSetId` must match the character's
- * (the rule set is fixed for life, FR-002) or the service answers 400.
+ * Update a character sheet. `data` (full base sheet) and `version` are required; `name` is optional
+ * (null keeps the current). `version` carries optimistic concurrency (stale → 409); `data.ruleSetId`
+ * must match the character's or the service answers 400 (FR-002).
  */
 data class UpdateCharacterRequest(
     val name: String? = null,
@@ -50,10 +48,9 @@ data class CharacterSummaryResponse(
 )
 
 /**
- * Full character projection (openapi `Character`): the promoted columns, the **enriched** sheet `data`
- * ([CharacterData] — base inputs plus derived values computed on read), the soft `warnings` from the
- * last validate, and the `version` to send back on the next write. HP lives inside `data` (in the
- * DnD35 sheet's `hitPoints` group), not as a promoted top-level field in v1.
+ * Full character projection (openapi `Character`): the enriched sheet `data` ([CharacterData] — base
+ * inputs plus derived), the soft `warnings` from the last validate, and the `version` to send on the
+ * next write. HP lives inside `data` (the DnD35 `hitPoints` group), not as a top-level field in v1.
  */
 data class CharacterResponse(
     val id: UUID,
@@ -66,13 +63,10 @@ data class CharacterResponse(
 )
 
 /**
- * REST surface for player characters (US1, openapi `/characters`). Behind the `/api` Tome-role gate
- * (SecurityConfig, T009); the caller's Hive subject (from the session-authenticated [Jwt]) is the
- * owner for every operation. All business rules — rule-set resolution, derived-value recompute, soft
- * warnings, and optimistic concurrency — live in [CharacterService]; this class only maps HTTP to it
- * and projects the result. Domain exceptions become RFC-7807 responses via the shared advice (T012):
- * `NotFoundException` → 404, `ForbiddenException` → 403, `BadRequestException` → 400,
- * `StaleVersionException` → 409.
+ * REST surface for player characters (US1, openapi `/characters`). Behind the `/api` Tome-role gate;
+ * the caller's Hive subject (from the session-authenticated [Jwt]) owns every operation. Business
+ * rules live in [CharacterService] — this class maps HTTP and projects the result; domain exceptions
+ * become RFC-7807 responses via the shared advice.
  */
 @RestController
 @RequestMapping("/api/characters")
@@ -126,10 +120,9 @@ class CharacterController(
             name = character.name,
             ruleSetId = character.ruleSetId,
             ownerId = character.userId,
-            // Enrich the stored base into the served sheet (base inputs + derived) on read (ADR-001).
+            // Enrich base → served sheet (base + derived) on read (ADR-001).
             data = character.data.enrich(),
             warnings = warnings,
-            // A persisted character always carries a @Version (0 on insert, bumped on save).
             version = requireNotNull(character.version) { "a persisted character must have a version" },
         )
 }

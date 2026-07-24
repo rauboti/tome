@@ -7,10 +7,8 @@ import {
 } from '@/sheets/dnd35'
 
 /**
- * Typed client for the character endpoints (openapi `/characters`, US1). Zod validates every response
- * body; the functions wrap [apiRequest] with the right method/path. Sheet `data` is the **typed**
- * rule-set sheet (ADR-001): a request sends the base [DnD35SheetInput]; a response carries the enriched
- * [DnD35Sheet] (base + derived). v1 ships D&D 3.5 only — the union widens when Dark Souls (US5) lands.
+ * Typed client for the character endpoints (openapi `/characters`, US1). v1 ships D&D 3.5 only — the
+ * `Sheet`/`SheetInput` aliases widen when Dark Souls (US5) lands.
  */
 
 /** The enriched sheet a response carries. v1: D&D 3.5. */
@@ -19,9 +17,9 @@ export type Sheet = DnD35Sheet
 export type SheetInput = DnD35SheetInput
 export const sheetSchema = dnd35SheetSchema
 
-/** A soft validation finding (openapi `RuleWarning`): guidance, never a block (FR-005). `field` is
- *  the offending field id, or `null` for a sheet-wide warning — the BFF serializes it from a Kotlin
- *  nullable, so `.nullish()` (not `.optional()`, which would reject the explicit `null`). */
+/** A soft validation finding (openapi `RuleWarning`): guidance, never a block (FR-005). `field` is the
+ *  offending field id, or `null` for a sheet-wide warning — `.nullish()` because the BFF serializes the
+ *  Kotlin nullable as explicit `null`, which `.optional()` would reject. */
 export const ruleWarningSchema = z.object({
   code: z.string(),
   field: z.string().nullish(),
@@ -37,9 +35,9 @@ export const characterSummarySchema = z.object({
 })
 export type CharacterSummary = z.infer<typeof characterSummarySchema>
 
-/** A full character (openapi `Character`): the summary plus owner, the enriched sheet `data` (base +
- *  computed derived values), soft `warnings`, and the `version` to echo back on the next write
- *  (optimistic concurrency, SC-006). HP lives inside `data.hitPoints` — no promoted top-level HP (ADR-001). */
+/** A full character (openapi `Character`): summary plus owner, the enriched sheet `data`, soft
+ *  `warnings`, and the `version` echoed back on the next write (optimistic concurrency, SC-006).
+ *  HP lives inside `data.hitPoints` — no promoted top-level HP (ADR-001). */
 export const characterSchema = characterSummarySchema.extend({
   ownerId: z.string(),
   data: sheetSchema,

@@ -9,15 +9,12 @@ import org.springframework.stereotype.Component
 
 /**
  * `C001` — create the `characters` collection and its owner-lookup index `{ userId: 1 }` (backs
- * `GET /api/characters`; data-model §Character Indexes). Applied once on boot by [MigrationRunner] and
- * recorded in the `_migrations` ledger.
+ * `GET /api/characters`; data-model §Character Indexes). Idempotent, so a crash-retry is safe: the
+ * collection is created only when absent and `ensureIndex` is a no-op if it already exists.
  *
- * Idempotent, so a crash-retry (ledger recorded after [apply]) is safe: the collection is created only
- * when absent, and `ensureIndex` is a no-op when the identical index already exists.
- *
- * Naming: `C<order>__<Name>` mirrors Flyway/Flamingock migration files for readability; the underscore
- * needs the file-level ktlint `class-naming` suppress above. Execution **order comes from [id]**, not
- * the class name (the ledger key is `C001`), so the name is purely descriptive.
+ * Naming `C<order>__<Name>` mirrors Flyway/Flamingock for readability (the underscore needs the
+ * file-level ktlint suppress above); execution order comes from [id] (the ledger key `C001`), not the
+ * class name.
  */
 @Component
 class C001__CreateCharacters : MigrationChange {

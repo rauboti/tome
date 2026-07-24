@@ -6,11 +6,9 @@ import { useSession } from '@/auth/SessionContext'
 
 /**
  * App shell: the centred column, "skip to content" link, and footer frame come from @rauboti/ui's
- * AppShell; the top Navbar holds the brand, primary nav links, the colour-mode toggle, and the
- * @rauboti/ui UserMenu (name + sign-out) — a dropdown on desktop, repeated inline in the mobile
- * drawer. Session data + sign-out come from `useSession`; RootLayout only renders behind RequireAuth,
- * so the user is always present. Routed pages render through the <Outlet/>.
- *
+ * AppShell; the top Navbar holds the brand, nav links, the colour-mode toggle, and the UserMenu (name +
+ * sign-out) — a dropdown on desktop, repeated inline in the mobile drawer. RootLayout only renders
+ * behind RequireAuth, so `useSession`'s user is always present. Routed pages render through the <Outlet/>.
  */
 export const RootLayout = () => {
   const { t } = useTranslation()

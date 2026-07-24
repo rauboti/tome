@@ -4,11 +4,9 @@ import en from './en.json'
 import nb from './nb.json'
 
 /**
- * The bilingual foundation (FR-015, research D7): two bundles with identical key sets (asserted by
- * `i18n.test.ts`), active language driven by the user's Hive locale via [applyLocale], deterministic
- * English fallback. Chrome (nav, auth, common) is translated; D&D 3.5 game terminology under
- * `dnd35.*` stays canonical (English) in both bundles per the spec assumption — only its keys are
- * shared, not re-translated.
+ * Bilingual setup (FR-015, research D7): two bundles with identical key sets (asserted by
+ * `i18n.test.ts`), deterministic English fallback. Chrome is translated; `dnd35.*` game terminology
+ * stays canonical English in both bundles (spec assumption) — its keys are shared, not re-translated.
  */
 
 export const SUPPORTED_LOCALES = ['nb', 'en'] as const
