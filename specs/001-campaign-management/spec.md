@@ -137,9 +137,9 @@ watching player sees the revealed combat state update live.
 ### User Story 5 - Add the custom Dark Souls rule set (Priority: P5)
 
 Once the platform works end to end with D&D 3.5, a second rule set — the custom Dark Souls adaptation
-— is added to prove and exercise the shared engine's extensibility. It is introduced by supplying its
-sheet definition and rule-set logic, without altering the shared engine or the dice/combat/sync/
-permissions capabilities. Players can then create Dark Souls characters and join Dark Souls campaigns,
+— is added to prove and exercise the shared engine's extensibility. It is introduced by adding its
+typed sheet model, rule-set logic, and sheet components (ADR-001), without reimplementing the
+dice/combat/sync/permissions capabilities. Players can then create Dark Souls characters and join Dark Souls campaigns,
 with the same cross-ruleset join rule (a Dark Souls character cannot join a 3.5 campaign, and vice
 versa).
 
@@ -189,16 +189,28 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
 
 **Rule sets**
 
-- **FR-001**: System MUST support multiple rule sets through a shared sheet engine: each rule set's
-  sheet structure (its sections and fields) is expressed as a definition the engine reads, while
-  rule-set-specific derived-value and validation logic is provided per rule set. Cross-cutting
-  capabilities (character/sheet storage, permissions, real-time sync, dice, combat/initiative) MUST
-  operate over any rule set's sheet without being reimplemented per rule set.
+> **Amendment 2026-07-24 (ADR-001): typed, code-first rule sets.** FR-001/FR-023 and SC-009 are
+> softened from the original *data-driven* framing (a "sheet definition the engine reads") to a
+> **typed** engine: each rule set is a typed sheet model + logic + UI components, in code. The enduring
+> guarantee is unchanged — **cross-cutting capabilities are written once** (they depend on shared
+> projection interfaces the typed sheets implement, not on any concrete rule set). What changed: adding
+> a rule set is now a **code change** (a new typed variant the compiler forces every branch to handle),
+> not a JSON definition drop-in. See [decisions/ADR-001](decisions/ADR-001-typed-ruleset-sheets.md).
+
+- **FR-001**: System MUST support multiple rule sets through a shared sheet engine. Each rule set's
+  sheet — its fields **and** its derived-value/validation logic — is a **typed model provided in code**
+  per rule set (ADR-001). Cross-cutting capabilities (character/sheet storage, permissions, real-time
+  sync, dice, combat/initiative) MUST operate over any rule set's sheet **through shared abstractions**
+  (common projection interfaces the typed sheets implement), so those capabilities are **not
+  reimplemented per rule set**.
 - **FR-002**: System MUST record the rule set of every character, NPC, and campaign, and MUST treat
   the rule set as fixed for the life of that character or campaign.
 - **FR-023**: v1 MUST ship with D&D 3.5 as the only bundled rule set. The system MUST allow further
-  rule sets to be added later — by supplying a sheet definition plus the rule set's validation/derived
-  logic — without changing the shared sheet engine or the cross-cutting capabilities in FR-001.
+  rule sets to be added later — by adding the rule set's **typed sheet model, its validation/derived
+  logic, and its sheet UI components** — **without reimplementing the cross-cutting capabilities in
+  FR-001**. Adding a rule set is a **code change** (a new typed variant the compiler forces every
+  rule-set-specific branch to handle), not a data-only drop-in; ADR-001 supersedes the earlier "sheet
+  definition" / "no shared-engine change" wording.
 
 **Characters & sheets**
 
@@ -273,10 +285,10 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
 
 - **User**: A signed-in person. May be the dungeon master of some campaigns and a player in others.
   Owns characters.
-- **Rule set**: A named system of rules that determines campaign/character compatibility. Defined in
-  two parts (per FR-001): a **sheet definition** (data: the sections and fields) read by the shared
-  engine, plus **rule-set logic** (derived values and soft validation) provided for that rule set.
-  v1 bundles D&D 3.5; the custom Dark Souls adaptation and D&D 5E are added later.
+- **Rule set**: A named system of rules that determines campaign/character compatibility. Provided in
+  code (per FR-001, ADR-001) as a **typed sheet model** (its fields plus derived-value and
+  soft-validation logic) and its sheet UI components. v1 bundles D&D 3.5; the custom Dark Souls
+  adaptation and D&D 5E are added later.
 - **Character**: A player character owned by a user, built for one rule set. Carries a character sheet.
   Participates in at most one campaign at a time (assumption) of the same rule set.
 - **Character sheet**: The data describing a character or NPC — the fields defined by its rule set
@@ -311,9 +323,11 @@ play, that no shared-engine or cross-cutting code changed, and that cross-rulese
   access checks denying 100% of unauthorized-view attempts.
 - **SC-005**: D&D 3.5 is usable end to end in v1 — character creation, campaign participation, live
   play — and users can create any number of 3.5 characters without code changes.
-- **SC-009**: A second rule set can be introduced by supplying its sheet definition and rule-set logic
-  alone, with no changes to the shared sheet engine or the dice/combat/sync/permissions capabilities
-  (validated when the Dark Souls rule set is added — User Story 5).
+- **SC-009**: A second rule set can be introduced by adding its **typed sheet model, rule-set logic,
+  and sheet components**, with **no change to the cross-cutting dice/combat/sync/permissions
+  capabilities** — they operate through shared abstractions the new sheet implements (validated when
+  the Dark Souls rule set is added — User Story 5). Per ADR-001 this is a code addition, not a
+  zero-code data drop-in; "no change" applies to the cross-cutting capabilities, not the engine whole.
 - **SC-006**: During normal play, sheet updates made by an authorized editor become available to other
   authorized viewers of that content within the same session without data loss from concurrent edits.
 - **SC-007**: When the DM reveals a change during a live session, authorized players see the update
