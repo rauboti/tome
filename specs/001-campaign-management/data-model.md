@@ -77,8 +77,8 @@ The paper-sheet replacement (User Story 1). Owned by a user, built for one rule 
   definition-driven `computeDerived`/strip of D8). The REST response (GET, and the POST/PUT echo)
   serializes the sheet with its computed derived values — a **fully resolved** sheet.
 - **Relationships**: owned by a user (`userId`); referenced by `campaign.members[]` and
-  `encounter.combatants[]`. A character participates in at most one **active** campaign (v1 —
-  Invariants).
+  `encounter.combatants[]`. A character **may belong to several campaigns at once** (e.g. a side quest
+  alongside a long-running campaign — D6, amended 2026-07-25).
 - **Validation**: `ruleSetId` must be recognized; `data` validated by `RuleSet.validate` on write
   (warnings only, never blocks — FR-005).
 - **Indexes**: `{ userId: 1 }` (list a user's characters).
@@ -94,7 +94,7 @@ roster, NPCs, content, and campaign-level rolls, and **references** its sessions
 | `dmId` | UUID | Hive subject of the sole DM (v1 — Assumptions) |
 | `ruleSetId` | string | Fixed for life; gates which characters may join (FR-002/FR-008) |
 | `name` | string | |
-| `status` | string | `active` \| `archived` (state transitions) |
+| `status` | string | `active` \| `suspended` \| `archived` (`suspended` = paused, not archived) |
 | `version` | int (`@Version`) | |
 | `members[]` | embedded | roster entries (below) |
 | `npcs[]` | embedded | DM NPCs (below) |
@@ -104,9 +104,10 @@ roster, NPCs, content, and campaign-level rolls, and **references** its sessions
 
 - **Sessions are not embedded** — they live in the `sessions` collection and reference `campaignId`
   (below). Load them separately when assembling the full campaign view.
-- **Indexes**: `{ dmId: 1 }` (a DM's campaigns); `{ "members.playerId": 1 }` (campaigns a player is
-  in); **unique partial multikey** `{ "members.characterId": 1 }` with
-  `partialFilterExpression: { status: "active" }` (see Invariants).
+- **Indexes** (all plain, non-unique lookups): `{ dmId: 1 }` (a DM's campaigns);
+  `{ "members.playerId": 1 }` (campaigns a player is in); `{ "members.characterId": 1 }` (campaigns a
+  character is in). No cross-campaign uniqueness — a character may be in several campaigns; "no
+  duplicate member in one campaign" is a service check (see Invariants).
 
 #### `members[]` (roster entry — embedded)
 
@@ -228,11 +229,13 @@ A recorded in-app dice roll (User Story 4, FR-020). A roll is **embedded in the 
 
 ## Invariants (app-enforced, since Mongo has no FK/CHECK across documents)
 
-- **One active campaign per character** (was `UNIQUE(character_id)`): enforced by the unique partial
-  multikey index on `campaigns.members.characterId` (active only) **plus** a service pre-check for a
-  friendly refusal (research D6).
-- **No duplicate member in a campaign** (was `UNIQUE(campaign_id, character_id)`): the same unique
-  multikey index rejects a `characterId` appearing twice in one campaign's `members[]`.
+- **A character may be in several campaigns** (D6, amended 2026-07-25): no cross-campaign uniqueness —
+  side quests can run alongside a long campaign. `{ "members.characterId": 1 }` is a plain lookup
+  ("which campaigns is this character in"), not a unique constraint. (Was `UNIQUE(character_id)` /
+  "one active campaign per character" — dropped.)
+- **No duplicate member in a campaign** (was `UNIQUE(campaign_id, character_id)`): the service rejects
+  adding a `characterId` already in that campaign's `members[]` — an app check, since a collection
+  index cannot express within-document-only uniqueness.
 - **Rule-set match on join** (FR-008): service checks `character.ruleSetId == campaign.ruleSetId`
   before pushing a member (cross-document rule; no DB constraint).
 - **Combatant type**: `combatantType ∈ {character, npc}` and `combatantId` resolves to the matching
