@@ -5,20 +5,18 @@ package no.rauboti.tome.config.migration
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.index.Index
-import org.springframework.data.mongodb.core.index.PartialIndexFilter
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.stereotype.Component
 
 /**
- * `C002` — create the `campaigns` collection and its indexes (data-model §campaigns / Invariants):
+ * `C002` — create the `campaigns` collection and its lookup indexes (data-model §campaigns):
  *  - `{ dmId: 1 }` — a DM's campaigns;
  *  - `{ "members.playerId": 1 }` — campaigns a player is in;
- *  - **unique partial multikey** `{ "members.characterId": 1 }` filtered to `status: "active"` —
- *    enforces "one active campaign per character" (research §D6) and "no duplicate member in a
- *    campaign". Partial so an *archived* campaign's members don't reserve the character.
+ *  - `{ "members.characterId": 1 }` — campaigns a character is in.
  *
- * Idempotent (safe on crash-retry): the collection is created only when absent and `ensureIndex`
- * no-ops if the index already exists. Naming `C<order>__<Name>` and order-from-[id] as in [C001].
+ * All plain (non-unique) lookups: a character MAY be in several campaigns at once — e.g. side quests
+ * alongside a long-running campaign (D6 amended 2026-07-25). "No duplicate member within one campaign"
+ * is a service-level check, not an index constraint. Idempotent (safe on crash-retry): the collection
+ * is created only when absent and `ensureIndex` no-ops if the index already exists.
  */
 @Component
 class C002__CreateCampaigns : MigrationChange {
@@ -31,11 +29,6 @@ class C002__CreateCampaigns : MigrationChange {
         val indexOps = mongo.indexOps("campaigns")
         indexOps.ensureIndex(Index().on("dmId", Sort.Direction.ASC))
         indexOps.ensureIndex(Index().on("members.playerId", Sort.Direction.ASC))
-        indexOps.ensureIndex(
-            Index()
-                .on("members.characterId", Sort.Direction.ASC)
-                .unique()
-                .partial(PartialIndexFilter.of(Criteria.where("status").`is`("active"))),
-        )
+        indexOps.ensureIndex(Index().on("members.characterId", Sort.Direction.ASC))
     }
 }

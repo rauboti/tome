@@ -220,13 +220,12 @@ memberships without changing the roster's shape).
 **Storage note (2026-07-22, MongoDB)**: A membership is no longer a join row — it is an **embedded
 entry in the campaign document** (`campaign.members[]`, each `{characterId, playerId, addedAt}`).
 Referencing a shared character by id is still exactly right (characters are their own collection —
-D-model). Because members are embedded in the single `campaigns` collection, the relational
-`UNIQUE(character_id)` guard for "one active campaign per character" **does** have an index equivalent:
-a **unique partial multikey index** on `campaigns` `{"members.characterId": 1}` with
-`partialFilterExpression: { status: "active" }` — a unique multikey index rejects the same
-`characterId` appearing in two active campaigns' `members[]` (and twice within one). The service still
-does an app-level pre-check to return a friendly refusal before the write hits the index. The
-rule-set-match check (FR-008) was already a service-level cross-entity rule, unaffected by the switch.
+D-model). **Amended 2026-07-25:** a character **may belong to several campaigns at once** (e.g. a side
+quest alongside a long-running campaign), so the old relational `UNIQUE(character_id)` /
+"one active campaign per character" guard is **dropped**. `{"members.characterId": 1}` on `campaigns`
+is a plain (non-unique) lookup index ("which campaigns is this character in"). "No duplicate member
+within one campaign" is a service-level check (a collection index cannot express within-document-only
+uniqueness). The rule-set-match check (FR-008) was already a service-level cross-entity rule, unaffected.
 
 **Rationale**: Matches the maintainer's stated v1 flow (clarify 2026-07-20) and keeps membership a
 thin join between an existing character and a campaign. Referencing by character id (owner-shared)
