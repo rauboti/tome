@@ -7,8 +7,6 @@ import no.rauboti.tome.common.exceptions.ForbiddenException
 import org.springframework.stereotype.Service
 import java.util.UUID
 
-
-
 /**
  * Campaign-scoped visibility decisions (T040 — FR-011/FR-012/FR-014, SC-004): the DM sees everything,
  * a player sees their own, everyone else is denied.

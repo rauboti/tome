@@ -1,6 +1,7 @@
 package no.rauboti.tome.common
 
 import no.rauboti.tome.common.exceptions.BadRequestException
+import no.rauboti.tome.common.exceptions.ConflictException
 import no.rauboti.tome.common.exceptions.ForbiddenException
 import no.rauboti.tome.common.exceptions.NotFoundException
 import no.rauboti.tome.common.exceptions.StaleVersionException
@@ -30,6 +31,11 @@ class ApiExceptionHandler {
     @ExceptionHandler(BadRequestException::class)
     fun handleBadRequest(ex: BadRequestException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.message ?: "Bad request")
+
+    /** State conflict → 409 (roster clash, already-archived campaign — see [ConflictException]). */
+    @ExceptionHandler(ConflictException::class)
+    fun handleConflict(ex: ConflictException): ProblemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.message ?: "Conflict")
 
     /** Optimistic-concurrency conflict → 409, raised by the character service. */
     @ExceptionHandler(StaleVersionException::class)

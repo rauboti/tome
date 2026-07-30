@@ -262,8 +262,10 @@ A recorded in-app dice roll (User Story 4, FR-020). A roll is **embedded in the 
 ## State transitions
 
 - **campaign.status**: `active` → `archived` (FR-010, preserves members' characters). No hard delete
-  in v1; archiving is terminal. (Archiving clears a character from the active-uniqueness index, freeing
-  it to join a new campaign.)
+  in v1; archiving is terminal — there is no un-archive transition, and re-archiving is a 409 (T041).
+  An archived campaign's roster is frozen (no further adds/removes), keeping it as the historical
+  record. (Joining a *new* campaign never depended on archiving: since D6 was amended 2026-07-25 a
+  character may be in several campaigns at once — see Invariants.)
 - **encounter.status**: `pending` → `active` (DM starts combat; initiative ordered) → `ended`. While
   `active`, `round`/`currentTurn` advance on the DM's turn action (FR-021); advancing past the last
   combatant increments `round` and resets `currentTurn`.
@@ -305,7 +307,8 @@ structural changes in a small **applied-changes ledger** (`_migrations`: `{_id: 
 so each runs at most once. Indicative order (`changeId`s):
 
 `C001` create `characters` + index `{userId:1}` · `C002` create `campaigns` + indexes
-(`{dmId:1}`, `{"members.playerId":1}`, unique-partial `{"members.characterId":1}`) · `C003` create
+(`{dmId:1}`, `{"members.playerId":1}`, `{"members.characterId":1}` — all plain, non-unique; D6 amended
+2026-07-25 dropped cross-campaign uniqueness, see Invariants) · `C003` create
 `sessions` + index `{campaignId:1}` · `C004` create `encounters` + indexes `{sessionId:1}`,
 `{campaignId:1}`. **No `rolls` change** — rolls are embedded in their container
 (`campaign`/`session`/`encounter`), not a collection. Rule-set definitions stay bundled JSON resources

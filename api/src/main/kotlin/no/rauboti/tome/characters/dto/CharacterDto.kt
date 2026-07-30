@@ -1,7 +1,7 @@
 package no.rauboti.tome.characters.dto
 
-import no.rauboti.tome.rulesets.domain.RuleWarning
 import no.rauboti.tome.characters.data.CharacterData
+import no.rauboti.tome.rulesets.domain.RuleWarning
 import java.util.UUID
 
 /**
