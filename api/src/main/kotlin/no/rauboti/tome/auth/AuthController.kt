@@ -1,7 +1,7 @@
 package no.rauboti.tome.auth
 
 import jakarta.servlet.http.HttpSession
-import no.rauboti.tome.common.HiveUnavailableException
+import no.rauboti.tome.common.exceptions.UnavailableException
 import no.rauboti.tome.config.HiveEndpoints
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -79,7 +79,7 @@ class AuthController(
         val tokens =
             try {
                 hiveTokenClient.exchange(code, verifier, redirectUri)
-            } catch (_: HiveUnavailableException) {
+            } catch (_: UnavailableException) {
                 // Browser redirect, so a 502 problem+json would land as a raw error page; bounce to
                 // the SPA with a marker it renders as "sign-in unavailable, try again".
                 return redirectToSpa(mapOf("error" to SIGNIN_UNAVAILABLE))

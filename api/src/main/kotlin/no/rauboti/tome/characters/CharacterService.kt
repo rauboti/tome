@@ -1,10 +1,10 @@
 package no.rauboti.tome.characters
 
 import no.rauboti.tome.characters.data.CharacterBaseData
-import no.rauboti.tome.common.BadRequestException
-import no.rauboti.tome.common.ForbiddenException
-import no.rauboti.tome.common.NotFoundException
-import no.rauboti.tome.common.StaleVersionException
+import no.rauboti.tome.common.exceptions.BadRequestException
+import no.rauboti.tome.common.exceptions.ForbiddenException
+import no.rauboti.tome.common.exceptions.NotFoundException
+import no.rauboti.tome.common.exceptions.StaleVersionException
 import no.rauboti.tome.rulesets.RuleSet
 import no.rauboti.tome.rulesets.RuleSetRegistry
 import no.rauboti.tome.rulesets.RuleWarning

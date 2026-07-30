@@ -1,5 +1,10 @@
 package no.rauboti.tome.common
 
+import no.rauboti.tome.common.exceptions.BadRequestException
+import no.rauboti.tome.common.exceptions.ForbiddenException
+import no.rauboti.tome.common.exceptions.NotFoundException
+import no.rauboti.tome.common.exceptions.StaleVersionException
+import no.rauboti.tome.common.exceptions.UnavailableException
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -44,7 +49,7 @@ class ApiExceptionHandler {
             "The resource was modified by someone else. Reload and try again.",
         )
 
-    @ExceptionHandler(HiveUnavailableException::class)
-    fun handleHiveUnavailable(ex: HiveUnavailableException): ProblemDetail =
+    @ExceptionHandler(UnavailableException::class)
+    fun handleHiveUnavailable(ex: UnavailableException): ProblemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.message ?: "Sign-in service unavailable")
 }

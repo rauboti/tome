@@ -1,6 +1,6 @@
 package no.rauboti.tome.catalogs
 
-import no.rauboti.tome.common.NotFoundException
+import no.rauboti.tome.common.exceptions.NotFoundException
 import org.springframework.stereotype.Component
 
 /**

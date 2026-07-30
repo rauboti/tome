@@ -1,6 +1,6 @@
 package no.rauboti.tome.auth
 
-import no.rauboti.tome.common.HiveUnavailableException
+import no.rauboti.tome.common.exceptions.UnavailableException
 import no.rauboti.tome.config.HiveEndpoints
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -19,7 +19,7 @@ data class HiveTokens(
 /**
  * Talks to Hive's `POST {internal-url}/oauth2/token` (`client_secret_post`; research D1): [exchange]
  * redeems an authorization code (Authorization-Code + PKCE), [refresh] renews with the rotating refresh
- * token. Any transport failure or unusable response surfaces as [HiveUnavailableException]; for a
+ * token. Any transport failure or unusable response surfaces as [UnavailableException]; for a
  * refresh that also means the session can't be renewed silently (fall back to login).
  */
 interface HiveTokenClient {
@@ -77,15 +77,15 @@ class RestClientHiveTokenClient(
             } catch (e: RestClientException) {
                 // Transport failure or non-2xx (e.g. invalid_grant on a dead refresh token) — Hive
                 // is unusable for this call.
-                throw HiveUnavailableException("Hive token request failed", e)
-            } ?: throw HiveUnavailableException("Empty response from Hive token endpoint")
+                throw UnavailableException("Hive token request failed", e)
+            } ?: throw UnavailableException("Empty response from Hive token endpoint")
 
         val access =
             body["access_token"] as? String
-                ?: throw HiveUnavailableException("Hive token response missing access_token")
+                ?: throw UnavailableException("Hive token response missing access_token")
         val refresh =
             body["refresh_token"] as? String
-                ?: throw HiveUnavailableException("Hive token response missing refresh_token")
+                ?: throw UnavailableException("Hive token response missing refresh_token")
         return HiveTokens(access, refresh)
     }
 }

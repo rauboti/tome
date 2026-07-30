@@ -1,5 +1,7 @@
 package no.rauboti.tome.campaigns
 
+import no.rauboti.tome.campaigns.domain.Campaign
+import no.rauboti.tome.campaigns.domain.CampaignMember
 import no.rauboti.tome.support.IntegrationTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

@@ -3,7 +3,7 @@ package no.rauboti.tome.characters
 import no.rauboti.tome.characters.data.CharacterBaseData
 import no.rauboti.tome.characters.data.CharacterData
 import no.rauboti.tome.characters.data.enrich
-import no.rauboti.tome.common.BadRequestException
+import no.rauboti.tome.common.exceptions.BadRequestException
 import no.rauboti.tome.rulesets.RuleWarning
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
