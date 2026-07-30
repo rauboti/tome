@@ -11,8 +11,10 @@ import no.rauboti.tome.rulesets.domain.RuleWarning
 interface RuleSet {
     /** The rule-set id this strategy handles, e.g. `dnd35`. Matches `CharacterBaseData.ruleSetId`. */
     fun id(): String
+
     /** Human-readable name for pickers/summaries, e.g. `D&D 3.5`. */
     fun name(): String
+
     /**
      * Soft-validate a stored sheet's base inputs and return any [RuleWarning]s. **Never** throws or
      * blocks — an empty list means "no concerns". [sheet] is the typed base for this rule set (an

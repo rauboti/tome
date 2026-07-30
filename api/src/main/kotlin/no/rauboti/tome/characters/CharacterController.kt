@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-
-
 /**
  * REST surface for player characters (US1, openapi `/characters`). Behind the `/api` Tome-role gate;
  * the caller's Hive subject (from the session-authenticated [Jwt]) owns every operation. Business
