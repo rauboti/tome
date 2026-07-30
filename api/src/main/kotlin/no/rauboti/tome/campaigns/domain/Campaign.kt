@@ -1,4 +1,4 @@
-package no.rauboti.tome.campaigns
+package no.rauboti.tome.campaigns.domain
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
@@ -22,32 +22,10 @@ data class Campaign(
     val dmId: UUID,
     val ruleSetId: String,
     val name: String,
-    /** Lifecycle state — see [CampaignStatus]. Not indexed. */
+    /** Lifecycle state — see [no.rauboti.tome.campaigns.CampaignStatus]. Not indexed. */
     val status: String,
     val members: List<CampaignMember> = emptyList(),
     @Version val version: Int?,
     val createdAt: Instant,
     val updatedAt: Instant,
 )
-
-/**
- * A roster entry (embedded in [Campaign.members]) linking a player's [characterId] into the campaign
- * (research D6). [playerId] is the character owner's Hive subject, denormalized for authorization.
- * Keyed by [characterId] within the campaign — no `_id` needed.
- */
-data class CampaignMember(
-    val characterId: UUID,
-    val playerId: UUID,
-    val addedAt: Instant,
-)
-
-/**
- * The allowed [Campaign.status] values: `suspended` = paused without archiving. A plain string (not a
- * Kotlin enum) to sidestep Spring Data Mongo's uppercase enum serialization; `status` is not indexed,
- * so the value is only read/compared in the service.
- */
-object CampaignStatus {
-    const val ACTIVE = "active"
-    const val ARCHIVED = "archived"
-    const val SUSPENDED = "suspended"
-}

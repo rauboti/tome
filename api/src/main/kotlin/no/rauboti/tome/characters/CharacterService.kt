@@ -1,26 +1,17 @@
 package no.rauboti.tome.characters
 
 import no.rauboti.tome.characters.data.CharacterBaseData
-import no.rauboti.tome.common.BadRequestException
-import no.rauboti.tome.common.ForbiddenException
-import no.rauboti.tome.common.NotFoundException
-import no.rauboti.tome.common.StaleVersionException
+import no.rauboti.tome.characters.domain.Character
+import no.rauboti.tome.common.exceptions.BadRequestException
+import no.rauboti.tome.common.exceptions.ForbiddenException
+import no.rauboti.tome.common.exceptions.NotFoundException
+import no.rauboti.tome.common.exceptions.StaleVersionException
 import no.rauboti.tome.rulesets.RuleSet
 import no.rauboti.tome.rulesets.RuleSetRegistry
-import no.rauboti.tome.rulesets.RuleWarning
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
-
-/**
- * A [Character] paired with the soft [RuleWarning]s from validating its sheet. [Character.data]
- * is the stored base inputs; the controller enriches it for the response. Warnings are never persisted.
- */
-data class CharacterWithWarnings(
-    val character: Character,
-    val warnings: List<RuleWarning>,
-)
 
 /**
  * Application logic for player characters. Writes store the typed [CharacterBaseData] as-is; reads

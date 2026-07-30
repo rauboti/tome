@@ -1,5 +1,7 @@
 package no.rauboti.tome.campaigns
 
+import no.rauboti.tome.campaigns.domain.Campaign
+import no.rauboti.tome.campaigns.domain.CampaignMember
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.MongoTemplate

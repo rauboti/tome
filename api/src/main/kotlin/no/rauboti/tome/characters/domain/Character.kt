@@ -1,4 +1,4 @@
-package no.rauboti.tome.characters
+package no.rauboti.tome.characters.domain
 
 import no.rauboti.tome.characters.data.CharacterBaseData
 import org.springframework.data.annotation.Id

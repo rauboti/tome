@@ -1,5 +1,6 @@
 package no.rauboti.tome.characters
 
+import no.rauboti.tome.characters.domain.Character
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria

@@ -2,6 +2,7 @@ package no.rauboti.tome.rulesets
 
 import no.rauboti.tome.characters.data.CharacterBaseData
 import no.rauboti.tome.characters.data.DnD35CharacterBaseData
+import no.rauboti.tome.rulesets.domain.RuleWarning
 import org.springframework.stereotype.Component
 
 /**
