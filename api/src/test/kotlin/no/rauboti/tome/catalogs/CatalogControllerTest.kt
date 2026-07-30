@@ -14,8 +14,8 @@ import java.util.UUID
 /**
  * Contract test for the catalog endpoint (T113): `GET /api/rule-sets/{id}/catalogs/{catalog}?filter=`,
  * which backs a catalog-backed select picker fetched by a typed sheet component. Guards auth (401
- * without a Tome role), the class-filtered dnd35 `spells` shape (`{ value, label, meta.level }`), and
- * unknown-catalog → 404.
+ * without a Tome role), the class-filtered dnd35 `spells` shape (`{ value, label, meta.level,
+ * meta.school }`), and unknown-catalog → 404.
  */
 @AutoConfigureMockMvc
 class CatalogControllerTest : IntegrationTest() {
@@ -41,10 +41,12 @@ class CatalogControllerTest : IntegrationTest() {
                 jsonPath("$") { isNotEmpty() }
                 jsonPath("$[0].value") { isNotEmpty() }
                 jsonPath("$[0].label") { isNotEmpty() }
-                // Every wizard option carries its spell level in meta.
+                // Every wizard option carries its spell level and school in meta.
                 jsonPath("$[0].meta.level") { isNumber() }
-                // Fireball is a wizard spell at level 3.
+                jsonPath("$[0].meta.school") { isNotEmpty() }
+                // Fireball is a wizard spell at level 3, of the Evocation school (T117).
                 jsonPath("$[?(@.value=='fireball')].meta.level") { value(3) }
+                jsonPath("$[?(@.value=='fireball')].meta.school") { value("Evocation") }
             }
     }
 

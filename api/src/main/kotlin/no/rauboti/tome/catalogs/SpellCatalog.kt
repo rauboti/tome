@@ -7,8 +7,13 @@ import tools.jackson.databind.ObjectMapper
 /**
  * The dnd35 `spells` catalog (T112/T113): the OGL 3.5 SRD spell list (`rulesets/dnd35/spells.json`,
  * sourced from d20srd.org via `tools/build-spells.mjs`), filtered by **caster class**. An option's
- * [CatalogOption.value] is the spell id, [label] its name, and `meta.level` the spell's level for the
- * filtered class. Results are ordered by level then name. A blank class filter yields no options.
+ * [CatalogOption.value] is the spell id, [label] its name, and `meta` carries the spell's `level` for
+ * the filtered class plus its `school` (T117). Results are ordered by level then name. A blank class
+ * filter yields no options.
+ *
+ * The catalog also carries `subschool` and `descriptors` (T117) — parsed and stored so a later
+ * consumer needn't re-source the SRD, but deliberately **not** exposed in the option `meta` yet, since
+ * nothing renders them.
  */
 @Component
 class SpellCatalog(
@@ -17,7 +22,10 @@ class SpellCatalog(
     private data class SpellEntry(
         val id: String,
         val name: String,
+        val school: String,
         val classLevels: Map<String, Int>,
+        val subschool: String? = null,
+        val descriptors: List<String> = emptyList(),
     )
 
     private data class SpellFile(
@@ -37,7 +45,13 @@ class SpellCatalog(
         return spells
             .filter { it.classLevels.containsKey(cls) }
             .sortedWith(compareBy({ it.classLevels[cls] }, { it.name }))
-            .map { CatalogOption(value = it.id, label = it.name, meta = mapOf("level" to it.classLevels[cls])) }
+            .map {
+                CatalogOption(
+                    value = it.id,
+                    label = it.name,
+                    meta = mapOf("level" to it.classLevels[cls], "school" to it.school),
+                )
+            }
     }
 
     private companion object {

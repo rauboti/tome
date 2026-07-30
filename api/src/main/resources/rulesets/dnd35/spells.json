@@ -4,6 +4,11 @@
     {
       "id": "acidArrow",
       "name": "Acid Arrow",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Acid"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -12,6 +17,11 @@
     {
       "id": "acidFog",
       "name": "Acid Fog",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Acid"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -20,6 +30,11 @@
     {
       "id": "acidSplash",
       "name": "Acid Splash",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Acid"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0
@@ -28,6 +43,11 @@
     {
       "id": "aid",
       "name": "Aid",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -35,6 +55,10 @@
     {
       "id": "airWalk",
       "name": "Air Walk",
+      "school": "Transmutation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "cleric": 4,
         "druid": 4
@@ -43,6 +67,7 @@
     {
       "id": "alarm",
       "name": "Alarm",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -53,6 +78,10 @@
     {
       "id": "alignWeapon",
       "name": "Align Weapon",
+      "school": "Transmutation",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -60,6 +89,7 @@
     {
       "id": "alterSelf",
       "name": "Alter Self",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -69,6 +99,7 @@
     {
       "id": "analyzeDweomer",
       "name": "Analyze Dweomer",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -78,6 +109,7 @@
     {
       "id": "animalGrowth",
       "name": "Animal Growth",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -88,6 +120,11 @@
     {
       "id": "animalMessenger",
       "name": "Animal Messenger",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "druid": 2,
         "bard": 2,
@@ -97,6 +134,7 @@
     {
       "id": "animalShapes",
       "name": "Animal Shapes",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 8
       }
@@ -104,6 +142,12 @@
     {
       "id": "animalTrance",
       "name": "Animal Trance",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting",
+        "Sonic"
+      ],
       "classLevels": {
         "druid": 2,
         "bard": 2
@@ -112,6 +156,10 @@
     {
       "id": "animateDead",
       "name": "Animate Dead",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -121,6 +169,7 @@
     {
       "id": "animateObjects",
       "name": "Animate Objects",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 6,
         "bard": 6
@@ -129,6 +178,7 @@
     {
       "id": "animatePlants",
       "name": "Animate Plants",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 7
       }
@@ -136,6 +186,7 @@
     {
       "id": "animateRope",
       "name": "Animate Rope",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -145,6 +196,7 @@
     {
       "id": "antilifeShell",
       "name": "Antilife Shell",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 6,
         "druid": 6
@@ -153,6 +205,7 @@
     {
       "id": "antimagicField",
       "name": "Antimagic Field",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -162,6 +215,11 @@
     {
       "id": "antipathy",
       "name": "Antipathy",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -171,6 +229,7 @@
     {
       "id": "antiplantShell",
       "name": "Antiplant Shell",
+      "school": "Abjuration",
       "classLevels": {
         "druid": 4
       }
@@ -178,6 +237,8 @@
     {
       "id": "arcaneEye",
       "name": "Arcane Eye",
+      "school": "Divination",
+      "subschool": "Scrying",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -186,6 +247,7 @@
     {
       "id": "arcaneLock",
       "name": "Arcane Lock",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -194,6 +256,7 @@
     {
       "id": "arcaneMark",
       "name": "Arcane Mark",
+      "school": "Universal",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0
@@ -202,6 +265,7 @@
     {
       "id": "arcaneSight",
       "name": "Arcane Sight",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -210,6 +274,7 @@
     {
       "id": "arcaneSightGreater",
       "name": "Arcane Sight, Greater",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -218,6 +283,7 @@
     {
       "id": "astralProjection",
       "name": "Astral Projection",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -227,6 +293,7 @@
     {
       "id": "atonement",
       "name": "Atonement",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 5,
         "druid": 5
@@ -235,6 +302,7 @@
     {
       "id": "augury",
       "name": "Augury",
+      "school": "Divination",
       "classLevels": {
         "cleric": 2
       }
@@ -242,6 +310,7 @@
     {
       "id": "awaken",
       "name": "Awaken",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 5
       }
@@ -249,6 +318,7 @@
     {
       "id": "balefulPolymorph",
       "name": "Baleful Polymorph",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -258,6 +328,12 @@
     {
       "id": "bane",
       "name": "Bane",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 1
       }
@@ -265,6 +341,7 @@
     {
       "id": "banishment",
       "name": "Banishment",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -274,6 +351,7 @@
     {
       "id": "barkskin",
       "name": "Barkskin",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 2,
         "ranger": 2
@@ -282,6 +360,7 @@
     {
       "id": "bearsEndurance",
       "name": "Bear's Endurance",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -293,6 +372,7 @@
     {
       "id": "bearsEnduranceMass",
       "name": "Bear's Endurance, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -303,6 +383,7 @@
     {
       "id": "bestowCurse",
       "name": "Bestow Curse",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -312,6 +393,11 @@
     {
       "id": "binding",
       "name": "Binding",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -320,6 +406,8 @@
     {
       "id": "blackTentacles",
       "name": "Black Tentacles",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -328,6 +416,10 @@
     {
       "id": "bladeBarrier",
       "name": "Blade Barrier",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "cleric": 6
       }
@@ -335,6 +427,11 @@
     {
       "id": "blasphemy",
       "name": "Blasphemy",
+      "school": "Evocation",
+      "descriptors": [
+        "Evil",
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 7
       }
@@ -342,6 +439,11 @@
     {
       "id": "bless",
       "name": "Bless",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 1,
         "paladin": 1
@@ -350,6 +452,10 @@
     {
       "id": "blessWater",
       "name": "Bless Water",
+      "school": "Transmutation",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "cleric": 1,
         "paladin": 1
@@ -358,6 +464,7 @@
     {
       "id": "blessWeapon",
       "name": "Bless Weapon",
+      "school": "Transmutation",
       "classLevels": {
         "paladin": 1
       }
@@ -365,6 +472,7 @@
     {
       "id": "blight",
       "name": "Blight",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -374,6 +482,7 @@
     {
       "id": "blindnessDeafness",
       "name": "Blindness/Deafness",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -384,6 +493,7 @@
     {
       "id": "blink",
       "name": "Blink",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -393,6 +503,8 @@
     {
       "id": "blur",
       "name": "Blur",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -402,6 +514,7 @@
     {
       "id": "breakEnchantment",
       "name": "Break Enchantment",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -413,6 +526,7 @@
     {
       "id": "bullsStrength",
       "name": "Bull's Strength",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -424,6 +538,7 @@
     {
       "id": "bullsStrengthMass",
       "name": "Bull's Strength, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -434,6 +549,10 @@
     {
       "id": "burningHands",
       "name": "Burning Hands",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -442,6 +561,10 @@
     {
       "id": "callLightning",
       "name": "Call Lightning",
+      "school": "Evocation",
+      "descriptors": [
+        "Electricity"
+      ],
       "classLevels": {
         "druid": 3
       }
@@ -449,6 +572,10 @@
     {
       "id": "callLightningStorm",
       "name": "Call Lightning Storm",
+      "school": "Evocation",
+      "descriptors": [
+        "Electricity"
+      ],
       "classLevels": {
         "druid": 5
       }
@@ -456,6 +583,11 @@
     {
       "id": "calmAnimals",
       "name": "Calm Animals",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -464,6 +596,11 @@
     {
       "id": "calmEmotions",
       "name": "Calm Emotions",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 2,
         "bard": 2
@@ -472,6 +609,7 @@
     {
       "id": "catsGrace",
       "name": "Cat's Grace",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -483,6 +621,7 @@
     {
       "id": "catsGraceMass",
       "name": "Cat's Grace, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -493,6 +632,11 @@
     {
       "id": "causeFear",
       "name": "Cause Fear",
+      "school": "Necromancy",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -503,6 +647,10 @@
     {
       "id": "chainLightning",
       "name": "Chain Lightning",
+      "school": "Evocation",
+      "descriptors": [
+        "Electricity"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -511,6 +659,7 @@
     {
       "id": "changestaff",
       "name": "Changestaff",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 7
       }
@@ -518,6 +667,11 @@
     {
       "id": "charmAnimal",
       "name": "Charm Animal",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -526,6 +680,11 @@
     {
       "id": "charmMonster",
       "name": "Charm Monster",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -535,6 +694,11 @@
     {
       "id": "charmMonsterMass",
       "name": "Charm Monster, Mass",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -544,6 +708,11 @@
     {
       "id": "charmPerson",
       "name": "Charm Person",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -553,6 +722,10 @@
     {
       "id": "chillMetal",
       "name": "Chill Metal",
+      "school": "Transmutation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "druid": 2
       }
@@ -560,6 +733,7 @@
     {
       "id": "chillTouch",
       "name": "Chill Touch",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -568,6 +742,10 @@
     {
       "id": "circleOfDeath",
       "name": "Circle of Death",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -576,6 +754,8 @@
     {
       "id": "clairaudienceClairvoyance",
       "name": "Clairaudience/Clairvoyance",
+      "school": "Divination",
+      "subschool": "Scrying",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -585,6 +765,10 @@
     {
       "id": "clenchedFist",
       "name": "Clenched Fist",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -593,6 +777,10 @@
     {
       "id": "cloakOfChaos",
       "name": "Cloak of Chaos",
+      "school": "Abjuration",
+      "descriptors": [
+        "Chaotic"
+      ],
       "classLevels": {
         "cleric": 8
       }
@@ -600,6 +788,7 @@
     {
       "id": "clone",
       "name": "Clone",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -608,6 +797,8 @@
     {
       "id": "cloudkill",
       "name": "Cloudkill",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -616,6 +807,11 @@
     {
       "id": "colorSpray",
       "name": "Color Spray",
+      "school": "Illusion",
+      "subschool": "Pattern",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -624,6 +820,12 @@
     {
       "id": "command",
       "name": "Command",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 1
       }
@@ -631,6 +833,7 @@
     {
       "id": "commandPlants",
       "name": "Command Plants",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 4,
         "ranger": 3
@@ -639,6 +842,7 @@
     {
       "id": "commandUndead",
       "name": "Command Undead",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -647,6 +851,12 @@
     {
       "id": "commandGreater",
       "name": "Command, Greater",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 5
       }
@@ -654,6 +864,7 @@
     {
       "id": "commune",
       "name": "Commune",
+      "school": "Divination",
       "classLevels": {
         "cleric": 5
       }
@@ -661,6 +872,7 @@
     {
       "id": "communeWithNature",
       "name": "Commune with Nature",
+      "school": "Divination",
       "classLevels": {
         "druid": 5,
         "ranger": 4
@@ -669,6 +881,7 @@
     {
       "id": "comprehendLanguages",
       "name": "Comprehend Languages",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -679,6 +892,10 @@
     {
       "id": "coneOfCold",
       "name": "Cone of Cold",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -687,6 +904,11 @@
     {
       "id": "confusion",
       "name": "Confusion",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -696,6 +918,11 @@
     {
       "id": "confusionLesser",
       "name": "Confusion, Lesser",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "bard": 1
       }
@@ -703,6 +930,10 @@
     {
       "id": "consecrate",
       "name": "Consecrate",
+      "school": "Evocation",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -710,6 +941,7 @@
     {
       "id": "contactOtherPlane",
       "name": "Contact Other Plane",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -718,6 +950,10 @@
     {
       "id": "contagion",
       "name": "Contagion",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -728,6 +964,7 @@
     {
       "id": "contingency",
       "name": "Contingency",
+      "school": "Evocation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -736,6 +973,10 @@
     {
       "id": "continualFlame",
       "name": "Continual Flame",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -745,6 +986,7 @@
     {
       "id": "controlPlants",
       "name": "Control Plants",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 8
       }
@@ -752,6 +994,7 @@
     {
       "id": "controlUndead",
       "name": "Control Undead",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -760,6 +1003,10 @@
     {
       "id": "controlWater",
       "name": "Control Water",
+      "school": "Transmutation",
+      "descriptors": [
+        "Water"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -770,6 +1017,7 @@
     {
       "id": "controlWeather",
       "name": "Control Weather",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -780,6 +1028,10 @@
     {
       "id": "controlWinds",
       "name": "Control Winds",
+      "school": "Transmutation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "druid": 5
       }
@@ -787,6 +1039,8 @@
     {
       "id": "createFoodAndWater",
       "name": "Create Food and Water",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "cleric": 3
       }
@@ -794,6 +1048,10 @@
     {
       "id": "createGreaterUndead",
       "name": "Create Greater Undead",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -803,6 +1061,10 @@
     {
       "id": "createUndead",
       "name": "Create Undead",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -812,6 +1074,11 @@
     {
       "id": "createWater",
       "name": "Create Water",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Water"
+      ],
       "classLevels": {
         "cleric": 0,
         "druid": 0,
@@ -821,6 +1088,8 @@
     {
       "id": "creepingDoom",
       "name": "Creeping Doom",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "druid": 7
       }
@@ -828,6 +1097,11 @@
     {
       "id": "crushingDespair",
       "name": "Crushing Despair",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -837,6 +1111,10 @@
     {
       "id": "crushingHand",
       "name": "Crushing Hand",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -845,6 +1123,8 @@
     {
       "id": "cureCriticalWounds",
       "name": "Cure Critical Wounds",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 4,
         "druid": 5,
@@ -854,6 +1134,8 @@
     {
       "id": "cureCriticalWoundsMass",
       "name": "Cure Critical Wounds, Mass",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 8,
         "druid": 9
@@ -862,6 +1144,8 @@
     {
       "id": "cureLightWounds",
       "name": "Cure Light Wounds",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 1,
         "druid": 1,
@@ -873,6 +1157,8 @@
     {
       "id": "cureLightWoundsMass",
       "name": "Cure Light Wounds, Mass",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 5,
         "druid": 6,
@@ -882,6 +1168,8 @@
     {
       "id": "cureMinorWounds",
       "name": "Cure Minor Wounds",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 0,
         "druid": 0
@@ -890,6 +1178,8 @@
     {
       "id": "cureModerateWounds",
       "name": "Cure Moderate Wounds",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 2,
         "druid": 3,
@@ -901,6 +1191,8 @@
     {
       "id": "cureModerateWoundsMass",
       "name": "Cure Moderate Wounds, Mass",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 6,
         "druid": 7,
@@ -910,6 +1202,8 @@
     {
       "id": "cureSeriousWounds",
       "name": "Cure Serious Wounds",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 3,
         "druid": 4,
@@ -921,6 +1215,8 @@
     {
       "id": "cureSeriousWoundsMass",
       "name": "Cure Serious Wounds, Mass",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 7,
         "druid": 8
@@ -929,6 +1225,10 @@
     {
       "id": "curseWater",
       "name": "Curse Water",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 1
       }
@@ -936,6 +1236,10 @@
     {
       "id": "dancingLights",
       "name": "Dancing Lights",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -945,6 +1249,10 @@
     {
       "id": "darkness",
       "name": "Darkness",
+      "school": "Evocation",
+      "descriptors": [
+        "Darkness"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -955,6 +1263,7 @@
     {
       "id": "darkvision",
       "name": "Darkvision",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -964,6 +1273,10 @@
     {
       "id": "daylight",
       "name": "Daylight",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -976,6 +1289,11 @@
     {
       "id": "daze",
       "name": "Daze",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -985,6 +1303,11 @@
     {
       "id": "dazeMonster",
       "name": "Daze Monster",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -994,6 +1317,11 @@
     {
       "id": "deathKnell",
       "name": "Death Knell",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death",
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -1001,6 +1329,7 @@
     {
       "id": "deathWard",
       "name": "Death Ward",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 4,
         "druid": 5,
@@ -1010,6 +1339,10 @@
     {
       "id": "deathwatch",
       "name": "Deathwatch",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 1
       }
@@ -1017,6 +1350,11 @@
     {
       "id": "deepSlumber",
       "name": "Deep Slumber",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -1026,6 +1364,10 @@
     {
       "id": "deeperDarkness",
       "name": "Deeper Darkness",
+      "school": "Evocation",
+      "descriptors": [
+        "Darkness"
+      ],
       "classLevels": {
         "cleric": 3
       }
@@ -1033,6 +1375,8 @@
     {
       "id": "delayPoison",
       "name": "Delay Poison",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 2,
         "druid": 2,
@@ -1044,6 +1388,10 @@
     {
       "id": "delayedBlastFireball",
       "name": "Delayed Blast Fireball",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -1052,6 +1400,11 @@
     {
       "id": "demand",
       "name": "Demand",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -1060,6 +1413,10 @@
     {
       "id": "desecrate",
       "name": "Desecrate",
+      "school": "Evocation",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -1067,6 +1424,10 @@
     {
       "id": "destruction",
       "name": "Destruction",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death"
+      ],
       "classLevels": {
         "cleric": 7
       }
@@ -1074,6 +1435,7 @@
     {
       "id": "detectAnimalsOrPlants",
       "name": "Detect Animals or Plants",
+      "school": "Divination",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -1082,6 +1444,7 @@
     {
       "id": "detectChaos",
       "name": "Detect Chaos/Evil/Good/Law",
+      "school": "Divination",
       "classLevels": {
         "cleric": 1
       }
@@ -1089,6 +1452,7 @@
     {
       "id": "detectMagic",
       "name": "Detect Magic",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -1100,6 +1464,7 @@
     {
       "id": "detectPoison",
       "name": "Detect Poison",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -1112,6 +1477,7 @@
     {
       "id": "detectScrying",
       "name": "Detect Scrying",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1121,6 +1487,7 @@
     {
       "id": "detectSecretDoors",
       "name": "Detect Secret Doors",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1130,6 +1497,7 @@
     {
       "id": "detectSnaresAndPits",
       "name": "Detect Snares and Pits",
+      "school": "Divination",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -1138,6 +1506,10 @@
     {
       "id": "detectThoughts",
       "name": "Detect Thoughts",
+      "school": "Divination",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1147,6 +1519,7 @@
     {
       "id": "detectUndead",
       "name": "Detect Undead",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1157,6 +1530,11 @@
     {
       "id": "dictum",
       "name": "Dictum",
+      "school": "Evocation",
+      "descriptors": [
+        "Lawful",
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 7
       }
@@ -1164,6 +1542,8 @@
     {
       "id": "dimensionDoor",
       "name": "Dimension Door",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1173,6 +1553,7 @@
     {
       "id": "dimensionalAnchor",
       "name": "Dimensional Anchor",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1182,6 +1563,7 @@
     {
       "id": "dimensionalLock",
       "name": "Dimensional Lock",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -1191,6 +1573,7 @@
     {
       "id": "diminishPlants",
       "name": "Diminish Plants",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3,
         "ranger": 3
@@ -1199,6 +1582,7 @@
     {
       "id": "discernLies",
       "name": "Discern Lies",
+      "school": "Divination",
       "classLevels": {
         "cleric": 4,
         "paladin": 3
@@ -1207,6 +1591,7 @@
     {
       "id": "discernLocation",
       "name": "Discern Location",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -1216,6 +1601,8 @@
     {
       "id": "disguiseSelf",
       "name": "Disguise Self",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1225,6 +1612,7 @@
     {
       "id": "disintegrate",
       "name": "Disintegrate",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1233,6 +1621,7 @@
     {
       "id": "dismissal",
       "name": "Dismissal",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -1242,6 +1631,10 @@
     {
       "id": "dispelChaos",
       "name": "Dispel Chaos/Evil/Good/Law",
+      "school": "Abjuration",
+      "descriptors": [
+        "Lawful"
+      ],
       "classLevels": {
         "cleric": 5,
         "paladin": 4
@@ -1250,6 +1643,10 @@
     {
       "id": "dispelEvil",
       "name": "Dispel Evil",
+      "school": "Abjuration",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "paladin": 4
       }
@@ -1257,6 +1654,7 @@
     {
       "id": "dispelMagic",
       "name": "Dispel Magic",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -1269,6 +1667,7 @@
     {
       "id": "dispelMagicGreater",
       "name": "Dispel Magic, Greater",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -1280,6 +1679,8 @@
     {
       "id": "displacement",
       "name": "Displacement",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -1289,6 +1690,7 @@
     {
       "id": "disruptUndead",
       "name": "Disrupt Undead",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0
@@ -1297,6 +1699,7 @@
     {
       "id": "disruptingWeapon",
       "name": "Disrupting Weapon",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 5
       }
@@ -1304,6 +1707,7 @@
     {
       "id": "divination",
       "name": "Divination",
+      "school": "Divination",
       "classLevels": {
         "cleric": 4
       }
@@ -1311,6 +1715,7 @@
     {
       "id": "divineFavor",
       "name": "Divine Favor",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 1,
         "paladin": 1
@@ -1319,6 +1724,7 @@
     {
       "id": "divinePower",
       "name": "Divine Power",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 4
       }
@@ -1326,6 +1732,11 @@
     {
       "id": "dominateAnimal",
       "name": "Dominate Animal",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "druid": 3
       }
@@ -1333,6 +1744,11 @@
     {
       "id": "dominateMonster",
       "name": "Dominate Monster",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -1341,6 +1757,11 @@
     {
       "id": "dominatePerson",
       "name": "Dominate Person",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -1350,6 +1771,11 @@
     {
       "id": "doom",
       "name": "Doom",
+      "school": "Necromancy",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 1
       }
@@ -1357,6 +1783,11 @@
     {
       "id": "dream",
       "name": "Dream",
+      "school": "Illusion",
+      "subschool": "Phantasm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -1366,6 +1797,7 @@
     {
       "id": "eaglesSplendor",
       "name": "Eagle's Splendor",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1377,6 +1809,7 @@
     {
       "id": "eaglesSplendorMass",
       "name": "Eagle's Splendor, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -1387,6 +1820,10 @@
     {
       "id": "earthquake",
       "name": "Earthquake",
+      "school": "Evocation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "cleric": 8,
         "druid": 8
@@ -1395,6 +1832,11 @@
     {
       "id": "elementalSwarm",
       "name": "Elemental Swarm",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 9
       }
@@ -1402,6 +1844,7 @@
     {
       "id": "endureElements",
       "name": "Endure Elements",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1414,6 +1857,7 @@
     {
       "id": "energyDrain",
       "name": "Energy Drain",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -1423,6 +1867,7 @@
     {
       "id": "enervation",
       "name": "Enervation",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -1431,6 +1876,7 @@
     {
       "id": "enlargePerson",
       "name": "Enlarge Person",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -1439,6 +1885,7 @@
     {
       "id": "enlargePersonMass",
       "name": "Enlarge Person, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -1447,6 +1894,7 @@
     {
       "id": "entangle",
       "name": "Entangle",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -1455,6 +1903,13 @@
     {
       "id": "enthrall",
       "name": "Enthrall",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Language Dependent",
+        "Mind-Affecting",
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 2,
         "bard": 2
@@ -1463,6 +1918,7 @@
     {
       "id": "entropicShield",
       "name": "Entropic Shield",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 1
       }
@@ -1470,6 +1926,7 @@
     {
       "id": "erase",
       "name": "Erase",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1479,6 +1936,7 @@
     {
       "id": "etherealJaunt",
       "name": "Ethereal Jaunt",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -1488,6 +1946,7 @@
     {
       "id": "etherealness",
       "name": "Etherealness",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -1497,6 +1956,7 @@
     {
       "id": "expeditiousRetreat",
       "name": "Expeditious Retreat",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1506,6 +1966,10 @@
     {
       "id": "explosiveRunes",
       "name": "Explosive Runes",
+      "school": "Abjuration",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -1514,6 +1978,10 @@
     {
       "id": "eyebite",
       "name": "Eyebite",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -1523,6 +1991,7 @@
     {
       "id": "fabricate",
       "name": "Fabricate",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -1531,6 +2000,10 @@
     {
       "id": "faerieFire",
       "name": "Faerie Fire",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "druid": 1
       }
@@ -1538,6 +2011,7 @@
     {
       "id": "falseLife",
       "name": "False Life",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -1546,6 +2020,8 @@
     {
       "id": "falseVision",
       "name": "False Vision",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -1555,6 +2031,11 @@
     {
       "id": "fear",
       "name": "Fear",
+      "school": "Necromancy",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1564,6 +2045,7 @@
     {
       "id": "featherFall",
       "name": "Feather Fall",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1573,6 +2055,11 @@
     {
       "id": "feeblemind",
       "name": "Feeblemind",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -1581,6 +2068,7 @@
     {
       "id": "findThePath",
       "name": "Find the Path",
+      "school": "Divination",
       "classLevels": {
         "cleric": 6,
         "druid": 6,
@@ -1590,6 +2078,7 @@
     {
       "id": "findTraps",
       "name": "Find Traps",
+      "school": "Divination",
       "classLevels": {
         "cleric": 2
       }
@@ -1597,6 +2086,10 @@
     {
       "id": "fingerOfDeath",
       "name": "Finger of Death",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -1606,6 +2099,11 @@
     {
       "id": "fireSeeds",
       "name": "Fire Seeds",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "druid": 6
       }
@@ -1613,6 +2111,10 @@
     {
       "id": "fireShield",
       "name": "Fire Shield",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire or Cold"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -1621,6 +2123,10 @@
     {
       "id": "fireStorm",
       "name": "Fire Storm",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "cleric": 8,
         "druid": 7
@@ -1629,6 +2135,10 @@
     {
       "id": "fireTrap",
       "name": "Fire Trap",
+      "school": "Abjuration",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1638,6 +2148,10 @@
     {
       "id": "fireball",
       "name": "Fireball",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -1646,6 +2160,10 @@
     {
       "id": "flameArrow",
       "name": "Flame Arrow",
+      "school": "Transmutation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -1654,6 +2172,10 @@
     {
       "id": "flameBlade",
       "name": "Flame Blade",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "druid": 2
       }
@@ -1661,6 +2183,10 @@
     {
       "id": "flameStrike",
       "name": "Flame Strike",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "cleric": 5,
         "druid": 4
@@ -1669,6 +2195,10 @@
     {
       "id": "flamingSphere",
       "name": "Flaming Sphere",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1678,6 +2208,10 @@
     {
       "id": "flare",
       "name": "Flare",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -1688,6 +2222,7 @@
     {
       "id": "fleshToStone",
       "name": "Flesh to Stone",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1696,6 +2231,10 @@
     {
       "id": "floatingDisk",
       "name": "Floating Disk",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -1704,6 +2243,7 @@
     {
       "id": "fly",
       "name": "Fly",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -1712,6 +2252,8 @@
     {
       "id": "fogCloud",
       "name": "Fog Cloud",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1721,6 +2263,7 @@
     {
       "id": "forbiddance",
       "name": "Forbiddance",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 6
       }
@@ -1728,6 +2271,10 @@
     {
       "id": "forcecage",
       "name": "Forcecage",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -1736,6 +2283,10 @@
     {
       "id": "forcefulHand",
       "name": "Forceful Hand",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1744,6 +2295,7 @@
     {
       "id": "foresight",
       "name": "Foresight",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -1753,6 +2305,7 @@
     {
       "id": "foxsCunning",
       "name": "Fox's Cunning",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1762,6 +2315,7 @@
     {
       "id": "foxsCunningMass",
       "name": "Fox's Cunning, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -1771,6 +2325,7 @@
     {
       "id": "freedom",
       "name": "Freedom",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -1779,6 +2334,7 @@
     {
       "id": "freedomOfMovement",
       "name": "Freedom of Movement",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 4,
         "druid": 4,
@@ -1789,6 +2345,10 @@
     {
       "id": "freezingSphere",
       "name": "Freezing Sphere",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1797,6 +2357,7 @@
     {
       "id": "gaseousForm",
       "name": "Gaseous Form",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -1806,6 +2367,8 @@
     {
       "id": "gate",
       "name": "Gate",
+      "school": "Conjuration",
+      "subschool": "Creation or Calling",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -1815,6 +2378,12 @@
     {
       "id": "geasLesser",
       "name": "Geas, Lesser",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1824,6 +2393,12 @@
     {
       "id": "geasQuest",
       "name": "Geas/Quest",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -1834,6 +2409,7 @@
     {
       "id": "gentleRepose",
       "name": "Gentle Repose",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -1843,6 +2419,8 @@
     {
       "id": "ghostSound",
       "name": "Ghost Sound",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -1852,6 +2430,7 @@
     {
       "id": "ghoulTouch",
       "name": "Ghoul Touch",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -1860,6 +2439,7 @@
     {
       "id": "giantVermin",
       "name": "Giant Vermin",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 4,
         "druid": 4
@@ -1868,6 +2448,7 @@
     {
       "id": "glibness",
       "name": "Glibness",
+      "school": "Transmutation",
       "classLevels": {
         "bard": 3
       }
@@ -1875,6 +2456,8 @@
     {
       "id": "glitterdust",
       "name": "Glitterdust",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1884,6 +2467,7 @@
     {
       "id": "globeOfInvulnerability",
       "name": "Globe of Invulnerability",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1892,6 +2476,7 @@
     {
       "id": "globeOfInvulnerabilityLesser",
       "name": "Globe of Invulnerability, Lesser",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -1900,6 +2485,7 @@
     {
       "id": "glyphOfWarding",
       "name": "Glyph of Warding",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 3
       }
@@ -1907,6 +2493,7 @@
     {
       "id": "glyphOfWardingGreater",
       "name": "Glyph of Warding, Greater",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 6
       }
@@ -1914,6 +2501,11 @@
     {
       "id": "goodHope",
       "name": "Good Hope",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "bard": 3
       }
@@ -1921,6 +2513,7 @@
     {
       "id": "goodberry",
       "name": "Goodberry",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1
       }
@@ -1928,6 +2521,10 @@
     {
       "id": "graspingHand",
       "name": "Grasping Hand",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -1936,6 +2533,8 @@
     {
       "id": "grease",
       "name": "Grease",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -1945,6 +2544,7 @@
     {
       "id": "guardsAndWards",
       "name": "Guards and Wards",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -1953,6 +2553,7 @@
     {
       "id": "guidance",
       "name": "Guidance",
+      "school": "Divination",
       "classLevels": {
         "cleric": 0,
         "druid": 0
@@ -1961,6 +2562,10 @@
     {
       "id": "gustOfWind",
       "name": "Gust of Wind",
+      "school": "Evocation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -1970,6 +2575,10 @@
     {
       "id": "hallow",
       "name": "Hallow",
+      "school": "Evocation",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "cleric": 5,
         "druid": 5
@@ -1978,6 +2587,8 @@
     {
       "id": "hallucinatoryTerrain",
       "name": "Hallucinatory Terrain",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -1987,6 +2598,7 @@
     {
       "id": "haltUndead",
       "name": "Halt Undead",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -1995,6 +2607,7 @@
     {
       "id": "harm",
       "name": "Harm",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 6
       }
@@ -2002,6 +2615,7 @@
     {
       "id": "haste",
       "name": "Haste",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2011,6 +2625,8 @@
     {
       "id": "heal",
       "name": "Heal",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 6,
         "druid": 7
@@ -2019,6 +2635,8 @@
     {
       "id": "healMount",
       "name": "Heal Mount",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "paladin": 3
       }
@@ -2026,6 +2644,8 @@
     {
       "id": "healMass",
       "name": "Heal, Mass",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 9
       }
@@ -2033,6 +2653,10 @@
     {
       "id": "heatMetal",
       "name": "Heat Metal",
+      "school": "Transmutation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "druid": 2
       }
@@ -2040,6 +2664,7 @@
     {
       "id": "helpingHand",
       "name": "Helping Hand",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 3
       }
@@ -2047,6 +2672,8 @@
     {
       "id": "heroesFeast",
       "name": "Heroes' Feast",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "cleric": 6,
         "bard": 6
@@ -2055,6 +2682,11 @@
     {
       "id": "heroism",
       "name": "Heroism",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2064,6 +2696,11 @@
     {
       "id": "heroismGreater",
       "name": "Heroism, Greater",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -2073,6 +2710,7 @@
     {
       "id": "hideFromAnimals",
       "name": "Hide from Animals",
+      "school": "Abjuration",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -2081,6 +2719,7 @@
     {
       "id": "hideFromUndead",
       "name": "Hide from Undead",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 1
       }
@@ -2088,6 +2727,11 @@
     {
       "id": "hideousLaughter",
       "name": "Hideous Laughter",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2097,6 +2741,11 @@
     {
       "id": "holdAnimal",
       "name": "Hold Animal",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "druid": 2,
         "ranger": 2
@@ -2105,6 +2754,11 @@
     {
       "id": "holdMonster",
       "name": "Hold Monster",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -2114,6 +2768,11 @@
     {
       "id": "holdMonsterMass",
       "name": "Hold Monster, Mass",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -2122,6 +2781,11 @@
     {
       "id": "holdPerson",
       "name": "Hold Person",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2132,6 +2796,11 @@
     {
       "id": "holdPersonMass",
       "name": "Hold Person, Mass",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2140,6 +2809,7 @@
     {
       "id": "holdPortal",
       "name": "Hold Portal",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -2148,6 +2818,10 @@
     {
       "id": "holyAura",
       "name": "Holy Aura",
+      "school": "Abjuration",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "cleric": 8
       }
@@ -2155,6 +2829,10 @@
     {
       "id": "holySword",
       "name": "Holy Sword",
+      "school": "Evocation",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "paladin": 4
       }
@@ -2162,6 +2840,11 @@
     {
       "id": "holyWord",
       "name": "Holy Word",
+      "school": "Evocation",
+      "descriptors": [
+        "Good",
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 7
       }
@@ -2169,6 +2852,7 @@
     {
       "id": "horridWilting",
       "name": "Horrid Wilting",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2177,6 +2861,11 @@
     {
       "id": "hypnoticPattern",
       "name": "Hypnotic Pattern",
+      "school": "Illusion",
+      "subschool": "Pattern",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2186,6 +2875,11 @@
     {
       "id": "hypnotism",
       "name": "Hypnotism",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2195,6 +2889,10 @@
     {
       "id": "iceStorm",
       "name": "Ice Storm",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -2204,6 +2902,7 @@
     {
       "id": "identify",
       "name": "Identify",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2213,6 +2912,11 @@
     {
       "id": "illusoryScript",
       "name": "Illusory Script",
+      "school": "Illusion",
+      "subschool": "Phantasm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2222,6 +2926,8 @@
     {
       "id": "illusoryWall",
       "name": "Illusory Wall",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -2230,6 +2936,7 @@
     {
       "id": "imbueWithSpellAbility",
       "name": "Imbue with Spell Ability",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 4
       }
@@ -2237,6 +2944,7 @@
     {
       "id": "implosion",
       "name": "Implosion",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 9
       }
@@ -2244,6 +2952,7 @@
     {
       "id": "imprisonment",
       "name": "Imprisonment",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -2252,6 +2961,11 @@
     {
       "id": "incendiaryCloud",
       "name": "Incendiary Cloud",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2260,6 +2974,7 @@
     {
       "id": "inflictCriticalWounds",
       "name": "Inflict Critical Wounds",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 4
       }
@@ -2267,6 +2982,7 @@
     {
       "id": "inflictCriticalWoundsMass",
       "name": "Inflict Critical Wounds, Mass",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 8
       }
@@ -2274,6 +2990,7 @@
     {
       "id": "inflictLightWounds",
       "name": "Inflict Light Wounds",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 1
       }
@@ -2281,6 +2998,7 @@
     {
       "id": "inflictLightWoundsMass",
       "name": "Inflict Light Wounds, Mass",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 5
       }
@@ -2288,6 +3006,7 @@
     {
       "id": "inflictMinorWounds",
       "name": "Inflict Minor Wounds",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 0
       }
@@ -2295,6 +3014,7 @@
     {
       "id": "inflictModerateWounds",
       "name": "Inflict Moderate Wounds",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 2
       }
@@ -2302,6 +3022,7 @@
     {
       "id": "inflictModerateWoundsMass",
       "name": "Inflict Moderate Wounds, Mass",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 6
       }
@@ -2309,6 +3030,7 @@
     {
       "id": "inflictSeriousWounds",
       "name": "Inflict Serious Wounds",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 3
       }
@@ -2316,6 +3038,7 @@
     {
       "id": "inflictSeriousWoundsMass",
       "name": "Inflict Serious Wounds, Mass",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 7
       }
@@ -2323,6 +3046,11 @@
     {
       "id": "insanity",
       "name": "Insanity",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2331,6 +3059,8 @@
     {
       "id": "insectPlague",
       "name": "Insect Plague",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "cleric": 5,
         "druid": 5
@@ -2339,6 +3069,8 @@
     {
       "id": "instantSummons",
       "name": "Instant Summons",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2347,6 +3079,10 @@
     {
       "id": "interposingHand",
       "name": "Interposing Hand",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2355,6 +3091,8 @@
     {
       "id": "invisibility",
       "name": "Invisibility",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2364,6 +3102,7 @@
     {
       "id": "invisibilityPurge",
       "name": "Invisibility Purge",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 3
       }
@@ -2371,6 +3110,8 @@
     {
       "id": "invisibilitySphere",
       "name": "Invisibility Sphere",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2380,6 +3121,8 @@
     {
       "id": "invisibilityGreater",
       "name": "Invisibility, Greater",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -2389,6 +3132,8 @@
     {
       "id": "invisibilityMass",
       "name": "Invisibility, Mass",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2397,6 +3142,7 @@
     {
       "id": "ironBody",
       "name": "Iron Body",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2405,6 +3151,7 @@
     {
       "id": "ironwood",
       "name": "Ironwood",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 6
       }
@@ -2412,6 +3159,11 @@
     {
       "id": "irresistibleDance",
       "name": "Irresistible Dance",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -2421,6 +3173,7 @@
     {
       "id": "jump",
       "name": "Jump",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2431,6 +3184,7 @@
     {
       "id": "keenEdge",
       "name": "Keen Edge",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -2439,6 +3193,7 @@
     {
       "id": "knock",
       "name": "Knock",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -2447,6 +3202,7 @@
     {
       "id": "knowDirection",
       "name": "Know Direction",
+      "school": "Divination",
       "classLevels": {
         "druid": 0,
         "bard": 0
@@ -2455,6 +3211,7 @@
     {
       "id": "legendLore",
       "name": "Legend Lore",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -2464,6 +3221,7 @@
     {
       "id": "levitate",
       "name": "Levitate",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -2472,6 +3230,10 @@
     {
       "id": "light",
       "name": "Light",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -2483,6 +3245,10 @@
     {
       "id": "lightningBolt",
       "name": "Lightning Bolt",
+      "school": "Evocation",
+      "descriptors": [
+        "Electricity"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -2491,6 +3257,7 @@
     {
       "id": "limitedWish",
       "name": "Limited Wish",
+      "school": "Universal",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2499,6 +3266,7 @@
     {
       "id": "liveoak",
       "name": "Liveoak",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 6
       }
@@ -2506,6 +3274,7 @@
     {
       "id": "locateCreature",
       "name": "Locate Creature",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -2515,6 +3284,7 @@
     {
       "id": "locateObject",
       "name": "Locate Object",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2525,6 +3295,7 @@
     {
       "id": "longstrider",
       "name": "Longstrider",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -2533,6 +3304,11 @@
     {
       "id": "lullaby",
       "name": "Lullaby",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "bard": 0
       }
@@ -2540,6 +3316,11 @@
     {
       "id": "mageArmor",
       "name": "Mage Armor",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -2548,6 +3329,7 @@
     {
       "id": "mageHand",
       "name": "Mage Hand",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -2557,6 +3339,7 @@
     {
       "id": "magesDisjunction",
       "name": "Mage's Disjunction",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -2565,6 +3348,8 @@
     {
       "id": "magesFaithfulHound",
       "name": "Mage's Faithful Hound",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2573,6 +3358,7 @@
     {
       "id": "magesLucubration",
       "name": "Mage's Lucubration",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -2581,6 +3367,8 @@
     {
       "id": "magesMagnificentMansion",
       "name": "Mage's Magnificent Mansion",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2589,6 +3377,7 @@
     {
       "id": "magesPrivateSanctum",
       "name": "Mage's Private Sanctum",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2597,6 +3386,10 @@
     {
       "id": "magesSword",
       "name": "Mage's Sword",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -2605,6 +3398,8 @@
     {
       "id": "magicAura",
       "name": "Magic Aura",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2614,6 +3409,10 @@
     {
       "id": "magicCircleAgainstChaos",
       "name": "Magic Circle against Chaos/Evil/Good/Law",
+      "school": "Abjuration",
+      "descriptors": [
+        "Lawful"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2624,6 +3423,10 @@
     {
       "id": "magicCircleAgainstEvil",
       "name": "Magic Circle against Evil",
+      "school": "Abjuration",
+      "descriptors": [
+        "Good"
+      ],
       "classLevels": {
         "paladin": 3
       }
@@ -2631,6 +3434,7 @@
     {
       "id": "magicFang",
       "name": "Magic Fang",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -2639,6 +3443,7 @@
     {
       "id": "magicFangGreater",
       "name": "Magic Fang, Greater",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3,
         "ranger": 3
@@ -2647,6 +3452,7 @@
     {
       "id": "magicJar",
       "name": "Magic Jar",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2655,6 +3461,10 @@
     {
       "id": "magicMissile",
       "name": "Magic Missile",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -2663,6 +3473,8 @@
     {
       "id": "magicMouth",
       "name": "Magic Mouth",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2672,6 +3484,7 @@
     {
       "id": "magicStone",
       "name": "Magic Stone",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 1,
         "druid": 1
@@ -2680,6 +3493,7 @@
     {
       "id": "magicVestment",
       "name": "Magic Vestment",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 3
       }
@@ -2687,6 +3501,7 @@
     {
       "id": "magicWeapon",
       "name": "Magic Weapon",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2697,6 +3512,7 @@
     {
       "id": "magicWeaponGreater",
       "name": "Magic Weapon, Greater",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2707,6 +3523,8 @@
     {
       "id": "majorCreation",
       "name": "Major Creation",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2715,6 +3533,8 @@
     {
       "id": "majorImage",
       "name": "Major Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2724,6 +3544,7 @@
     {
       "id": "makeWhole",
       "name": "Make Whole",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 2
       }
@@ -2731,6 +3552,7 @@
     {
       "id": "markOfJustice",
       "name": "Mark of Justice",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 5,
         "paladin": 4
@@ -2739,6 +3561,8 @@
     {
       "id": "maze",
       "name": "Maze",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2747,6 +3571,10 @@
     {
       "id": "meldIntoStone",
       "name": "Meld into Stone",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "cleric": 3,
         "druid": 3
@@ -2755,6 +3583,7 @@
     {
       "id": "mending",
       "name": "Mending",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -2766,6 +3595,10 @@
     {
       "id": "message",
       "name": "Message",
+      "school": "Transmutation",
+      "descriptors": [
+        "Language-Dependent"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -2775,6 +3608,10 @@
     {
       "id": "meteorSwarm",
       "name": "Meteor Swarm",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -2783,6 +3620,7 @@
     {
       "id": "mindBlank",
       "name": "Mind Blank",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2791,6 +3629,11 @@
     {
       "id": "mindFog",
       "name": "Mind Fog",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -2800,6 +3643,8 @@
     {
       "id": "minorCreation",
       "name": "Minor Creation",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -2808,6 +3653,8 @@
     {
       "id": "minorImage",
       "name": "Minor Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2817,6 +3664,7 @@
     {
       "id": "miracle",
       "name": "Miracle",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 9
       }
@@ -2824,6 +3672,8 @@
     {
       "id": "mirageArcana",
       "name": "Mirage Arcana",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -2833,6 +3683,8 @@
     {
       "id": "mirrorImage",
       "name": "Mirror Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2842,6 +3694,8 @@
     {
       "id": "misdirection",
       "name": "Misdirection",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2851,6 +3705,8 @@
     {
       "id": "mislead",
       "name": "Mislead",
+      "school": "Illusion",
+      "subschool": "Figment, Glamer",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -2860,6 +3716,7 @@
     {
       "id": "mnemonicEnhancer",
       "name": "Mnemonic Enhancer",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -2868,6 +3725,11 @@
     {
       "id": "modifyMemory",
       "name": "Modify Memory",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "bard": 4
       }
@@ -2875,6 +3737,7 @@
     {
       "id": "momentOfPrescience",
       "name": "Moment of Prescience",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -2883,6 +3746,8 @@
     {
       "id": "mount",
       "name": "Mount",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -2891,6 +3756,10 @@
     {
       "id": "moveEarth",
       "name": "Move Earth",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -2900,6 +3769,8 @@
     {
       "id": "neutralizePoison",
       "name": "Neutralize Poison",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 4,
         "druid": 3,
@@ -2911,6 +3782,12 @@
     {
       "id": "nightmare",
       "name": "Nightmare",
+      "school": "Illusion",
+      "subschool": "Phantasm",
+      "descriptors": [
+        "Mind-Affecting",
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -2920,6 +3797,7 @@
     {
       "id": "nondetection",
       "name": "Nondetection",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -2929,6 +3807,7 @@
     {
       "id": "obscureObject",
       "name": "Obscure Object",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2939,6 +3818,8 @@
     {
       "id": "obscuringMist",
       "name": "Obscuring Mist",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -2949,6 +3830,7 @@
     {
       "id": "openClose",
       "name": "Open/Close",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -2958,6 +3840,7 @@
     {
       "id": "overlandFlight",
       "name": "Overland Flight",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -2966,6 +3849,7 @@
     {
       "id": "owlsWisdom",
       "name": "Owl's Wisdom",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -2978,6 +3862,7 @@
     {
       "id": "owlsWisdomMass",
       "name": "Owl's Wisdom, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -2988,6 +3873,7 @@
     {
       "id": "passWithoutTrace",
       "name": "Pass without Trace",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -2996,6 +3882,7 @@
     {
       "id": "passwall",
       "name": "Passwall",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -3004,6 +3891,7 @@
     {
       "id": "permanency",
       "name": "Permanency",
+      "school": "Universal",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -3012,6 +3900,8 @@
     {
       "id": "permanentImage",
       "name": "Permanent Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -3021,6 +3911,8 @@
     {
       "id": "persistentImage",
       "name": "Persistent Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -3030,6 +3922,12 @@
     {
       "id": "phantasmalKiller",
       "name": "Phantasmal Killer",
+      "school": "Illusion",
+      "subschool": "Phantasm",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -3038,6 +3936,8 @@
     {
       "id": "phantomSteed",
       "name": "Phantom Steed",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3047,6 +3947,8 @@
     {
       "id": "phantomTrap",
       "name": "Phantom Trap",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -3055,6 +3957,8 @@
     {
       "id": "phaseDoor",
       "name": "Phase Door",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3063,6 +3967,11 @@
     {
       "id": "planarAlly",
       "name": "Planar Ally",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text for lesser planar ally"
+      ],
       "classLevels": {
         "cleric": 6
       }
@@ -3070,6 +3979,11 @@
     {
       "id": "planarAllyGreater",
       "name": "Planar Ally, Greater",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text for lesser planar ally"
+      ],
       "classLevels": {
         "cleric": 8
       }
@@ -3077,6 +3991,11 @@
     {
       "id": "planarAllyLesser",
       "name": "Planar Ally, Lesser",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "cleric": 4
       }
@@ -3084,6 +4003,11 @@
     {
       "id": "planarBinding",
       "name": "Planar Binding",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text for lesser planar binding"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -3092,6 +4016,11 @@
     {
       "id": "planarBindingGreater",
       "name": "Planar Binding, Greater",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text for lesser planar binding"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3100,6 +4029,11 @@
     {
       "id": "planarBindingLesser",
       "name": "Planar Binding, Lesser",
+      "school": "Conjuration",
+      "subschool": "Calling",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -3108,6 +4042,8 @@
     {
       "id": "planeShift",
       "name": "Plane Shift",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -3117,6 +4053,7 @@
     {
       "id": "plantGrowth",
       "name": "Plant Growth",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3,
         "ranger": 3
@@ -3125,6 +4062,7 @@
     {
       "id": "poison",
       "name": "Poison",
+      "school": "Necromancy",
       "classLevels": {
         "cleric": 4,
         "druid": 3
@@ -3133,6 +4071,10 @@
     {
       "id": "polarRay",
       "name": "Polar Ray",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3141,6 +4083,7 @@
     {
       "id": "polymorph",
       "name": "Polymorph",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -3149,6 +4092,7 @@
     {
       "id": "polymorphAnyObject",
       "name": "Polymorph Any Object",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3157,6 +4101,11 @@
     {
       "id": "powerWordBlind",
       "name": "Power Word Blind",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3165,6 +4114,12 @@
     {
       "id": "powerWordKill",
       "name": "Power Word Kill",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Death",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -3173,6 +4128,11 @@
     {
       "id": "powerWordStun",
       "name": "Power Word Stun",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3181,6 +4141,11 @@
     {
       "id": "prayer",
       "name": "Prayer",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 3,
         "paladin": 3
@@ -3189,6 +4154,7 @@
     {
       "id": "prestidigitation",
       "name": "Prestidigitation",
+      "school": "Universal",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -3198,6 +4164,7 @@
     {
       "id": "prismaticSphere",
       "name": "Prismatic Sphere",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -3206,6 +4173,7 @@
     {
       "id": "prismaticSpray",
       "name": "Prismatic Spray",
+      "school": "Evocation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3214,6 +4182,7 @@
     {
       "id": "prismaticWall",
       "name": "Prismatic Wall",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3222,6 +4191,10 @@
     {
       "id": "produceFlame",
       "name": "Produce Flame",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "druid": 1
       }
@@ -3229,6 +4202,8 @@
     {
       "id": "programmedImage",
       "name": "Programmed Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -3238,6 +4213,8 @@
     {
       "id": "projectImage",
       "name": "Project Image",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -3247,6 +4224,7 @@
     {
       "id": "protectionFromArrows",
       "name": "Protection from Arrows",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -3255,6 +4233,10 @@
     {
       "id": "protectionFromChaos",
       "name": "Protection from Chaos/Evil/Good/Law",
+      "school": "Abjuration",
+      "descriptors": [
+        "Lawful"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -3265,6 +4247,7 @@
     {
       "id": "protectionFromEnergy",
       "name": "Protection from Energy",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3276,6 +4259,7 @@
     {
       "id": "protectionFromSpells",
       "name": "Protection from Spells",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3284,6 +4268,7 @@
     {
       "id": "pryingEyes",
       "name": "Prying Eyes",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -3292,6 +4277,7 @@
     {
       "id": "pryingEyesGreater",
       "name": "Prying Eyes, Greater",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3300,6 +4286,7 @@
     {
       "id": "purifyFoodAndDrink",
       "name": "Purify Food and Drink",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 0,
         "druid": 0
@@ -3308,6 +4295,7 @@
     {
       "id": "pyrotechnics",
       "name": "Pyrotechnics",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -3317,6 +4305,7 @@
     {
       "id": "quench",
       "name": "Quench",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3
       }
@@ -3324,6 +4313,11 @@
     {
       "id": "rage",
       "name": "Rage",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3333,6 +4327,11 @@
     {
       "id": "rainbowPattern",
       "name": "Rainbow Pattern",
+      "school": "Illusion",
+      "subschool": "Pattern",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3342,6 +4341,8 @@
     {
       "id": "raiseDead",
       "name": "Raise Dead",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 5
       }
@@ -3349,6 +4350,7 @@
     {
       "id": "rayOfEnfeeblement",
       "name": "Ray of Enfeeblement",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -3357,6 +4359,7 @@
     {
       "id": "rayOfExhaustion",
       "name": "Ray of Exhaustion",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -3365,6 +4368,10 @@
     {
       "id": "rayOfFrost",
       "name": "Ray of Frost",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0
@@ -3373,6 +4380,7 @@
     {
       "id": "readMagic",
       "name": "Read Magic",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -3386,6 +4394,7 @@
     {
       "id": "reduceAnimal",
       "name": "Reduce Animal",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 2,
         "ranger": 3
@@ -3394,6 +4403,7 @@
     {
       "id": "reducePerson",
       "name": "Reduce Person",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -3402,6 +4412,7 @@
     {
       "id": "reducePersonMass",
       "name": "Reduce Person, Mass",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -3410,6 +4421,8 @@
     {
       "id": "refuge",
       "name": "Refuge",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -3419,6 +4432,8 @@
     {
       "id": "regenerate",
       "name": "Regenerate",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 7,
         "druid": 9
@@ -3427,6 +4442,7 @@
     {
       "id": "reincarnate",
       "name": "Reincarnate",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 4
       }
@@ -3434,6 +4450,8 @@
     {
       "id": "removeBlindnessDeafness",
       "name": "Remove Blindness/Deafness",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 3,
         "paladin": 3
@@ -3442,6 +4460,7 @@
     {
       "id": "removeCurse",
       "name": "Remove Curse",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3453,6 +4472,8 @@
     {
       "id": "removeDisease",
       "name": "Remove Disease",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 3,
         "druid": 3,
@@ -3462,6 +4483,7 @@
     {
       "id": "removeFear",
       "name": "Remove Fear",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 1,
         "bard": 1
@@ -3470,6 +4492,8 @@
     {
       "id": "removeParalysis",
       "name": "Remove Paralysis",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 2,
         "paladin": 2
@@ -3478,6 +4502,10 @@
     {
       "id": "repelMetalOrStone",
       "name": "Repel Metal or Stone",
+      "school": "Abjuration",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "druid": 8
       }
@@ -3485,6 +4513,7 @@
     {
       "id": "repelVermin",
       "name": "Repel Vermin",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 4,
         "druid": 4,
@@ -3495,6 +4524,7 @@
     {
       "id": "repelWood",
       "name": "Repel Wood",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 6
       }
@@ -3502,6 +4532,7 @@
     {
       "id": "repulsion",
       "name": "Repulsion",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -3511,6 +4542,10 @@
     {
       "id": "resilientSphere",
       "name": "Resilient Sphere",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -3519,6 +4554,7 @@
     {
       "id": "resistEnergy",
       "name": "Resist Energy",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -3531,6 +4567,7 @@
     {
       "id": "resistance",
       "name": "Resistance",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0,
@@ -3543,6 +4580,8 @@
     {
       "id": "restoration",
       "name": "Restoration",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 4,
         "paladin": 4
@@ -3551,6 +4590,8 @@
     {
       "id": "restorationGreater",
       "name": "Restoration, Greater",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 7
       }
@@ -3558,6 +4599,8 @@
     {
       "id": "restorationLesser",
       "name": "Restoration, Lesser",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 2,
         "druid": 2,
@@ -3567,6 +4610,8 @@
     {
       "id": "resurrection",
       "name": "Resurrection",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 7
       }
@@ -3574,6 +4619,7 @@
     {
       "id": "reverseGravity",
       "name": "Reverse Gravity",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -3583,6 +4629,7 @@
     {
       "id": "righteousMight",
       "name": "Righteous Might",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 5
       }
@@ -3590,6 +4637,7 @@
     {
       "id": "ropeTrick",
       "name": "Rope Trick",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -3598,6 +4646,7 @@
     {
       "id": "rustingGrasp",
       "name": "Rusting Grasp",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 4
       }
@@ -3605,6 +4654,7 @@
     {
       "id": "sanctuary",
       "name": "Sanctuary",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 1
       }
@@ -3612,6 +4662,11 @@
     {
       "id": "scare",
       "name": "Scare",
+      "school": "Necromancy",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -3621,6 +4676,11 @@
     {
       "id": "scintillatingPattern",
       "name": "Scintillating Pattern",
+      "school": "Illusion",
+      "subschool": "Pattern",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3629,6 +4689,10 @@
     {
       "id": "scorchingRay",
       "name": "Scorching Ray",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -3637,6 +4701,8 @@
     {
       "id": "screen",
       "name": "Screen",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3645,6 +4711,8 @@
     {
       "id": "scrying",
       "name": "Scrying",
+      "school": "Divination",
+      "subschool": "Scrying",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3656,6 +4724,8 @@
     {
       "id": "scryingGreater",
       "name": "Scrying, Greater",
+      "school": "Divination",
+      "subschool": "Scrying",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -3667,6 +4737,7 @@
     {
       "id": "sculptSound",
       "name": "Sculpt Sound",
+      "school": "Transmutation",
       "classLevels": {
         "bard": 3
       }
@@ -3674,6 +4745,7 @@
     {
       "id": "searingLight",
       "name": "Searing Light",
+      "school": "Evocation",
       "classLevels": {
         "cleric": 3
       }
@@ -3681,6 +4753,8 @@
     {
       "id": "secretChest",
       "name": "Secret Chest",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -3689,6 +4763,7 @@
     {
       "id": "secretPage",
       "name": "Secret Page",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3698,6 +4773,8 @@
     {
       "id": "secureShelter",
       "name": "Secure Shelter",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3707,6 +4784,7 @@
     {
       "id": "seeInvisibility",
       "name": "See Invisibility",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -3716,6 +4794,8 @@
     {
       "id": "seeming",
       "name": "Seeming",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -3725,6 +4805,7 @@
     {
       "id": "sending",
       "name": "Sending",
+      "school": "Evocation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -3734,6 +4815,11 @@
     {
       "id": "sepiaSnakeSigil",
       "name": "Sepia Snake Sigil",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3743,6 +4829,7 @@
     {
       "id": "sequester",
       "name": "Sequester",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3751,6 +4838,8 @@
     {
       "id": "shades",
       "name": "Shades",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -3759,6 +4848,8 @@
     {
       "id": "shadowConjuration",
       "name": "Shadow Conjuration",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3768,6 +4859,8 @@
     {
       "id": "shadowConjurationGreater",
       "name": "Shadow Conjuration, Greater",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3776,6 +4869,8 @@
     {
       "id": "shadowEvocation",
       "name": "Shadow Evocation",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -3785,6 +4880,8 @@
     {
       "id": "shadowEvocationGreater",
       "name": "Shadow Evocation, Greater",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -3793,6 +4890,8 @@
     {
       "id": "shadowWalk",
       "name": "Shadow Walk",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -3802,6 +4901,8 @@
     {
       "id": "shambler",
       "name": "Shambler",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "druid": 9
       }
@@ -3809,6 +4910,7 @@
     {
       "id": "shapechange",
       "name": "Shapechange",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -3818,6 +4920,10 @@
     {
       "id": "shatter",
       "name": "Shatter",
+      "school": "Evocation",
+      "descriptors": [
+        "Sonic"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -3828,6 +4934,10 @@
     {
       "id": "shield",
       "name": "Shield",
+      "school": "Abjuration",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -3836,6 +4946,7 @@
     {
       "id": "shieldOfFaith",
       "name": "Shield of Faith",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 1
       }
@@ -3843,6 +4954,10 @@
     {
       "id": "shieldOfLaw",
       "name": "Shield of Law",
+      "school": "Abjuration",
+      "descriptors": [
+        "Lawful"
+      ],
       "classLevels": {
         "cleric": 8
       }
@@ -3850,6 +4965,7 @@
     {
       "id": "shieldOther",
       "name": "Shield Other",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 2,
         "paladin": 2
@@ -3858,6 +4974,7 @@
     {
       "id": "shillelagh",
       "name": "Shillelagh",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 1
       }
@@ -3865,6 +4982,10 @@
     {
       "id": "shockingGrasp",
       "name": "Shocking Grasp",
+      "school": "Evocation",
+      "descriptors": [
+        "Electricity"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -3873,6 +4994,10 @@
     {
       "id": "shout",
       "name": "Shout",
+      "school": "Evocation",
+      "descriptors": [
+        "Sonic"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -3882,6 +5007,10 @@
     {
       "id": "shoutGreater",
       "name": "Shout, Greater",
+      "school": "Evocation",
+      "descriptors": [
+        "Sonic"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -3891,6 +5020,7 @@
     {
       "id": "shrinkItem",
       "name": "Shrink Item",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -3899,6 +5029,8 @@
     {
       "id": "silence",
       "name": "Silence",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "cleric": 2,
         "bard": 2
@@ -3907,6 +5039,8 @@
     {
       "id": "silentImage",
       "name": "Silent Image",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -3916,6 +5050,8 @@
     {
       "id": "simulacrum",
       "name": "Simulacrum",
+      "school": "Illusion",
+      "subschool": "Shadow",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -3924,6 +5060,10 @@
     {
       "id": "slayLiving",
       "name": "Slay Living",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death"
+      ],
       "classLevels": {
         "cleric": 5
       }
@@ -3931,6 +5071,11 @@
     {
       "id": "sleep",
       "name": "Sleep",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -3940,6 +5085,11 @@
     {
       "id": "sleetStorm",
       "name": "Sleet Storm",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3949,6 +5099,7 @@
     {
       "id": "slow",
       "name": "Slow",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -3958,6 +5109,7 @@
     {
       "id": "snare",
       "name": "Snare",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3,
         "ranger": 2
@@ -3966,6 +5118,10 @@
     {
       "id": "softenEarthAndStone",
       "name": "Soften Earth and Stone",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "druid": 2
       }
@@ -3973,6 +5129,8 @@
     {
       "id": "solidFog",
       "name": "Solid Fog",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -3981,6 +5139,12 @@
     {
       "id": "songOfDiscord",
       "name": "Song of Discord",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting",
+        "Sonic"
+      ],
       "classLevels": {
         "bard": 5
       }
@@ -3988,6 +5152,7 @@
     {
       "id": "soulBind",
       "name": "Soul Bind",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -3997,6 +5162,10 @@
     {
       "id": "soundBurst",
       "name": "Sound Burst",
+      "school": "Evocation",
+      "descriptors": [
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 2,
         "bard": 2
@@ -4005,6 +5174,7 @@
     {
       "id": "speakWithAnimals",
       "name": "Speak with Animals",
+      "school": "Divination",
       "classLevels": {
         "druid": 1,
         "bard": 3,
@@ -4014,6 +5184,10 @@
     {
       "id": "speakWithDead",
       "name": "Speak with Dead",
+      "school": "Necromancy",
+      "descriptors": [
+        "Language-Dependent"
+      ],
       "classLevels": {
         "cleric": 3
       }
@@ -4021,6 +5195,7 @@
     {
       "id": "speakWithPlants",
       "name": "Speak with Plants",
+      "school": "Divination",
       "classLevels": {
         "druid": 3,
         "bard": 4,
@@ -4030,6 +5205,7 @@
     {
       "id": "spectralHand",
       "name": "Spectral Hand",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -4038,6 +5214,7 @@
     {
       "id": "spellImmunity",
       "name": "Spell Immunity",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 4
       }
@@ -4045,6 +5222,7 @@
     {
       "id": "spellImmunityGreater",
       "name": "Spell Immunity, Greater",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 8
       }
@@ -4052,6 +5230,7 @@
     {
       "id": "spellResistance",
       "name": "Spell Resistance",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 5
       }
@@ -4059,6 +5238,7 @@
     {
       "id": "spellTurning",
       "name": "Spell Turning",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4067,6 +5247,7 @@
     {
       "id": "spellstaff",
       "name": "Spellstaff",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 6
       }
@@ -4074,6 +5255,7 @@
     {
       "id": "spiderClimb",
       "name": "Spider Climb",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -4083,6 +5265,7 @@
     {
       "id": "spikeGrowth",
       "name": "Spike Growth",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 3,
         "ranger": 2
@@ -4091,6 +5274,10 @@
     {
       "id": "spikeStones",
       "name": "Spike Stones",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "druid": 4
       }
@@ -4098,6 +5285,10 @@
     {
       "id": "spiritualWeapon",
       "name": "Spiritual Weapon",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "cleric": 2
       }
@@ -4105,6 +5296,7 @@
     {
       "id": "statue",
       "name": "Statue",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4113,6 +5305,7 @@
     {
       "id": "status",
       "name": "Status",
+      "school": "Divination",
       "classLevels": {
         "cleric": 2
       }
@@ -4120,6 +5313,8 @@
     {
       "id": "stinkingCloud",
       "name": "Stinking Cloud",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -4128,6 +5323,10 @@
     {
       "id": "stoneShape",
       "name": "Stone Shape",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -4138,6 +5337,7 @@
     {
       "id": "stoneTell",
       "name": "Stone Tell",
+      "school": "Divination",
       "classLevels": {
         "druid": 6
       }
@@ -4145,6 +5345,7 @@
     {
       "id": "stoneToFlesh",
       "name": "Stone to Flesh",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -4153,6 +5354,7 @@
     {
       "id": "stoneskin",
       "name": "Stoneskin",
+      "school": "Abjuration",
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -4162,6 +5364,8 @@
     {
       "id": "stormOfVengeance",
       "name": "Storm of Vengeance",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "cleric": 9,
         "druid": 9
@@ -4170,6 +5374,12 @@
     {
       "id": "suggestion",
       "name": "Suggestion",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4179,6 +5389,12 @@
     {
       "id": "suggestionMass",
       "name": "Suggestion, Mass",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Language-Dependent",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4188,6 +5404,8 @@
     {
       "id": "summonInstrument",
       "name": "Summon Instrument",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "bard": 0
       }
@@ -4195,6 +5413,11 @@
     {
       "id": "summonMonsterI",
       "name": "Summon Monster I",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -4205,6 +5428,11 @@
     {
       "id": "summonMonsterII",
       "name": "Summon Monster II",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -4215,6 +5443,11 @@
     {
       "id": "summonMonsterIII",
       "name": "Summon Monster III",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4225,6 +5458,11 @@
     {
       "id": "summonMonsterIV",
       "name": "Summon Monster IV",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -4235,6 +5473,11 @@
     {
       "id": "summonMonsterIX",
       "name": "Summon Monster IX",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9,
@@ -4244,6 +5487,11 @@
     {
       "id": "summonMonsterV",
       "name": "Summon Monster V",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4254,6 +5502,11 @@
     {
       "id": "summonMonsterVI",
       "name": "Summon Monster VI",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4264,6 +5517,11 @@
     {
       "id": "summonMonsterVII",
       "name": "Summon Monster VII",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -4273,6 +5531,11 @@
     {
       "id": "summonMonsterVIII",
       "name": "Summon Monster VIII",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text for summon monster I"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -4282,6 +5545,8 @@
     {
       "id": "summonNaturesAllyI",
       "name": "Summon Nature's Ally I",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "druid": 1,
         "ranger": 1
@@ -4290,6 +5555,8 @@
     {
       "id": "summonNaturesAllyII",
       "name": "Summon Nature's Ally II",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "druid": 2,
         "ranger": 2
@@ -4298,6 +5565,11 @@
     {
       "id": "summonNaturesAllyIII",
       "name": "Summon Nature's Ally III",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 3,
         "ranger": 3
@@ -4306,6 +5578,11 @@
     {
       "id": "summonNaturesAllyIV",
       "name": "Summon Nature's Ally IV",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 4,
         "ranger": 4
@@ -4314,6 +5591,11 @@
     {
       "id": "summonNaturesAllyIX",
       "name": "Summon Nature's Ally IX",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 9
       }
@@ -4321,6 +5603,11 @@
     {
       "id": "summonNaturesAllyV",
       "name": "Summon Nature's Ally V",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 5
       }
@@ -4328,6 +5615,11 @@
     {
       "id": "summonNaturesAllyVI",
       "name": "Summon Nature's Ally VI",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 6
       }
@@ -4335,6 +5627,11 @@
     {
       "id": "summonNaturesAllyVII",
       "name": "Summon Nature's Ally VII",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 7
       }
@@ -4342,6 +5639,11 @@
     {
       "id": "summonNaturesAllyVIII",
       "name": "Summon Nature's Ally VIII",
+      "school": "Conjuration",
+      "subschool": "Summoning",
+      "descriptors": [
+        "see text"
+      ],
       "classLevels": {
         "druid": 8
       }
@@ -4349,6 +5651,8 @@
     {
       "id": "summonSwarm",
       "name": "Summon Swarm",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -4359,6 +5663,10 @@
     {
       "id": "sunbeam",
       "name": "Sunbeam",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "druid": 7
       }
@@ -4366,6 +5674,10 @@
     {
       "id": "sunburst",
       "name": "Sunburst",
+      "school": "Evocation",
+      "descriptors": [
+        "Light"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -4375,6 +5687,10 @@
     {
       "id": "symbolOfDeath",
       "name": "Symbol of Death",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -4384,6 +5700,11 @@
     {
       "id": "symbolOfFear",
       "name": "Symbol of Fear",
+      "school": "Necromancy",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4393,6 +5714,11 @@
     {
       "id": "symbolOfInsanity",
       "name": "Symbol of Insanity",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -4402,6 +5728,10 @@
     {
       "id": "symbolOfPain",
       "name": "Symbol of Pain",
+      "school": "Necromancy",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4411,6 +5741,11 @@
     {
       "id": "symbolOfPersuasion",
       "name": "Symbol of Persuasion",
+      "school": "Enchantment",
+      "subschool": "Charm",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4420,6 +5755,11 @@
     {
       "id": "symbolOfSleep",
       "name": "Symbol of Sleep",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4429,6 +5769,11 @@
     {
       "id": "symbolOfStunning",
       "name": "Symbol of Stunning",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -4438,6 +5783,7 @@
     {
       "id": "symbolOfWeakness",
       "name": "Symbol of Weakness",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7,
@@ -4447,6 +5793,10 @@
     {
       "id": "sympatheticVibration",
       "name": "Sympathetic Vibration",
+      "school": "Evocation",
+      "descriptors": [
+        "Sonic"
+      ],
       "classLevels": {
         "bard": 6
       }
@@ -4454,6 +5804,11 @@
     {
       "id": "sympathy",
       "name": "Sympathy",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8,
@@ -4463,6 +5818,7 @@
     {
       "id": "telekinesis",
       "name": "Telekinesis",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -4471,6 +5827,10 @@
     {
       "id": "telekineticSphere",
       "name": "Telekinetic Sphere",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -4479,6 +5839,7 @@
     {
       "id": "telepathicBond",
       "name": "Telepathic Bond",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -4487,6 +5848,8 @@
     {
       "id": "teleport",
       "name": "Teleport",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -4495,6 +5858,8 @@
     {
       "id": "teleportObject",
       "name": "Teleport Object",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4503,6 +5868,8 @@
     {
       "id": "teleportGreater",
       "name": "Teleport, Greater",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4511,6 +5878,8 @@
     {
       "id": "teleportationCircle",
       "name": "Teleportation Circle",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -4519,6 +5888,7 @@
     {
       "id": "temporalStasis",
       "name": "Temporal Stasis",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -4527,6 +5897,7 @@
     {
       "id": "timeStop",
       "name": "Time Stop",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -4535,6 +5906,10 @@
     {
       "id": "tinyHut",
       "name": "Tiny Hut",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4544,6 +5919,7 @@
     {
       "id": "tongues",
       "name": "Tongues",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4554,6 +5930,7 @@
     {
       "id": "touchOfFatigue",
       "name": "Touch of Fatigue",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 0,
         "wizard": 0
@@ -4562,6 +5939,11 @@
     {
       "id": "touchOfIdiocy",
       "name": "Touch of Idiocy",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -4570,6 +5952,7 @@
     {
       "id": "transformation",
       "name": "Transformation",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -4578,6 +5961,7 @@
     {
       "id": "transmuteMetalToWood",
       "name": "Transmute Metal to Wood",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 7
       }
@@ -4585,6 +5969,10 @@
     {
       "id": "transmuteMudToRock",
       "name": "Transmute Mud to Rock",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4594,6 +5982,10 @@
     {
       "id": "transmuteRockToMud",
       "name": "Transmute Rock to Mud",
+      "school": "Transmutation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4603,6 +5995,8 @@
     {
       "id": "transportViaPlants",
       "name": "Transport via Plants",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "druid": 6
       }
@@ -4610,6 +6004,8 @@
     {
       "id": "trapTheSoul",
       "name": "Trap the Soul",
+      "school": "Conjuration",
+      "subschool": "Summoning",
       "classLevels": {
         "sorcerer": 8,
         "wizard": 8
@@ -4618,6 +6014,7 @@
     {
       "id": "treeShape",
       "name": "Tree Shape",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 2,
         "ranger": 3
@@ -4626,6 +6023,8 @@
     {
       "id": "treeStride",
       "name": "Tree Stride",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "druid": 5,
         "ranger": 4
@@ -4634,6 +6033,8 @@
     {
       "id": "trueResurrection",
       "name": "True Resurrection",
+      "school": "Conjuration",
+      "subschool": "Healing",
       "classLevels": {
         "cleric": 9
       }
@@ -4641,6 +6042,7 @@
     {
       "id": "trueSeeing",
       "name": "True Seeing",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4651,6 +6053,7 @@
     {
       "id": "trueStrike",
       "name": "True Strike",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1
@@ -4659,6 +6062,7 @@
     {
       "id": "undeathToDeath",
       "name": "Undeath to Death",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4668,6 +6072,7 @@
     {
       "id": "undetectableAlignment",
       "name": "Undetectable Alignment",
+      "school": "Abjuration",
       "classLevels": {
         "cleric": 2,
         "bard": 1,
@@ -4677,6 +6082,10 @@
     {
       "id": "unhallow",
       "name": "Unhallow",
+      "school": "Evocation",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 5,
         "druid": 5
@@ -4685,6 +6094,10 @@
     {
       "id": "unholyAura",
       "name": "Unholy Aura",
+      "school": "Abjuration",
+      "descriptors": [
+        "Evil"
+      ],
       "classLevels": {
         "cleric": 8
       }
@@ -4692,6 +6105,8 @@
     {
       "id": "unseenServant",
       "name": "Unseen Servant",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -4701,6 +6116,7 @@
     {
       "id": "vampiricTouch",
       "name": "Vampiric Touch",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3
@@ -4709,6 +6125,8 @@
     {
       "id": "veil",
       "name": "Veil",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6,
@@ -4718,6 +6136,8 @@
     {
       "id": "ventriloquism",
       "name": "Ventriloquism",
+      "school": "Illusion",
+      "subschool": "Figment",
       "classLevels": {
         "sorcerer": 1,
         "wizard": 1,
@@ -4727,6 +6147,7 @@
     {
       "id": "virtue",
       "name": "Virtue",
+      "school": "Transmutation",
       "classLevels": {
         "cleric": 0,
         "druid": 0,
@@ -4736,6 +6157,7 @@
     {
       "id": "vision",
       "name": "Vision",
+      "school": "Divination",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4744,6 +6166,11 @@
     {
       "id": "wailOfTheBanshee",
       "name": "Wail of the Banshee",
+      "school": "Necromancy",
+      "descriptors": [
+        "Death",
+        "Sonic"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -4752,6 +6179,10 @@
     {
       "id": "wallOfFire",
       "name": "Wall of Fire",
+      "school": "Evocation",
+      "descriptors": [
+        "Fire"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4,
@@ -4761,6 +6192,10 @@
     {
       "id": "wallOfForce",
       "name": "Wall of Force",
+      "school": "Evocation",
+      "descriptors": [
+        "Force"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -4769,6 +6204,10 @@
     {
       "id": "wallOfIce",
       "name": "Wall of Ice",
+      "school": "Evocation",
+      "descriptors": [
+        "Cold"
+      ],
       "classLevels": {
         "sorcerer": 4,
         "wizard": 4
@@ -4777,6 +6216,8 @@
     {
       "id": "wallOfIron",
       "name": "Wall of Iron",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 6,
         "wizard": 6
@@ -4785,6 +6226,11 @@
     {
       "id": "wallOfStone",
       "name": "Wall of Stone",
+      "school": "Conjuration",
+      "subschool": "Creation",
+      "descriptors": [
+        "Earth"
+      ],
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5,
@@ -4795,6 +6241,8 @@
     {
       "id": "wallOfThorns",
       "name": "Wall of Thorns",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "druid": 5
       }
@@ -4802,6 +6250,7 @@
     {
       "id": "warpWood",
       "name": "Warp Wood",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 2
       }
@@ -4809,6 +6258,7 @@
     {
       "id": "waterBreathing",
       "name": "Water Breathing",
+      "school": "Transmutation",
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4819,6 +6269,10 @@
     {
       "id": "waterWalk",
       "name": "Water Walk",
+      "school": "Transmutation",
+      "descriptors": [
+        "Water"
+      ],
       "classLevels": {
         "cleric": 3,
         "ranger": 3
@@ -4827,6 +6281,7 @@
     {
       "id": "wavesOfExhaustion",
       "name": "Waves of Exhaustion",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 7,
         "wizard": 7
@@ -4835,6 +6290,7 @@
     {
       "id": "wavesOfFatigue",
       "name": "Waves of Fatigue",
+      "school": "Necromancy",
       "classLevels": {
         "sorcerer": 5,
         "wizard": 5
@@ -4843,6 +6299,8 @@
     {
       "id": "web",
       "name": "Web",
+      "school": "Conjuration",
+      "subschool": "Creation",
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2
@@ -4851,6 +6309,12 @@
     {
       "id": "weird",
       "name": "Weird",
+      "school": "Illusion",
+      "subschool": "Phantasm",
+      "descriptors": [
+        "Fear",
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -4859,6 +6323,10 @@
     {
       "id": "whirlwind",
       "name": "Whirlwind",
+      "school": "Evocation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "druid": 8
       }
@@ -4866,6 +6334,10 @@
     {
       "id": "whisperingWind",
       "name": "Whispering Wind",
+      "school": "Transmutation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "sorcerer": 2,
         "wizard": 2,
@@ -4875,6 +6347,10 @@
     {
       "id": "windWalk",
       "name": "Wind Walk",
+      "school": "Transmutation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "cleric": 6,
         "druid": 7
@@ -4883,6 +6359,10 @@
     {
       "id": "windWall",
       "name": "Wind Wall",
+      "school": "Evocation",
+      "descriptors": [
+        "Air"
+      ],
       "classLevels": {
         "sorcerer": 3,
         "wizard": 3,
@@ -4894,6 +6374,7 @@
     {
       "id": "wish",
       "name": "Wish",
+      "school": "Universal",
       "classLevels": {
         "sorcerer": 9,
         "wizard": 9
@@ -4902,6 +6383,7 @@
     {
       "id": "woodShape",
       "name": "Wood Shape",
+      "school": "Transmutation",
       "classLevels": {
         "druid": 2
       }
@@ -4909,6 +6391,11 @@
     {
       "id": "wordOfChaos",
       "name": "Word of Chaos",
+      "school": "Evocation",
+      "descriptors": [
+        "Chaotic",
+        "Sonic"
+      ],
       "classLevels": {
         "cleric": 7
       }
@@ -4916,6 +6403,8 @@
     {
       "id": "wordOfRecall",
       "name": "Word of Recall",
+      "school": "Conjuration",
+      "subschool": "Teleportation",
       "classLevels": {
         "cleric": 6,
         "druid": 8
@@ -4924,6 +6413,8 @@
     {
       "id": "zoneOfSilence",
       "name": "Zone of Silence",
+      "school": "Illusion",
+      "subschool": "Glamer",
       "classLevels": {
         "bard": 4
       }
@@ -4931,6 +6422,11 @@
     {
       "id": "zoneOfTruth",
       "name": "Zone of Truth",
+      "school": "Enchantment",
+      "subschool": "Compulsion",
+      "descriptors": [
+        "Mind-Affecting"
+      ],
       "classLevels": {
         "cleric": 2,
         "paladin": 2

@@ -22,6 +22,18 @@ export type SpellsTableProps = {
   showHeading?: boolean
 }
 
+/**
+ * Option label for the picker: the spell name, suffixed with its school when the catalog supplies one
+ * (T117) — "Fireball — Evocation". The school rides in the label rather than its own slot because
+ * `Combobox` items are `{ value, label }`; a welcome side effect is that the combobox's type-to-filter
+ * then matches on school too, so "evoc" narrows to the evocations. Falls back to the bare name, so an
+ * option whose catalog supplies no school still reads correctly.
+ */
+const optionLabel = (option: CatalogOption): string => {
+  const school = typeof option.meta?.school === 'string' ? option.meta.school.trim() : ''
+  return school === '' ? option.label : `${option.label} — ${school}`
+}
+
 const CatalogSpellSelect = ({
   label,
   ruleSetId,
@@ -58,7 +70,7 @@ const CatalogSpellSelect = ({
       hideLabel
       required
       placeholder={hasFilter ? undefined : 'Set a caster class first'}
-      items={options.map((o) => ({ value: o.value, label: o.label }))}
+      items={options.map((o) => ({ value: o.value, label: optionLabel(o) }))}
       value={value === '' ? [] : [value]}
       onValueChange={(vals) => {
         const next = vals[0] ?? ''
