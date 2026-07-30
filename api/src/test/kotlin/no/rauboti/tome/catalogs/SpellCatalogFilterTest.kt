@@ -32,6 +32,29 @@ class SpellCatalogFilterTest {
     }
 
     @Test
+    fun `every option carries its school in meta, alongside the level`() {
+        val wizard = catalog.options("wizard")
+
+        assertEquals("Evocation", wizard.first { it.value == "fireball" }.meta?.get("school"))
+        assertEquals("Universal", wizard.first { it.value == "wish" }.meta?.get("school"))
+        assertEquals(
+            "Conjuration",
+            catalog
+                .options("cleric")
+                .first { it.value == "cureLightWounds" }
+                .meta
+                ?.get("school"),
+        )
+
+        assertTrue(
+            wizard.all { (it.meta?.get("school") as? String)?.isNotBlank() == true },
+            "every option should report a school",
+        )
+        // The label stays the bare spell name — the client composes "name — school" for display.
+        assertEquals("Fireball", wizard.first { it.value == "fireball" }.label)
+    }
+
+    @Test
     fun `a spell on multiple lists reports the level for the filtered class`() {
         assertEquals(
             1,

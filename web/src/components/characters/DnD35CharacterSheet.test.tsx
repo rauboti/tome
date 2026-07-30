@@ -74,7 +74,7 @@ describe('DnD35CharacterSheet — typed content tables (T129)', () => {
       http.get('/api/rule-sets/dnd35/catalogs/spells', ({ request }) => {
         const filter = new URL(request.url).searchParams.get('filter')
         expect(filter).toBe('wizard')
-        return HttpResponse.json([{ value: 'fireball', label: 'Fireball', meta: { level: 3 } }])
+        return HttpResponse.json([{ value: 'fireball', label: 'Fireball', meta: { level: 3, school: 'Evocation' } }])
       }),
     )
     const base = defaultDnD35SheetInput()
@@ -86,13 +86,39 @@ describe('DnD35CharacterSheet — typed content tables (T129)', () => {
     renderSheet(base)
 
     // Options arrive from the catalog (keyed off casterClass=wizard); ArrowDown opens the combobox and
-    // the fetched options render into the open listbox.
+    // the fetched options render into the open listbox. The option label carries the school (T117).
     const spell = await screen.findByRole('combobox', { name: 'Spells Spell 1' })
     spell.focus()
     await userEvent.keyboard('{ArrowDown}')
-    await userEvent.click(await screen.findByRole('option', { name: 'Fireball' }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Fireball — Evocation' }))
 
     // Picking the spell filled its level (3 for wizard) from the option meta.
     expect(screen.getByRole('spinbutton', { name: 'Spells Level 1' })).toHaveValue(3)
+  })
+
+  test('the spell picker labels each option with its school, falling back to the bare name', async () => {
+    server.use(
+      http.get('/api/rule-sets/dnd35/catalogs/spells', () =>
+        HttpResponse.json([
+          { value: 'fireball', label: 'Fireball', meta: { level: 3, school: 'Evocation' } },
+          // No school in meta — the label must degrade to the plain spell name, not "Magic Missile — ".
+          { value: 'magicMissile', label: 'Magic Missile', meta: { level: 1 } },
+        ]),
+      ),
+    )
+    const base = defaultDnD35SheetInput()
+    base.spellcasting = {
+      ...base.spellcasting,
+      casterClass: 'wizard',
+      spells: [{ spell: '', level: 0, prepared: 0, notes: '' }],
+    }
+    renderSheet(base)
+
+    const spell = await screen.findByRole('combobox', { name: 'Spells Spell 1' })
+    spell.focus()
+    await userEvent.keyboard('{ArrowDown}')
+
+    expect(await screen.findByRole('option', { name: 'Fireball — Evocation' })).toBeInTheDocument()
+    expect(await screen.findByRole('option', { name: 'Magic Missile' })).toBeInTheDocument()
   })
 })

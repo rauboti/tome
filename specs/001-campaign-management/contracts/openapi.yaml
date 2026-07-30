@@ -3,13 +3,13 @@ info:
   title: Tome API — Campaign & Character Management
   version: 0.1.0
   description: >
-    BFF API for Tome v1 (feature 001-campaign-management). All endpoints require an authenticated
-    session (Hive OAuth via the BFF; session cookie). Authorization is enforced server-side on every
-    read/write and mirrored on the SSE stream. Sheet `data` is a **typed, discriminated union** keyed
-    by `ruleSetId` (ADR-001): each rule set has its own typed sheet schema (see `Sheet` / `DnD35Sheet`),
-    the codegen source for the web's sheet types. Derived values are `readOnly` — present in responses
-    (computed on read), ignored on write, never stored. Mutable aggregates use optimistic concurrency:
-    send the `version` you read; a stale write returns 409.
+    BFF API for Tome v1. All endpoints require an authenticated session (Hive OAuth via the BFF;
+    session cookie). Authorization is enforced server-side on every read/write and mirrored on the
+    SSE stream. Sheet `data` is a **typed, discriminated union** keyed by `ruleSetId`: each rule set has
+    its own typed sheet schema (see `Sheet` / `DnD35Sheet`), the codegen source for the web's  sheet
+    types. Derived values are `readOnly` — present in responses (computed on read), ignored on write,
+    never stored. Mutable aggregates use optimistic concurrency: send the `version` you read; a stale
+    write returns 409.
 servers:
   - url: /api
 security:
@@ -55,8 +55,8 @@ paths:
   /rule-sets/{ruleSetId}:
     get:
       summary: >-
-        One rule set's summary (id + name) for the create-character picker. ADR-001: the sheet is a
-        typed schema (`DnD35Sheet`) known to the client, not a definition fetched to drive a generic
+        One rule set's summary (id + name) for the create-character picker. The sheet is a typed
+        schema (`DnD35Sheet`) known to the client, not a definition fetched to drive a generic
         renderer — so this no longer returns a `SheetDefinition`.
       parameters: [ { $ref: "#/components/parameters/RuleSetId" } ]
       responses:
@@ -70,9 +70,9 @@ paths:
   /rule-sets/{ruleSetId}/catalogs/{catalog}:
     get:
       summary: >-
-        Filtered option slice for a catalog-backed select (T112–T114) — e.g. the spells on a given
-        class's list. A typed sheet component fetches this per filter value (ADR-001; this survives the
-        typed-engine pivot — it replaces the former `SheetField.optionsFrom` definition descriptor).
+        Filtered option slice for a catalog-backed select — e.g. the spells on a given class's list.
+        A typed sheet component fetches this per filter value (this survives the typed-engine pivot
+        — it replaces the former `SheetField.optionsFrom` definition descriptor).
       parameters:
         - { $ref: "#/components/parameters/RuleSetId" }
         - { name: catalog, in: path, required: true, schema: { type: string }, description: "catalog name, e.g. 'spells'" }
@@ -92,7 +92,10 @@ paths:
                     meta:
                       type: object
                       nullable: true
-                      description: "optional per-option data, e.g. the spell's level for the filtered class"
+                      description: >-
+                        optional per-option data — for `spells`, the spell's `level` for the filtered
+                        class and its `school`. The client composes the display string (e.g.
+                        "Fireball — Evocation"); `label` stays the bare name.
         "404": { $ref: "#/components/responses/NotFound" }
 
   /characters:
@@ -121,7 +124,7 @@ paths:
                   allOf: [ { $ref: "#/components/schemas/SheetInput" } ]
                   description: >-
                     The typed base sheet. Its `ruleSetId` selects the rule set (no separate top-level
-                    `ruleSetId` — ADR-001); an unknown/unsupported value is rejected → 400. Partial is fine.
+                    `ruleSetId`); an unknown/unsupported value is rejected → 400. Partial is fine.
       responses:
         "201":
           description: Created
@@ -392,7 +395,7 @@ paths:
         schema: { type: string }
     patch:
       summary: Update a combatant mid-combat (DM only) — reveal/hide or adjust initiative
-      description: Changing isRevealed drives the SSE fan-out (players see/lose the combatant live, FR-021)
+      description: Changing isRevealed drives the SSE fan-out (players see/lose the combatant live)
       requestBody:
         required: true
         content:
@@ -495,12 +498,12 @@ components:
       properties:
         id: { type: string }
         name: { type: string }
-    # ── Rule-set sheets: typed base/enriched split — ADR-001 (T122/T124) ──────────────────────
+    # ── Rule-set sheets: typed base/enriched split ──────────────────────
     # Two discriminated unions keyed on `ruleSetId`, mirroring the Kotlin split:
     #   • SheetInput — the BASE inputs a request sends and storage keeps (no derived). Request `data`.
     #   • Sheet      — the ENRICHED sheet a response returns (base + `readOnly` derived, grouped).
-    # `enrich()` maps SheetInput → Sheet on read. Both are the codegen source for the web (T126).
-    # DnD35 content = Phase 3C (tasks T105–T114). Field groups mirror DnD35CharacterBaseData/Data.
+    # `enrich()` maps SheetInput → Sheet on read. Both are the codegen source for the web.
+    # Field groups mirror DnD35CharacterBaseData/Data.
 
     # ---- request / base (stored) ----
     SheetInput:
