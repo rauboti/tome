@@ -912,9 +912,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rauboti/ui@npm:^0.4.4":
-  version: 0.4.4
-  resolution: "@rauboti/ui@npm:0.4.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40rauboti%2Fui%2F0.4.4%2F3765339ce2c40f04cca4c9f6b8fd240c8613b3fe"
+"@rauboti/ui@npm:^0.4.8":
+  version: 0.4.8
+  resolution: "@rauboti/ui@npm:0.4.8::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40rauboti%2Fui%2F0.4.8%2F8e0c459d584203958b8ecfa062eb140817fed78f"
   dependencies:
     next-themes: "npm:^0.4.4"
   peerDependencies:
@@ -922,7 +922,7 @@ __metadata:
     "@emotion/react": ^11.0.0
     react: ">=19"
     react-dom: ">=19"
-  checksum: 10c0/274954564ae63c5ec167e494bb05ee16665e8ffb369f152c603bd3e50197493986d865d805a3edf0a986c0019c34d7d00a6968da6b0eddd5f647763b9ec8d69d
+  checksum: 10c0/e0df382d9d142569ec3a2ab715e81d76e79203fbb8db3ed342ebe45420aedb1e885524df2ba19cec93e34a9761226c7de98e900ebb5997affca286110b8bb7f8
   languageName: node
   linkType: hard
 
@@ -1124,7 +1124,7 @@ __metadata:
     "@chakra-ui/react": "npm:^3.36.0"
     "@emotion/react": "npm:^11.14.0"
     "@eslint/js": "npm:^10.0.1"
-    "@rauboti/ui": "npm:^0.4.4"
+    "@rauboti/ui": "npm:^0.4.8"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
